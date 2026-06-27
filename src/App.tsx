@@ -742,7 +742,7 @@ export default function App() {
                             </div>
                             <div className="flex-1">
                               <p className="font-bold text-[#2c241e] text-xs flex items-center gap-1.5">
-                                见闻文章 (Article) <span className="text-[9px] bg-[#8b4513] text-[#f5deb3] px-1 py-0.5 rounded-sm">主打内容</span>
+                                见闻文章 <span className="text-[9px] bg-[#8b4513] text-[#f5deb3] px-1 py-0.5 rounded-sm">主打内容</span>
                               </p>
                               <p className="text-[11px] text-[#4a3728]/80 mt-0.5 leading-relaxed">撰写详细纪实、帝国大事件、战报或奇幻异闻。</p>
                             </div>
@@ -759,7 +759,7 @@ export default function App() {
                               <FontIcon className="w-5 h-5" />
                             </div>
                             <div className="flex-1">
-                              <p className="font-bold text-[#2c241e] text-xs">装饰大标 (Headline)</p>
+                              <p className="font-bold text-[#2c241e] text-xs">装饰大标</p>
                               <p className="text-[11px] text-[#4a3728]/80 mt-0.5 leading-relaxed">添加醒目的通栏大标题、版块头或震撼大字标语。</p>
                             </div>
                           </button>
@@ -783,7 +783,7 @@ export default function App() {
                               <ImageIcon className="w-5 h-5" />
                             </div>
                             <div className="flex-1">
-                              <p className="font-bold text-[#2c241e] text-xs">版画插图 (Image)</p>
+                              <p className="font-bold text-[#2c241e] text-xs">版画插图</p>
                               <p className="text-[11px] text-[#4a3728]/80 mt-0.5 leading-relaxed">绘制巨龙、法书等羊皮纸木雕印章，或上传自定义图片。</p>
                             </div>
                           </button>
@@ -799,7 +799,7 @@ export default function App() {
                               <Scissors className="w-5 h-5" />
                             </div>
                             <div className="flex-1">
-                              <p className="font-bold text-[#2c241e] text-xs">花式隔线 (Divider)</p>
+                              <p className="font-bold text-[#2c241e] text-xs">花式隔线</p>
                               <p className="text-[11px] text-[#4a3728]/80 mt-0.5 leading-relaxed">使用皇家鸢尾花、利剑等徽章，或双实线、虚线进行视觉分割。</p>
                             </div>
                           </button>
@@ -823,7 +823,7 @@ export default function App() {
                               <CoinsIcon className="w-5 h-5" />
                             </div>
                             <div className="flex-1">
-                              <p className="font-bold text-[#2c241e] text-xs">行商布告 (Advertisement)</p>
+                              <p className="font-bold text-[#2c241e] text-xs">行商布告</p>
                               <p className="text-[11px] text-[#4a3728]/80 mt-0.5 leading-relaxed">刊登酒馆雇佣、药水促募、铁匠铺神兵交易等公告。</p>
                             </div>
                           </button>
@@ -902,11 +902,11 @@ export default function App() {
                                 onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, titleFontSize: e.target.value } as ArticleBlock))}
                                 className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-1 py-0.5 text-[10px] text-[#2c241e] focus:outline-none"
                               >
-                                <option value="sm">小 (sm)</option>
-                                <option value="md">中 (md)</option>
-                                <option value="lg">大 (lg)</option>
-                                <option value="xl">特大 (xl)</option>
-                                <option value="2xl">巨型 (2xl)</option>
+                                <option value="sm">小号</option>
+                                <option value="md">中号</option>
+                                <option value="lg">大号</option>
+                                <option value="xl">特大号</option>
+                                <option value="2xl">超大号</option>
                               </select>
                             </div>
                             <div>
@@ -963,10 +963,10 @@ export default function App() {
                                 onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, subtitleFontSize: e.target.value } as ArticleBlock))}
                                 className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-1 py-0.5 text-[10px] text-[#2c241e] focus:outline-none"
                               >
-                                <option value="xs">极小 (xs)</option>
-                                <option value="sm">小 (sm)</option>
-                                <option value="md">中 (md)</option>
-                                <option value="lg">大 (lg)</option>
+                                <option value="xs">极小号</option>
+                                <option value="sm">小号</option>
+                                <option value="md">中号</option>
+                                <option value="lg">大号</option>
                               </select>
                             </div>
                             <div>
@@ -1034,10 +1034,10 @@ export default function App() {
                               onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, fontSize: e.target.value } as ArticleBlock))}
                               className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-2 py-1 text-xs text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513]"
                             >
-                              <option value="xs">极小 (11px)</option>
-                              <option value="sm">标准 (13px)</option>
-                              <option value="md">中等 (15px)</option>
-                              <option value="lg">大字 (18px)</option>
+                              <option value="xs">极小号 (11像素)</option>
+                              <option value="sm">标准号 (13像素)</option>
+                              <option value="md">中等号 (15像素)</option>
+                              <option value="lg">大字号 (18像素)</option>
                             </select>
                           </div>
 
@@ -1127,9 +1127,9 @@ export default function App() {
                                 onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, size: e.target.value } as HeadlineBlock))}
                                 className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-1 py-0.5 text-[10px] text-[#2c241e] focus:outline-none"
                               >
-                                <option value="normal">中 (2xl)</option>
-                                <option value="large">大 (4xl)</option>
-                                <option value="epic">特大 (6xl)</option>
+                                <option value="normal">中等字号</option>
+                                <option value="large">大型字号</option>
+                                <option value="epic">超大字号</option>
                               </select>
                             </div>
                             <div>
@@ -1186,10 +1186,10 @@ export default function App() {
                                 onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, subtitleFontSize: e.target.value } as HeadlineBlock))}
                                 className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-1 py-0.5 text-[10px] text-[#2c241e] focus:outline-none"
                               >
-                                <option value="xs">极小 (xs)</option>
-                                <option value="sm">小 (sm)</option>
-                                <option value="md">中 (md)</option>
-                                <option value="lg">大 (lg)</option>
+                                <option value="xs">极小号</option>
+                                <option value="sm">小号</option>
+                                <option value="md">中号</option>
+                                <option value="lg">大号</option>
                               </select>
                             </div>
                             <div>
@@ -1310,9 +1310,9 @@ export default function App() {
                               onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, filter: e.target.value } as ImageBlock))}
                               className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-xs text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513]"
                             >
-                              <option value="woodblock">Dither 雕刻版画 (1-Bit)</option>
+                              <option value="woodblock">木刻雕刻版画 (单色)</option>
                               <option value="high-contrast">高对比粗墨迹</option>
-                              <option value="sepia">复古老墨色 (木刻)</option>
+                              <option value="sepia">复古老墨色 (木刻风)</option>
                               <option value="none">原始无滤镜 (不推荐)</option>
                             </select>
                           </div>
@@ -1346,10 +1346,10 @@ export default function App() {
                             onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, style: e.target.value } as DividerBlock))}
                             className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
                           >
-                            <option value="ornament">古老双面神圣章记 (Ornament)</option>
-                            <option value="double">经典厚重复古双线 (Double Line)</option>
-                            <option value="single">细致淡墨单实线 (Single Line)</option>
-                            <option value="dotted">古代粗斑点虚线 (Dotted Line)</option>
+                            <option value="ornament">古老双面神圣章记</option>
+                            <option value="double">经典厚重复古双线</option>
+                            <option value="single">细致淡墨单实线</option>
+                            <option value="dotted">古代粗斑点虚线</option>
                           </select>
                         </div>
 
@@ -1361,10 +1361,10 @@ export default function App() {
                               onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, ornamentType: e.target.value } as DividerBlock))}
                               className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
                             >
-                              <option value="fleur-de-lis">⚜ 皇家鸢尾花章记 (Fleur-de-lis)</option>
-                              <option value="floral">❦ 古雅卷草花纹 (Floral Heart)</option>
-                              <option value="star">✥ 占星家秘能星徽 (Arcane Star)</option>
-                              <option value="sword">⚔ 骑士公会交叉利剑 (Combat Swords)</option>
+                              <option value="fleur-de-lis">⚜ 皇家鸢尾花章记</option>
+                              <option value="floral">❦ 古雅卷草花纹</option>
+                              <option value="star">✥ 占星家秘能星徽</option>
+                              <option value="sword">⚔ 骑士公会交叉利剑</option>
                             </select>
                           </div>
                         )}
@@ -1412,10 +1412,10 @@ export default function App() {
                                 onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, titleFontSize: e.target.value } as AdBlock))}
                                 className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-1 py-0.5 text-[10px] text-[#2c241e] focus:outline-none"
                               >
-                                <option value="xs">极小 (xs)</option>
-                                <option value="sm">小 (sm)</option>
-                                <option value="md">中 (md)</option>
-                                <option value="lg">大 (lg)</option>
+                                <option value="xs">极小号</option>
+                                <option value="sm">小号</option>
+                                <option value="md">中号</option>
+                                <option value="lg">大号</option>
                               </select>
                             </div>
                             <div>
@@ -1473,10 +1473,10 @@ export default function App() {
                                 onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, contentFontSize: e.target.value } as AdBlock))}
                                 className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-1 py-0.5 text-[10px] text-[#2c241e] focus:outline-none"
                               >
-                                <option value="xs">极小 (xs)</option>
-                                <option value="sm">小 (sm)</option>
-                                <option value="md">中 (md)</option>
-                                <option value="lg">大 (lg)</option>
+                                <option value="xs">极小号</option>
+                                <option value="sm">小号</option>
+                                <option value="md">中号</option>
+                                <option value="lg">大号</option>
                               </select>
                             </div>
                             <div>
@@ -1565,12 +1565,12 @@ export default function App() {
                   <option value="font-fangsong">典雅仿宋 (秀气书风)</option>
                   <option value="font-lishu">汉仪隶书 (厚重古意)</option>
                   <option value="font-kai">霞鹜文楷 (手抄人文)</option>
-                  <option value="font-gothic">Grenze Gotisch (西方中世纪黑体)</option>
+                  <option value="font-gothic">西方中世纪黑体</option>
                 </select>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#8b4513]">顶部箴言 / 标语 (Motto)</label>
+                <label className="text-xs font-bold text-[#8b4513]">顶部箴言 / 标语</label>
                 <input 
                   type="text" 
                   value={newspaperData.header.subtitle}
@@ -1666,7 +1666,7 @@ export default function App() {
                   <input 
                     type="text" 
                     value={newspaperData.header.footerRight ?? ""}
-                    placeholder="Imperial Chronicle Press Office © Year 742"
+                    placeholder="帝国要闻报印刷局 © 742年"
                     onChange={(e) => updateHeader(h => ({ ...h, footerRight: e.target.value }))}
                     className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
                   />
@@ -1736,7 +1736,7 @@ export default function App() {
 
                     {/* Column Split Picker */}
                     <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-[#8b4513]/80">本行栏位排版分配 (Columns Split)</label>
+                      <label className="text-[11px] font-bold text-[#8b4513]/80">本行栏位排版分配</label>
                       <div className="grid grid-cols-5 gap-1.5 text-center text-[10px]">
                         {(["1", "1-1", "1-2", "2-1", "1-1-1"] as ColumnSplit[]).map(split => (
                           <button
@@ -1812,7 +1812,7 @@ export default function App() {
                 {/* Global Heading size slider */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs font-bold text-[#4a3728]">
-                    <span>全局標題尺寸縮放</span>
+                    <span>全局标题尺寸缩放</span>
                     <span className="font-mono">{globalHeadingScale}%</span>
                   </div>
                   <input 
@@ -1829,7 +1829,7 @@ export default function App() {
                 {/* Global Body size slider */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs font-bold text-[#4a3728]">
-                    <span>全局正文文字大小縮放</span>
+                    <span>全局正文文字大小缩放</span>
                     <span className="font-mono">{globalBodyScale}%</span>
                   </div>
                   <input 
@@ -1846,8 +1846,8 @@ export default function App() {
                 {/* Column spacing */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs font-bold text-[#4a3728]">
-                    <span>雙欄/三欄間隔密集度</span>
-                    <span className="font-mono">{(columnGap / 4).toFixed(1)} rem</span>
+                    <span>双栏/三栏间隔密集度</span>
+                    <span className="font-mono">{(columnGap / 4).toFixed(1)} 比例</span>
                   </div>
                   <input 
                     type="range"
@@ -1917,7 +1917,7 @@ export default function App() {
             ) : (
               <Download className="w-3.5 h-3.5" />
             )}
-            <span>{isExporting ? "正在编译高清像素..." : "导出 2X 印刷规格高清图片"}</span>
+            <span>{isExporting ? "正在编译高清像素..." : "导出 2 倍印刷规格高清图片"}</span>
           </button>
         </div>
 
@@ -1973,7 +1973,7 @@ export default function App() {
                   <span className="text-sm">⚜</span>
                   <span className="w-16 h-[1px] bg-[#2b221a]/30" />
                   <span className="text-xs font-serif uppercase tracking-widest">
-                    {newspaperData.header.royalTitle || "聖 塞 西 爾 皇 家 御 覽"}
+                    {newspaperData.header.royalTitle || "圣 塞 西 尔 皇 家 御 览"}
                   </span>
                   <span className="w-16 h-[1px] bg-[#2b221a]/30" />
                   <span className="text-sm">⚜</span>

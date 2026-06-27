@@ -3,7 +3,7 @@ import { NewspaperData } from "./types";
 export const INITIAL_NEWSPAPER_DATA: NewspaperData = {
   header: {
     title: "星辉帝国要闻报",
-    subtitle: "「真理之光，永照帝国；剑与魔法，同书纪元」  •  Morning Issue - March 3rd, 1452",
+    subtitle: "「真理之光，永照帝国；剑与魔法，同书纪元」  •  晨刊",
     issueNo: "第 342 期",
     location: "圣塞西尔帝国王都",
     date: "圣光历 742年 暮秋十五日",
