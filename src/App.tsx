@@ -594,7 +594,7 @@ export default function App() {
               <Feather className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-sm font-bold font-serif tracking-widest uppercase text-[#2c241e]">吟游诗人编辑台</h1>
+              <h1 className="text-sm font-bold font-serif tracking-widest uppercase text-[#2c241e]">历史报刊排版模板</h1>
               <p className="text-[10px] italic text-[#8b4513] opacity-80">v2.4 - 中世纪奇幻版</p>
             </div>
           </div>

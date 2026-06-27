@@ -1,20 +1,74 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# 历史报刊排版模板 (Historical Newspaper Layout Editor)
 
-# Run and deploy your AI Studio app
+这是一个专为 TRPG 跑团、世界观设定、小说创作和排版爱好者设计的**复古历史报刊排版生成工具**。你可以在浏览器中轻松定制专属于你故事世界的古老报纸，支持多栏自由排版、自定义复古字体、首字下沉、添加版画插图与行商广告，并能一键导出高分辨率 PNG 或打印/导出为无限缩放的矢量 PDF！
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/11b93bdc-e5e0-4a22-bb35-4d84f0840ac1
+## 🎨 核心功能
 
-## Run Locally
+*   **复古报头定制**：自定义报刊标题、副标题、期号、发行地区、圣光历日期和售价，支持多种经典版头样式与字体。
+*   **灵活多栏布局**：自由添加/删除版面板块（行），支持一栏、两栏（均分或 1:2）、三栏等多种列比例自由切换。
+*   **丰富内容区块**：
+    *   **见闻文章 (Article)**：支持首字下沉，并可为每篇文章的标题、副标题独立设置中文字体、字号与对齐方式。
+    *   **装饰大标 (Headline)**：用于通栏新闻大标题或视觉强调。
+    *   **版画插图 (Image)**：内置多种复古羊皮纸插图（巨龙、城堡、法书、利剑等），支持自定义图片上传及 Floyd-Steinberg 复古木刻版画滤镜效果。
+    *   **花式隔线 (Divider)**：内置皇家鸢尾花、盾牌利剑等古典徽章分割线或多种点划线。
+    *   **行商布告 (Advertisement)**：快速刊登复古风格的行商交易、酒馆雇佣或赏金布告，可定制边框风格。
+*   **印刷级高清导出**：
+    *   **系统打印/导出矢量 PDF**：支持调用系统打印窗口，选择“保存为 PDF”，可完美保留复古外链字体与无损缩放矢量格式。
+    *   **高分辨率 PNG 导出**：一键生成 2 倍高清位图，方便在社交媒体或聊天群中直接分享。
+*   **纯前端本地化/离线运行**：支持一键打包为单文件 HTML，无需网络，离线即开即用。
 
-**Prerequisites:**  Node.js
+---
 
+## 🚀 快速上手与运行
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 本地开发与运行
+
+**前提条件：** 确保你的系统已安装 [Node.js](https://nodejs.org/)。
+
+1.  **安装项目依赖**：
+    ```bash
+    npm install
+    ```
+
+2.  **配置 API 密钥**：
+    在根目录创建 `.env.local` 文件，并设置你的 Gemini API Key（如需使用 AI 辅助撰写功能）：
+    ```env
+    GEMINI_API_KEY=你的_GEMINI_API_KEY
+    ```
+
+3.  **启动开发服务器**：
+    ```bash
+    npm run dev
+    ```
+    启动后，在浏览器中访问终端输出的本地地址（默认 `http://localhost:5173`）即可开始编辑。
+
+### 打包生成单文件离线版
+
+为了方便离线分发和零门槛双击使用，项目支持将全部逻辑、样式与静态资源打包进一个单一的 HTML 文件：
+
+```bash
+npm run build:offline
+```
+运行完成后，项目根目录下会生成 **`medieval-newspaper-editor.html`** 文件。你可以直接双击它在任何没有网络连接的浏览器中完美运行。
+
+---
+
+## 👥 作者与社群信息
+
+*   **作者**：不咕鸟（哈基米德）
+*   **辅助 AI**：Antigravity Gemini
+*   **不咕鸟创作交流群**：`261751459`
+*   **成都秘密基地TRPG俱乐部群**：`691707475`
+
+### 💖 为作者加油
+
+如果你觉得这个工具好用，欢迎前往爱发电支持作者，鼓励我们开发出更多有趣的跑团与创作辅助工具：
+👉 [为作者加油 (爱发电)](https://ifdian.net/a/nogubird)
+
+---
+
+## 📄 授权协议
+
+本程序遵循开源协议发布。欢迎在此基础上进行二次开发与个性化定制！
