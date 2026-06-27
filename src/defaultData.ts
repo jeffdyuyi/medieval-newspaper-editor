@@ -9,7 +9,9 @@ export const INITIAL_NEWSPAPER_DATA: NewspaperData = {
     date: "圣光历 742年 暮秋十五日",
     price: "售价：三枚铜币",
     titleFont: "font-mashan",
-    headerStyle: "classic"
+    headerStyle: "classic",
+    footerLeft: "星辉帝国皇家印刷署特许印制局发行",
+    footerRight: "帝国时报印刷馆特许发行 © 圣历742年"
   },
   rows: [
     {

@@ -33,6 +33,8 @@ export interface ArticleBlock {
   subtitleFont?: string;
   subtitleFontSize?: "xs" | "sm" | "md" | "lg";
   subtitleAlign?: "left" | "center" | "right" | "justify";
+  lineHeight?: "tight" | "normal" | "relaxed" | "loose";
+  letterSpacing?: "tight" | "normal" | "wide" | "widest";
 }
 
 export interface ImageBlock {
@@ -44,6 +46,8 @@ export interface ImageBlock {
   isClipart: boolean;
   clipartId?: string;
   scale: number; // Percentage scale
+  aspectRatio?: "auto" | "16-9" | "4-3" | "1-1";
+  objectFit?: "cover" | "contain" | "fill";
 }
 
 export interface DividerBlock {
