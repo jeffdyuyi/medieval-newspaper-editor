@@ -1,0 +1,6 @@
+{
+  "name": "Medieval Newspaper Editor",
+  "description": "An authentic medieval and fantasy style newspaper HTML editor with block-based text, vintage images, and high-resolution printing support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

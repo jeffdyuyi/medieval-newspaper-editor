@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@300;400;700&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=LXGW+WenKai&family=Grenze+Gotisch:wght@400;700&family=Cinzel:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Noto Serif SC", "SimSun", "Songti SC", serif;
+  --font-sans: "Inter", "Microsoft YaHei", "SimHei", sans-serif;
+  --font-kai: "LXGW WenKai", "KaiTi", "STKaiti", serif;
+  --font-xiaowei: "ZCOOL XiaoWei", serif;
+  --font-mashan: "Ma Shan Zheng", cursive;
+  --font-zhimang: "Zhi Mang Xing", cursive;
+  --font-gothic: "Grenze Gotisch", serif;
+  --font-cinzel: "Cinzel", serif;
+  --font-fangsong: "FangSong", "STFangsong", serif;
+  --font-lishu: "LiSu", "STLiti", serif;
+}
+
+/* Multi-column layout helpers */
+.split-1-1 {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+.split-1-2 {
+  display: grid !important;
+  grid-template-columns: 1fr 2fr !important;
+}
+.split-2-1 {
+  display: grid !important;
+  grid-template-columns: 2fr 1fr !important;
+}
+.split-1-1-1 {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+/* Aged Parchment Paper Background */
+.parchment-bg {
+  background-color: #f1e4cb;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.3) 0%, rgba(0, 0, 0, 0.05) 100%),
+    radial-gradient(circle at 10% 20%, rgba(139, 90, 43, 0.09) 0%, transparent 18%),
+    radial-gradient(circle at 85% 80%, rgba(111, 78, 55, 0.08) 0%, transparent 22%),
+    radial-gradient(circle at 35% 65%, rgba(139, 90, 43, 0.06) 0%, transparent 15%),
+    radial-gradient(circle at 70% 25%, rgba(111, 78, 55, 0.08) 0%, transparent 20%);
+  box-shadow: 
+    inset 0 0 100px rgba(78, 48, 19, 0.3),
+    inset 0 0 30px rgba(54, 30, 8, 0.45);
+  position: relative;
+}
+
+/* Paper texture fiber lines */
+.parchment-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: 
+    repeating-linear-gradient(45deg, #000 0px, #000 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(-45deg, #000 0px, #000 1px, transparent 1px, transparent 4px);
+  mix-blend-mode: overlay;
+}
+
+/* Old Woodblock Print / Halftone Filter for Images */
+.woodcut-filter {
+  filter: grayscale(1) contrast(2.2) brightness(0.95);
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+
+/* Traditional Double Border */
+.newspaper-double-border {
+  border: 4px double #2b221a;
+  outline: 1px solid #2b221a;
+  outline-offset: -8px;
+}
+
+/* Drop Cap (首字下沉) */
+.drop-cap::first-letter {
+  font-family: "Grenze Gotisch", "ZCOOL XiaoWei", "Ma Shan Zheng", serif;
+  float: left;
+  font-size: 3.5rem;
+  line-height: 3rem;
+  padding-top: 4px;
+  padding-right: 8px;
+  padding-left: 3px;
+  margin-right: 4px;
+  color: #1c1510;
+  font-weight: bold;
+}
+
+/* Custom Scrollbar for Vintage aesthetic */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #231d18;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5a4b3d;
+  border-radius: 2px;
+  border: 2px solid #231d18;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #736150;
+}
+
+/* Print Stylesheet */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  /* Force the container to take full width and hide shadows */
+  .printable-newspaper {
+    box-shadow: none !important;
+    border: none !important;
+    background-color: #f1e4cb !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+}
