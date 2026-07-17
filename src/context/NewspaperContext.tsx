@@ -94,8 +94,10 @@ interface NewspaperContextType {
   setActiveAddBlockColId: React.Dispatch<React.SetStateAction<string | null>>;
   activeSidebarColId: string | null;
   setActiveSidebarColId: React.Dispatch<React.SetStateAction<string | null>>;
+  showWelcomeModal: boolean;
+  setShowWelcomeModal: React.Dispatch<React.SetStateAction<boolean>>;
   theme: NewspaperTheme;
-  switchTheme: (newTheme: NewspaperTheme) => void;
+  switchTheme: (newTheme: NewspaperTheme, skipConfirm?: boolean) => void;
   updateRowHeight: (rowId: string, height: number) => void;
   
   findSelectedBlock: () => Block | null;
@@ -177,11 +179,44 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     });
   }, []);
 
+  const [showWelcomeModal, setShowWelcomeModal] = useState<boolean>(() => {
+    const saved = localStorage.getItem("medieval_newspaper_data");
+    const chosen = localStorage.getItem("has_chosen_theme");
+    return !saved && !chosen;
+  });
+
   const [activeTab, setActiveTab] = useState<"header" | "layout" | "blocks" | "settings">("blocks");
   const [blockTabMode, setBlockTabMode] = useState<"edit" | "create">("edit");
-  const [selectedBlockId, setSelectedBlockId] = useState<string | null>("block_art_1");
-  const [selectedRowId, setSelectedRowId] = useState<string | null>("row_1");
-  const [selectedColumnId, setSelectedColumnId] = useState<string | null>("col_1_2");
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(() => {
+    const saved = localStorage.getItem("medieval_newspaper_data");
+    if (!saved) return null;
+    try {
+      const parsed = JSON.parse(saved);
+      return parsed.theme === "republican" ? "rep_block_art_1" : "block_art_1";
+    } catch (e) {
+      return "block_art_1";
+    }
+  });
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(() => {
+    const saved = localStorage.getItem("medieval_newspaper_data");
+    if (!saved) return null;
+    try {
+      const parsed = JSON.parse(saved);
+      return parsed.theme === "republican" ? "rep_row_1" : "row_1";
+    } catch (e) {
+      return "row_1";
+    }
+  });
+  const [selectedColumnId, setSelectedColumnId] = useState<string | null>(() => {
+    const saved = localStorage.getItem("medieval_newspaper_data");
+    if (!saved) return null;
+    try {
+      const parsed = JSON.parse(saved);
+      return parsed.theme === "republican" ? "rep_col_1_1" : "col_1_2";
+    } catch (e) {
+      return "col_1_2";
+    }
+  });
 
   const [globalHeadingScale, setGlobalHeadingScale] = useState<number>(100);
   const [globalBodyScale, setGlobalBodyScale] = useState<number>(100);
@@ -485,19 +520,36 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     };
   };
 
-  const switchTheme = (newTheme: NewspaperTheme) => {
-    if (theme === newTheme) return;
-    const newThemeName = newTheme === "fantasy" ? "中世纪奇幻" : "民国报刊";
-    const currentThemeName = theme === "fantasy" ? "中世纪奇幻" : "民国报刊";
-    const choice = confirm(
-      `即将切换至「${newThemeName}」主题。\n\n当前文字内容将被保留并转换格式，不兼容的样式将重置为新主题默认值。\n\n如需保留当前「${currentThemeName}」存档，请先取消，前往存档管理保存后再切换。\n\n确认切换到「${newThemeName}」吗？`
-    );
-    if (!choice) return;
-    const converted = convertBlocksForTheme(newspaperData, newTheme);
-    setNewspaperData(converted);
-    setSelectedBlockId(null);
-    setSelectedRowId(null);
-    setSelectedColumnId(null);
+  const switchTheme = (newTheme: NewspaperTheme, skipConfirm = false) => {
+    if (theme === newTheme && localStorage.getItem("has_chosen_theme")) return;
+    if (!skipConfirm) {
+      const newThemeName = newTheme === "fantasy" ? "中世纪奇幻" : "民国报刊";
+      const currentThemeName = theme === "fantasy" ? "中世纪奇幻" : "民国报刊";
+      const choice = confirm(
+        `即将切换至「${newThemeName}」主题。\n\n当前文字内容将被保留并转换格式，不兼容的样式将重置为新主题默认值。\n\n如需保留当前「${currentThemeName}」存档，请先取消，前往存档管理保存后再切换。\n\n确认切换到「${newThemeName}」吗？`
+      );
+      if (!choice) return;
+    }
+    
+    // Set localStorage flag so welcome modal is never shown again
+    localStorage.setItem("has_chosen_theme", "true");
+    setShowWelcomeModal(false);
+
+    // If there is no saved layout, load the respective theme's default data template
+    const saved = localStorage.getItem("medieval_newspaper_data");
+    if (!saved) {
+      const defaultData = newTheme === "republican" ? REPUBLICAN_NEWSPAPER_DATA : INITIAL_NEWSPAPER_DATA;
+      setNewspaperData(defaultData);
+      setSelectedBlockId(newTheme === "republican" ? "rep_block_art_1" : "block_art_1");
+      setSelectedRowId(newTheme === "republican" ? "rep_row_1" : "row_1");
+      setSelectedColumnId(newTheme === "republican" ? "rep_col_1_1" : "col_1_2");
+    } else {
+      const converted = convertBlocksForTheme(newspaperData, newTheme);
+      setNewspaperData(converted);
+      setSelectedBlockId(null);
+      setSelectedRowId(null);
+      setSelectedColumnId(null);
+    }
   };
 
   const updateRowHeight = (rowId: string, height: number) => {
@@ -535,6 +587,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     isExporting, setIsExporting,
     activeAddBlockColId, setActiveAddBlockColId,
     activeSidebarColId, setActiveSidebarColId,
+    showWelcomeModal, setShowWelcomeModal,
     theme, switchTheme, updateRowHeight,
     findSelectedBlock, selectBlockAndContext, updateBlock, updateHeader,
     updateRowSplit, addNewRow, deleteRow, moveRow,

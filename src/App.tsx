@@ -6,6 +6,7 @@ import Sidebar from "./components/Sidebar";
 import NewspaperPreview from "./components/NewspaperPreview";
 import SaveManager from "./components/SaveManager";
 import MobileNav from "./components/MobileNav";
+import WelcomeModal from "./components/WelcomeModal";
 
 export default function App() {
   const {
@@ -17,6 +18,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#2c241e] text-[#4a3728] flex flex-col md:flex-row font-serif overflow-x-hidden select-none selection:bg-[#8b4513] selection:text-[#f5deb3]">
+      <WelcomeModal />
       
       {/* Click-outside backdrop overlay */}
       {(activeAddBlockColId !== null || activeSidebarColId !== null) && (
