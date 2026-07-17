@@ -100,3 +100,101 @@ export const FANTASY_CLIPART: ClipartItem[] = [
   }
 ];
 
+export const REPUBLICAN_CLIPART: ClipartItem[] = [
+  {
+    id: "rickshaw",
+    name: "老上海黄包车",
+    category: "生活",
+    themeGroup: "republican",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <circle cx="22" cy="78" r="10" fill="none" stroke="currentColor" stroke-width="3"/>
+      <circle cx="22" cy="78" r="4"/>
+      <circle cx="72" cy="78" r="10" fill="none" stroke="currentColor" stroke-width="3"/>
+      <circle cx="72" cy="78" r="4"/>
+      <path d="M32 78 L62 78" stroke="currentColor" stroke-width="2" fill="none"/>
+      <path d="M62 78 L80 50 L80 40 L55 40 L40 50 L32 78Z" stroke="currentColor" stroke-width="2" fill="none"/>
+      <path d="M55 40 L55 30 Q55 25 60 25 L70 25 Q75 25 75 30 L75 40Z" stroke="currentColor" stroke-width="2" fill="none"/>
+      <path d="M40 50 L38 45 L32 42 L28 48 L32 78" stroke="currentColor" stroke-width="2" fill="none"/>
+      <circle cx="57" cy="52" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M54 49 L57 55 L60 49" fill="currentColor"/>
+      <path d="M10 78 L32 78" stroke="currentColor" stroke-width="3"/>
+      <path d="M10 78 L8 75" stroke="currentColor" stroke-width="2"/>
+    </svg>`,
+  },
+  {
+    id: "street-lamp",
+    name: "民国路灯",
+    category: "城市",
+    themeGroup: "republican",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <rect x="47" y="60" width="6" height="35"/>
+      <rect x="44" y="90" width="12" height="4" rx="2"/>
+      <path d="M50 60 Q50 30 70 30" stroke="currentColor" stroke-width="3" fill="none"/>
+      <ellipse cx="70" cy="28" rx="14" ry="6" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M56 30 Q60 20 70 20 Q80 20 84 30" stroke="currentColor" stroke-width="2" fill="none"/>
+      <ellipse cx="70" cy="25" rx="6" ry="4" fill="currentColor" opacity="0.6"/>
+      <path d="M66 28 L74 28 L74 32 L66 32Z" fill="currentColor"/>
+      <path d="M50 60 Q50 45 35 40" stroke="currentColor" stroke-width="2" fill="none"/>
+      <ellipse cx="33" cy="38" rx="10" ry="5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <ellipse cx="33" cy="35" rx="4" ry="3" fill="currentColor" opacity="0.6"/>
+    </svg>`,
+  },
+  {
+    id: "ink-brush",
+    name: "文房笔墨",
+    category: "文化",
+    themeGroup: "republican",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <path d="M30 10 L35 10 L38 85 Q37 90 34 92 Q31 90 30 85Z"/>
+      <path d="M30 10 L35 10 L33 20 L30 20Z" fill="none" stroke="currentColor" stroke-width="1"/>
+      <rect x="29" y="20" width="7" height="3" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M34 92 Q37 95 37 98 Q34 100 31 98 Q31 95 34 92Z"/>
+      <rect x="55" y="60" width="30" height="25" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="58" y="63" width="24" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="1"/>
+      <path d="M65 70 L75 70 M65 75 L75 75" stroke="currentColor" stroke-width="1.5"/>
+      <ellipse cx="70" cy="58" rx="12" ry="4" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M58 60 L58 62 M82 60 L82 62" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M45 40 Q50 45 48 55 Q46 60 44 55 Q42 45 45 40Z"/>
+      <path d="M45 40 L47 25 Q46 22 44 22 Q42 22 41 25 L43 40Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    </svg>`,
+  },
+  {
+    id: "vintage-car",
+    name: "民国老爷车",
+    category: "交通",
+    themeGroup: "republican",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <circle cx="25" cy="72" r="10" fill="none" stroke="currentColor" stroke-width="3"/>
+      <circle cx="25" cy="72" r="4"/>
+      <circle cx="75" cy="72" r="10" fill="none" stroke="currentColor" stroke-width="3"/>
+      <circle cx="75" cy="72" r="4"/>
+      <path d="M15 72 L85 72 L90 60 L85 55 L70 50 L50 48 L30 50 L15 58Z" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M35 50 L40 35 L65 35 L70 50" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="40" y="36" width="10" height="13" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="52" y="36" width="10" height="13" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M15 58 L90 60" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <circle cx="88" cy="58" r="3"/>
+      <path d="M10 60 L15 58" stroke="currentColor" stroke-width="2"/>
+    </svg>`,
+  },
+  {
+    id: "cloud-stamp",
+    name: "祥云印章",
+    category: "装饰",
+    themeGroup: "republican",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <rect x="10" y="10" width="80" height="80" rx="4" fill="none" stroke="currentColor" stroke-width="3"/>
+      <rect x="14" y="14" width="72" height="72" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+      <path d="M25 50 Q25 35 35 35 Q37 28 45 30 Q48 22 55 25 Q62 18 68 25 Q76 22 78 32 Q85 33 85 42 Q85 50 78 52 L25 52Z" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M20 55 Q30 45 40 55 Q50 65 60 55 Q70 45 80 55" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M20 65 Q30 55 40 65 Q50 75 60 65 Q70 55 80 65" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M25 38 Q28 33 33 33" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <path d="M55 27 Q58 22 63 23" stroke="currentColor" stroke-width="1.5" fill="none"/>
+    </svg>`,
+  },
+];
+
+export const ALL_CLIPART: ClipartItem[] = [
+  ...FANTASY_CLIPART.map(c => ({ ...c, themeGroup: "fantasy" as const })),
+  ...REPUBLICAN_CLIPART,
+];

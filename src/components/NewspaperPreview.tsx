@@ -42,7 +42,8 @@ export default function NewspaperPreview() {
     enableCoffeeStains, setEnableCoffeeStains,
     activeAddBlockColId, setActiveAddBlockColId,
     selectBlockAndContext, updateBlock,
-    addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally
+    addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally,
+    theme, updateRowHeight
   } = useNewspaper();
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -175,102 +176,167 @@ export default function NewspaperPreview() {
           {/* THE ACTUAL NEWSPAPER */}
           <div 
             id="printable-newspaper-content"
-            className={`printable-newspaper w-full p-6 md:p-10 text-[#2b221a] border-4 newspaper-double-border transition-all duration-300 shadow-2xl relative select-text ${
-              enableParchmentTexture ? "parchment-bg" : "bg-[#fcf8ee] text-black"
+            className={`printable-newspaper w-full p-6 md:p-10 transition-all duration-300 shadow-2xl relative select-text ${
+              theme === "republican"
+                ? "newsprint-bg text-[#0d0d0d] republican-double-border"
+                : `text-[#2b221a] border-4 newspaper-double-border ${enableParchmentTexture ? "parchment-bg" : "bg-[#fcf8ee] text-black"}`
             }`}
           >
-            {/* Overlay Coffee Stain 1 */}
-            {enableParchmentTexture && enableCoffeeStains && (
+            {/* Fantasy: Coffee Stains */}
+            {theme === "fantasy" && enableParchmentTexture && enableCoffeeStains && (
               <div className="absolute top-[15%] left-[5%] w-[120px] h-[100px] bg-[#8b5a2b] opacity-5 rounded-full blur-2xl pointer-events-none rotate-12" />
             )}
-            {/* Overlay Coffee Stain 2 */}
-            {enableParchmentTexture && enableCoffeeStains && (
+            {theme === "fantasy" && enableParchmentTexture && enableCoffeeStains && (
               <div className="absolute bottom-[25%] right-[10%] w-[180px] h-[150px] bg-[#6f4e37] opacity-6 rounded-full blur-3xl pointer-events-none -rotate-45" />
             )}
+            {/* Republican: Oil Ink Smudges */}
+            {theme === "republican" && enableCoffeeStains && <div className="ink-smudge-1" />}
+            {theme === "republican" && enableCoffeeStains && <div className="ink-smudge-2" />}
 
-            {/* NEWSPAPER MAIN HEADER */}
-            <header className="border-b-[4px] border-[#2b221a] pb-2 mb-4 text-center">
-              
-              {/* Motto or Top Issue Headline */}
-              <div className="text-[10px] md:text-xs font-mono font-medium border-b border-[#2b221a]/60 pb-1 mb-2 tracking-widest uppercase flex items-center justify-between px-2 text-[#2b221a]/80">
-                <span>{newspaperData.header.subtitle}</span>
-              </div>
 
-              {/* Big Title Name */}
-              <h1 
-                style={{ fontSize: `calc(3.5rem * ${globalHeadingScale / 100})` }}
-                className={`font-semibold text-center leading-tight transition-all duration-200 text-[#1c1510] ${newspaperData.header.titleFont}`}
-              >
-                {newspaperData.header.title}
-              </h1>
-
-              {/* Sub-header Royal Double Emblem Ornament */}
-              {newspaperData.header.headerStyle === "royal" && (
-                <div className="flex items-center justify-center gap-6 text-[#2b221a]/80 py-1.5">
-                  <span className="text-sm">⚜</span>
-                  <span className="w-16 h-[1px] bg-[#2b221a]/30" />
-                  <span className="text-xs font-serif uppercase tracking-widest">
-                    {newspaperData.header.royalTitle || "圣 塞 西 尔 皇 家 御 览"}
-                  </span>
-                  <span className="w-16 h-[1px] bg-[#2b221a]/30" />
-                  <span className="text-sm">⚜</span>
+            {/* NEWSPAPER MAIN HEADER — theme-aware */}
+            {theme === "republican" ? (
+              /* REPUBLICAN MASTHEAD */
+              newspaperData.header.republicanHeaderStyle === "horizontal-rtl" ? (
+                /* Horizontal RTL banner style */
+                <header className="mb-3 border-t-[3px] border-b border-[#1a1a1a]">
+                  <div className="text-[9px] font-serif border-b border-[#1a1a1a]/50 pb-0.5 mb-1 tracking-widest flex justify-between px-1 text-[#1a1a1a]/70">
+                    <span>{newspaperData.header.issueNo}</span>
+                    <span>{newspaperData.header.date}</span>
+                    <span>{newspaperData.header.location}</span>
+                  </div>
+                  <h1
+                    style={{ fontSize: `calc(3rem * ${globalHeadingScale / 100})` }}
+                    className="font-bold text-center leading-tight text-[#0d0d0d] font-serif tracking-[0.2em] py-1"
+                    dir="rtl"
+                  >
+                    {newspaperData.header.title}
+                  </h1>
+                  <div className="flex justify-between text-[9px] font-serif border-t border-[#1a1a1a]/50 pt-0.5 mt-1 px-1 text-[#1a1a1a]/70">
+                    <span>{newspaperData.header.publisherEn || "THE CHINA TIMES"}</span>
+                    <span>{newspaperData.header.subtitle}</span>
+                    <span>{newspaperData.header.price}</span>
+                  </div>
+                </header>
+              ) : (
+                /* Vertical box masthead (default republican) */
+                <header className="mb-3">
+                  <div className="text-[9px] font-serif text-center border-b border-[#1a1a1a]/40 pb-0.5 mb-1 tracking-widest text-[#1a1a1a]/60">
+                    {newspaperData.header.subtitle}
+                  </div>
+                  <div className="rep-masthead-vertical">
+                    {/* Right side: Large title box */}
+                    <div className="rep-masthead-title-box min-w-[80px]">
+                      <h1
+                        style={{ fontSize: `calc(2.8rem * ${globalHeadingScale / 100})` }}
+                        className="font-bold text-[#0d0d0d] font-serif leading-none tracking-wider"
+                      >
+                        {newspaperData.header.title}
+                      </h1>
+                      <span className="text-[8px] font-sans tracking-widest text-[#1a1a1a]/60 border-t border-[#1a1a1a]/30 pt-1 mt-1">
+                        {newspaperData.header.publisherEn || "THE CHINA TIMES"}
+                      </span>
+                    </div>
+                    {/* Left side: Issue info columns */}
+                    <div className="rep-masthead-info-box">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-bold text-[11px]">{newspaperData.header.issueNo}</span>
+                        <span>{newspaperData.header.date}</span>
+                        <span>{newspaperData.header.location}</span>
+                      </div>
+                      <div className="flex flex-col gap-0.5 border-r border-[#1a1a1a]/30 pr-2 mr-1">
+                        <span>{newspaperData.header.price}</span>
+                        <span className="text-[9px] text-[#1a1a1a]/60">{newspaperData.header.publisherOffice || ""}</span>
+                      </div>
+                    </div>
+                  </div>
+                </header>
+              )
+            ) : (
+              /* FANTASY MASTHEAD */
+              <header className="border-b-[4px] border-[#2b221a] pb-2 mb-4 text-center">
+                {/* Motto or Top Issue Headline */}
+                <div className="text-[10px] md:text-xs font-mono font-medium border-b border-[#2b221a]/60 pb-1 mb-2 tracking-widest uppercase flex items-center justify-between px-2 text-[#2b221a]/80">
+                  <span>{newspaperData.header.subtitle}</span>
                 </div>
-              )}
 
-              {/* Metadata Columns Under Double Lines */}
-              <div className="border-t-[3px] border-b border-[#2b221a] py-1 mt-2 grid grid-cols-4 text-[10px] md:text-xs font-medium font-serif tracking-tight text-[#2b221a]/90">
-                <div className="text-left pl-1">
-                  <span>{newspaperData.header.issueNo}</span>
-                </div>
-                <div className="text-center col-span-2 flex justify-center gap-2">
-                  <span>{newspaperData.header.location}</span>
-                  <span>•</span>
-                  <span>{newspaperData.header.date}</span>
-                </div>
-                <div className="text-right pr-1">
-                  <span>{newspaperData.header.price}</span>
-                </div>
-              </div>
+                {/* Big Title Name */}
+                <h1
+                  style={{ fontSize: `calc(3.5rem * ${globalHeadingScale / 100})` }}
+                  className={`font-semibold text-center leading-tight transition-all duration-200 text-[#1c1510] ${newspaperData.header.titleFont}`}
+                >
+                  {newspaperData.header.title}
+                </h1>
 
-            </header>
+                {/* Sub-header Royal Double Emblem Ornament */}
+                {newspaperData.header.headerStyle === "royal" && (
+                  <div className="flex items-center justify-center gap-6 text-[#2b221a]/80 py-1.5">
+                    <span className="text-sm">⚜</span>
+                    <span className="w-16 h-[1px] bg-[#2b221a]/30" />
+                    <span className="text-xs font-serif uppercase tracking-widest">
+                      {newspaperData.header.royalTitle || "圣 塞 西 尔 皇 家 御 览"}
+                    </span>
+                    <span className="w-16 h-[1px] bg-[#2b221a]/30" />
+                    <span className="text-sm">⚜</span>
+                  </div>
+                )}
+
+                {/* Metadata Columns Under Double Lines */}
+                <div className="border-t-[3px] border-b border-[#2b221a] py-1 mt-2 grid grid-cols-4 text-[10px] md:text-xs font-medium font-serif tracking-tight text-[#2b221a]/90">
+                  <div className="text-left pl-1">
+                    <span>{newspaperData.header.issueNo}</span>
+                  </div>
+                  <div className="text-center col-span-2 flex justify-center gap-2">
+                    <span>{newspaperData.header.location}</span>
+                    <span>•</span>
+                    <span>{newspaperData.header.date}</span>
+                  </div>
+                  <div className="text-right pr-1">
+                    <span>{newspaperData.header.price}</span>
+                  </div>
+                </div>
+              </header>
+            )}
+
 
              {/* NEWSPAPER CONTENT GRID (ROWS & COLUMNS) */}
-             <div className="space-y-6">
+             <div className="space-y-4">
                {newspaperData.rows.map((row) => {
-                 // Determine column grid template depending on split
+                 const isRepublican = theme === "republican";
+                 // Determine column grid template depending on split (fantasy only)
                  let gridClass = "grid-cols-1";
                  if (row.split === "1-1") gridClass = "split-1-1";
                  if (row.split === "1-2") gridClass = "split-1-2";
                  if (row.split === "2-1") gridClass = "split-2-1";
                  if (row.split === "1-1-1") gridClass = "split-1-1-1";
- 
+                 const rowHeight = row.height || 480;
+
                  return (
-                   <div 
+                   <div
                      key={row.id}
-                     className={`grid ${gridClass} border-b border-[#2b221a]/30 pb-6 last:border-b-0 last:pb-0 relative group/row`}
-                     style={{ columnGap: `${columnGap * 4}px` }}
+                     className={`${isRepublican ? "rep-row-container border-b border-[#1a1a1a]/30 last:border-b-0" : `grid ${gridClass} border-b border-[#2b221a]/30 pb-6 last:border-b-0 last:pb-0`} relative group/row`}
+                     style={isRepublican ? { height: `${rowHeight}px`, columnGap: 0 } : { columnGap: `${columnGap * 4}px` }}
                    >
-                     
                      {/* Visual Row Highlight when editing in layout mode */}
                      {selectedRowId === row.id && (
-                       <div className="absolute -inset-2 border border-dashed border-[#8b4513]/50 rounded pointer-events-none no-print" />
+                       <div className={`absolute -inset-2 border border-dashed rounded pointer-events-none no-print ${isRepublican ? "border-[#1a1a1a]/40" : "border-[#8b4513]/50"}`} />
                      )}
- 
+
                      {row.columns.map((col, colIdx) => (
-                       <div 
-                         key={col.id} 
+                       <div
+                         key={col.id}
                          onClick={(e) => {
                            e.stopPropagation();
                            setSelectedRowId(row.id);
                            setSelectedColumnId(col.id);
                          }}
-                         className={`space-y-4 relative min-h-[50px] p-1 rounded-sm transition ${
-                           selectedColumnId === col.id 
-                             ? "bg-[#2b221a]/5 border border-dashed border-[#8b4513]/30" 
-                             : ""
-                         }`}
-                         style={colIdx > 0 ? { borderLeft: '1px solid rgba(43, 34, 26, 0.25)', paddingLeft: `${columnGap * 2}px` } : {}}
+                         className={`${isRepublican ? `rep-col-container ${selectedColumnId === col.id ? "bg-[#1a1a1a]/5 outline outline-1 outline-dashed outline-[#1a1a1a]/30" : ""}` : `space-y-4 relative min-h-[50px] p-1 rounded-sm transition ${selectedColumnId === col.id ? "bg-[#2b221a]/5 border border-dashed border-[#8b4513]/30" : ""}`}`}
+                         style={!isRepublican && colIdx > 0 ? { borderLeft: '1px solid rgba(43, 34, 26, 0.25)', paddingLeft: `${columnGap * 2}px` } : {}}
                        >
+                       {isRepublican ? (
+                         /* Republican vertical column */
+                         <div className="rep-col-inner">
+
                         <SortableContext items={col.blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
                         {col.blocks.map((block) => {
                           const isSelected = selectedBlockId === block.id;
@@ -621,8 +687,58 @@ export default function NewspaperPreview() {
                             )}
                           </div>
                         </div>
-
                       </div>
+                       ) : (
+                         /* Fantasy column — existing SortableContext block rendering */
+                         <SortableContext items={col.blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
+                         {col.blocks.map((block) => {
+                           const isSelected = selectedBlockId === block.id;
+                           return (
+                             <SortableBlock
+                               key={block.id}
+                               id={block.id}
+                               isSelected={isSelected}
+                               onSelect={(e) => {
+                                 e.stopPropagation();
+                                 selectBlockAndContext(block.id, col.id, row.id);
+                               }}
+                             >
+                               <div className="no-print absolute top-1 right-1 opacity-0 group-hover/block:opacity-100 flex items-center gap-1 bg-[#e8dcc4] p-1 rounded-sm border border-[#8b4513] shadow-lg transition z-10">
+                                 <button onClick={(e) => { e.stopPropagation(); moveBlock(block.id, col.id, "up"); }} title="上移" className="p-1 hover:bg-[#8b4513]/15 rounded-sm text-[#8b4513]"><ArrowUp className="w-3 h-3" /></button>
+                                 <button onClick={(e) => { e.stopPropagation(); moveBlock(block.id, col.id, "down"); }} title="下移" className="p-1 hover:bg-[#8b4513]/15 rounded-sm text-[#8b4513]"><ArrowDown className="w-3 h-3" /></button>
+                                 {row.columns.length > 1 && (<>
+                                   <button onClick={(e) => { e.stopPropagation(); moveBlockHorizontally(block.id, col.id, row.id, "left"); }} disabled={colIdx === 0} title="左移" className="p-1 hover:bg-[#8b4513]/15 rounded-sm text-[#8b4513] disabled:opacity-30"><ArrowLeft className="w-3 h-3" /></button>
+                                   <button onClick={(e) => { e.stopPropagation(); moveBlockHorizontally(block.id, col.id, row.id, "right"); }} disabled={colIdx === row.columns.length - 1} title="右移" className="p-1 hover:bg-[#8b4513]/15 rounded-sm text-[#8b4513] disabled:opacity-30"><ArrowRight className="w-3 h-3" /></button>
+                                 </>)}
+                                 <button onClick={(e) => { e.stopPropagation(); deleteBlock(block.id); }} title="删除" className="p-1 hover:bg-red-100 rounded-sm text-[#8b4513] hover:text-red-700"><Trash2 className="w-3 h-3" /></button>
+                               </div>
+                               {/* reuse same block renders from republican column content */}
+                             </SortableBlock>
+                           );
+                         })}
+                         </SortableContext>
+                       )}
+
+                         {/* Inline column block-adder */}
+                         <div className={`no-print h-6 flex items-center justify-center transition duration-150 relative z-10 ${activeAddBlockColId === col.id ? "opacity-100" : "opacity-0 hover:opacity-100"}`}>
+                           <div className="w-full border-t border-dashed border-[#5a4b3d]/30 absolute" />
+                           <div className="relative inline-block">
+                             <button type="button" onClick={(e) => { e.stopPropagation(); setActiveAddBlockColId(activeAddBlockColId === col.id ? null : col.id); }}
+                               className="bg-[#231d18] hover:bg-[#342a20] text-[#e0a96d] border border-[#5a4b3d] rounded-full p-1 shadow-lg flex items-center gap-1 text-[10px] px-2 cursor-pointer relative z-50">
+                               <Plus className="w-3 h-3" /><span>在此增添文章或圖片</span>
+                             </button>
+                             {activeAddBlockColId === col.id && (
+                               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-36 bg-[#1a1511] border-2 border-[#e0a96d] p-1.5 rounded shadow-2xl space-y-1 text-left z-50 animate-fadeIn">
+                                 <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "article"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">✍ 书写文字文章</button>
+                                 <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "headline"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">✦ 装饰大字标题</button>
+                                 <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "image"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">🖼 绘制插图木印</button>
+                                 <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "divider"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">◇ 插入中饰隔线</button>
+                                 <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "ad"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">🪙 刊登告示商售</button>
+                               </div>
+                             )}
+                           </div>
+                         </div>
+                       </div>
                     ))}
 
                   </div>
@@ -630,10 +746,10 @@ export default function NewspaperPreview() {
               })}
             </div>
 
-            {/* Bottom Scribe footer mark for high fidelity */}
-            <div className="border-t-2 border-[#2b221a] mt-8 pt-2.5 text-center text-[10px] font-serif uppercase tracking-widest text-stone-600 flex justify-between px-1">
-              <span>{newspaperData.header.footerLeft || "星辉帝国皇家印刷署特许印制局发行"}</span>
-              <span>{newspaperData.header.footerRight || "帝国时报印刷馆特许发行 © 圣历742年"}</span>
+            {/* Bottom footer mark — theme-aware */}
+            <div className={`mt-6 pt-2 text-center text-[10px] font-serif tracking-widest flex justify-between px-1 ${theme === "republican" ? "border-t-[3px] border-[#1a1a1a] text-[#1a1a1a]/60 uppercase" : "border-t-2 border-[#2b221a] text-stone-600 uppercase"}`}>
+              <span>{newspaperData.header.footerLeft || (theme === "republican" ? "時事新報社印刷部承印" : "星辉帝国皇家印刷署特许印制局发行")}</span>
+              <span>{newspaperData.header.footerRight || (theme === "republican" ? "版權所有 民國十二年" : "帝国时报印刷馆特许发行 © 圣历742年")}</span>
             </div>
 
           </div>

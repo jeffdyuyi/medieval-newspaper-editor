@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { 
   NewspaperData, Row, Column, Block, BlockType, 
-  ColumnSplit, NewspaperHeader 
+  ColumnSplit, NewspaperHeader, NewspaperTheme,
+  ArticleBlock, HeadlineBlock
 } from "../types";
-import { INITIAL_NEWSPAPER_DATA } from "../defaultData";
+import { INITIAL_NEWSPAPER_DATA, REPUBLICAN_NEWSPAPER_DATA } from "../defaultData";
+
 
 function sanitizeNewspaperData(data: NewspaperData): NewspaperData {
   if (!data || !Array.isArray(data.rows)) return INITIAL_NEWSPAPER_DATA;
@@ -92,6 +94,9 @@ interface NewspaperContextType {
   setActiveAddBlockColId: React.Dispatch<React.SetStateAction<string | null>>;
   activeSidebarColId: string | null;
   setActiveSidebarColId: React.Dispatch<React.SetStateAction<string | null>>;
+  theme: NewspaperTheme;
+  switchTheme: (newTheme: NewspaperTheme) => void;
+  updateRowHeight: (rowId: string, height: number) => void;
   
   findSelectedBlock: () => Block | null;
   selectBlockAndContext: (blockId: string, colId: string, rowId: string) => void;
@@ -429,10 +434,87 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     setSelectedColumnId(toCol.id);
   };
 
+  const theme: NewspaperTheme = (newspaperData.theme as NewspaperTheme) || "fantasy";
+
+  const convertBlocksForTheme = (data: NewspaperData, targetTheme: NewspaperTheme): NewspaperData => {
+    const convertedRows = data.rows.map(row => ({
+      ...row,
+      height: targetTheme === "republican" ? (row.height || 480) : undefined,
+      columns: row.columns.map(col => ({
+        ...col,
+        blocks: col.blocks.map(block => {
+          if (block.type === "article") {
+            const b = block as ArticleBlock;
+            if (targetTheme === "republican") {
+              return { ...b, font: (b.font === "font-gothic" || b.font === "font-cinzel") ? "font-serif" : b.font, titleMarker: b.titleMarker || "none" };
+            }
+            return { ...b };
+          }
+          if (block.type === "headline") {
+            const b = block as HeadlineBlock;
+            if (targetTheme === "republican") {
+              return { ...b, font: (b.font === "font-gothic" || b.font === "font-cinzel") ? "font-xiaowei" : b.font, titleMarker: b.titleMarker || "none" };
+            }
+            return { ...b };
+          }
+          if (block.type === "divider") {
+            const d = block as any;
+            if (targetTheme === "republican" && d.style === "ornament") return { ...d, style: "wenwu" };
+            if (targetTheme === "fantasy" && (d.style === "wenwu" || d.style === "yunwen")) return { ...d, style: "double" };
+            return block;
+          }
+          if (block.type === "ad") {
+            const a = block as any;
+            if (targetTheme === "republican" && a.borderStyle === "ornate") return { ...a, borderStyle: "wenwu" };
+            if (targetTheme === "fantasy" && (a.borderStyle === "wenwu" || a.borderStyle === "yunwen")) return { ...a, borderStyle: "ornate" };
+            return block;
+          }
+          return block;
+        })
+      }))
+    }));
+    return {
+      ...data,
+      theme: targetTheme,
+      header: {
+        ...data.header,
+        headerStyle: targetTheme === "republican" ? "classic" : data.header.headerStyle,
+        republicanHeaderStyle: targetTheme === "republican" ? (data.header.republicanHeaderStyle || "vertical-box") : undefined,
+      },
+      rows: convertedRows
+    };
+  };
+
+  const switchTheme = (newTheme: NewspaperTheme) => {
+    if (theme === newTheme) return;
+    const newThemeName = newTheme === "fantasy" ? "中世纪奇幻" : "民国报刊";
+    const currentThemeName = theme === "fantasy" ? "中世纪奇幻" : "民国报刊";
+    const choice = confirm(
+      `即将切换至「${newThemeName}」主题。\n\n当前文字内容将被保留并转换格式，不兼容的样式将重置为新主题默认值。\n\n如需保留当前「${currentThemeName}」存档，请先取消，前往存档管理保存后再切换。\n\n确认切换到「${newThemeName}」吗？`
+    );
+    if (!choice) return;
+    const converted = convertBlocksForTheme(newspaperData, newTheme);
+    setNewspaperData(converted);
+    setSelectedBlockId(null);
+    setSelectedRowId(null);
+    setSelectedColumnId(null);
+  };
+
+  const updateRowHeight = (rowId: string, height: number) => {
+    setNewspaperData(prev => ({
+      ...prev,
+      rows: prev.rows.map(row => row.id === rowId ? { ...row, height } : row)
+    }));
+  };
+
   const handleResetData = () => {
-    if (confirm("您确定要重置所有编辑内容，恢复到预设的「星辉帝国要闻报」吗？")) {
-      setNewspaperData(INITIAL_NEWSPAPER_DATA);
-      setSelectedBlockId("block_art_1");
+    const isRepublican = theme === "republican";
+    const themeName = isRepublican ? "「时事新报」民国样板" : "「星辉帝国要闻报」";
+    const defaultData = isRepublican ? REPUBLICAN_NEWSPAPER_DATA : INITIAL_NEWSPAPER_DATA;
+    const defaultBlockId = isRepublican ? "rep_block_art_1" : "block_art_1";
+    if (confirm(`您确定要重置所有编辑内容，恢复到预设的${themeName}吗？`)) {
+      setNewspaperData(defaultData);
+      setSelectedBlockId(defaultBlockId);
     }
   };
 
@@ -453,6 +535,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     isExporting, setIsExporting,
     activeAddBlockColId, setActiveAddBlockColId,
     activeSidebarColId, setActiveSidebarColId,
+    theme, switchTheme, updateRowHeight,
     findSelectedBlock, selectBlockAndContext, updateBlock, updateHeader,
     updateRowSplit, addNewRow, deleteRow, moveRow,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, handleResetData,

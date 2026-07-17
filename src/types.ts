@@ -2,6 +2,8 @@ export type ColumnSplit = "1" | "1-1" | "1-2" | "2-1" | "1-1-1";
 
 export type BlockType = "headline" | "article" | "image" | "divider" | "ad";
 
+export type NewspaperTheme = "fantasy" | "republican";
+
 export interface HeadlineBlock {
   id: string;
   type: "headline";
@@ -13,6 +15,8 @@ export interface HeadlineBlock {
   subtitleFont?: string;
   subtitleFontSize?: "xs" | "sm" | "md" | "lg";
   subtitleAlign?: "left" | "center" | "right" | "justify";
+  // Republican theme extras
+  titleMarker?: "none" | "square" | "triangle" | "circle";
 }
 
 export interface ArticleBlock {
@@ -35,6 +39,8 @@ export interface ArticleBlock {
   subtitleAlign?: "left" | "center" | "right" | "justify";
   lineHeight?: "tight" | "normal" | "relaxed" | "loose";
   letterSpacing?: "tight" | "normal" | "wide" | "widest";
+  // Republican theme extras
+  titleMarker?: "none" | "square" | "triangle" | "circle";
 }
 
 export interface ImageBlock {
@@ -53,8 +59,8 @@ export interface ImageBlock {
 export interface DividerBlock {
   id: string;
   type: "divider";
-  style: "double" | "single" | "ornament" | "dotted";
-  ornamentType?: "fleur-de-lis" | "floral" | "star" | "sword";
+  style: "double" | "single" | "ornament" | "dotted" | "wenwu" | "yunwen";
+  ornamentType?: "fleur-de-lis" | "floral" | "star" | "sword" | "diamond";
 }
 
 export interface AdBlock {
@@ -64,7 +70,7 @@ export interface AdBlock {
   content: string;
   price: string;
   merchant: string;
-  borderStyle: "dashed" | "solid" | "ornate";
+  borderStyle: "dashed" | "solid" | "ornate" | "wenwu" | "yunwen";
   titleFont?: string;
   titleFontSize?: "xs" | "sm" | "md" | "lg";
   titleAlign?: "left" | "center" | "right" | "justify";
@@ -84,6 +90,7 @@ export interface Row {
   id: string;
   split: ColumnSplit; // '1' (full), '1-1' (even halves), '1-2' (left small, right wide), '2-1' (left wide, right small), '1-1-1' (three thirds)
   columns: Column[]; // array of columns corresponding to the split
+  height?: number; // Optional row height in pixels (used for republican vertical layout)
 }
 
 export interface NewspaperHeader {
@@ -98,9 +105,14 @@ export interface NewspaperHeader {
   royalTitle?: string; // 皇家御览副标题文本
   footerLeft?: string; // 页脚左侧发行单位
   footerRight?: string; // 页脚右侧版权标识
+  // Republican theme extras
+  republicanHeaderStyle?: "vertical-box" | "horizontal-rtl";
+  publisherEn?: string; // 英文刊名 e.g. "THE CHINA TIMES"
+  publisherOffice?: string; // 发行局/印刷所 e.g. "上海山东路一六三号"
 }
 
 export interface NewspaperData {
+  theme?: NewspaperTheme;
   header: NewspaperHeader;
   rows: Row[];
 }
@@ -109,5 +121,6 @@ export interface ClipartItem {
   id: string;
   name: string;
   category: string;
+  themeGroup?: "fantasy" | "republican" | "universal"; // Optional grouping by theme
   svgPath: string; // SVG paths or full SVG content
 }

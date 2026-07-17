@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useNewspaper } from "../context/NewspaperContext";
 import { BlockType, ColumnSplit, ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock } from "../types";
-import { FANTASY_CLIPART } from "../clipart";
+import { ALL_CLIPART } from "../clipart";
 
 export { CoinsIcon };
 
@@ -33,7 +33,8 @@ export default function Sidebar() {
     findSelectedBlock, selectBlockAndContext, updateBlock, updateHeader,
     updateRowSplit, addNewRow, deleteRow, moveRow,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, handleResetData,
-    undo, redo, canUndo, canRedo, setShowSaveManager
+    undo, redo, canUndo, canRedo, setShowSaveManager,
+    theme, switchTheme, updateRowHeight
   } = useNewspaper();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -854,16 +855,22 @@ export default function Sidebar() {
                         {/* Clipart Library Selector if isClipart */}
                         {(selectedBlock as ImageBlock).isClipart && (
                           <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-[#8b4513] block">选择中世纪奇幻印记</label>
+                            <label className="text-xs font-bold text-[#8b4513] block">
+                              {theme === "republican" ? "选择民国风格插图" : "选择中世纪奇幻印记"}
+                            </label>
                             <div className="grid grid-cols-4 gap-2 bg-[#dcd0b8] p-2 rounded-sm border border-[#8b4513]">
-                              {FANTASY_CLIPART.map(item => (
+                              {ALL_CLIPART.filter(item =>
+                                theme === "republican"
+                                  ? item.themeGroup === "republican"
+                                  : item.themeGroup !== "republican"
+                              ).map(item => (
                                 <button
                                   key={item.id}
                                   title={item.name}
                                   onClick={() => updateBlock(selectedBlock.id, b => ({ ...b, clipartId: item.id, isClipart: true } as ImageBlock))}
                                   className={`aspect-square p-2 border rounded flex items-center justify-center transition hover:bg-[#e8dcc4] ${
-                                    (selectedBlock as ImageBlock).clipartId === item.id 
-                                      ? "bg-[#8b4513] border-[#8b4513] text-[#f5deb3]" 
+                                    (selectedBlock as ImageBlock).clipartId === item.id
+                                      ? "bg-[#8b4513] border-[#8b4513] text-[#f5deb3]"
                                       : "border-[#8b4513]/50 text-[#8b4513]"
                                   }`}
                                 >
@@ -968,7 +975,7 @@ export default function Sidebar() {
                               ...b, 
                               src: "", 
                               isClipart: true, 
-                              clipartId: FANTASY_CLIPART[0].id 
+                              clipartId: (theme === "republican" ? ALL_CLIPART.find(c => c.themeGroup === "republican") : ALL_CLIPART.find(c => c.themeGroup !== "republican"))?.id || ALL_CLIPART[0].id
                             } as ImageBlock))}
                             className="w-full py-1.5 bg-transparent hover:bg-red-800/10 border border-red-800/40 text-red-850 text-xs font-bold rounded-sm transition-colors flex items-center justify-center gap-1.5"
                           >
@@ -1504,32 +1511,69 @@ export default function Sidebar() {
               </div>
 
               <h3 className="text-xs font-bold text-[#8b4513] uppercase tracking-widest pt-3 pb-1 border-b border-[#8b4513]/30">
-                古物仿真背景設定
+                报刊主题风格
+              </h3>
+
+              <div className="grid grid-cols-2 gap-2 py-2">
+                <button
+                  type="button"
+                  onClick={() => switchTheme("fantasy")}
+                  className={`py-2 px-2 rounded-sm text-xs font-bold border transition-all ${
+                    theme === "fantasy"
+                      ? "bg-[#8b4513] text-[#f5deb3] border-[#5a2d0c] shadow-inner"
+                      : "bg-[#e8dcc4] text-[#4a3728] border-[#8b4513]/40 hover:bg-[#d9ccb0]"
+                  }`}
+                >
+                  ⚔ 中世纪奇幻
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchTheme("republican")}
+                  className={`py-2 px-2 rounded-sm text-xs font-bold border transition-all ${
+                    theme === "republican"
+                      ? "bg-[#1a1a1a] text-[#f4f3ef] border-[#000] shadow-inner"
+                      : "bg-[#e8dcc4] text-[#4a3728] border-[#8b4513]/40 hover:bg-[#d9ccb0]"
+                  }`}
+                >
+                  ■ 民国报刊
+                </button>
+              </div>
+              <p className="text-[10px] text-[#4a3728]/70 font-serif leading-relaxed pb-2">
+                切换主题时文字内容将被保留，不兼容的样式会重置为目标主题的默认值。
+              </p>
+
+              <h3 className="text-xs font-bold text-[#8b4513] uppercase tracking-widest pt-3 pb-1 border-b border-[#8b4513]/30">
+                {theme === "republican" ? "纸张与油墨设定" : "古物仿真背景設定"}
               </h3>
 
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-xs font-bold text-[#4a3728] cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={enableParchmentTexture}
-                    onChange={(e) => setEnableParchmentTexture(e.target.checked)}
-                    className="accent-[#8b4513]"
-                  />
-                  <span>啟用羊皮紙古樸纖維質地</span>
-                </label>
+                {theme === "fantasy" && (
+                  <label className="flex items-center gap-2 text-xs font-bold text-[#4a3728] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={enableParchmentTexture}
+                      onChange={(e) => setEnableParchmentTexture(e.target.checked)}
+                      className="accent-[#8b4513]"
+                    />
+                    <span>啟用羊皮紙古樸纖維質地</span>
+                  </label>
+                )}
 
                 <label className="flex items-center gap-2 text-xs font-bold text-[#4a3728] cursor-pointer">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={enableCoffeeStains}
                     onChange={(e) => setEnableCoffeeStains(e.target.checked)}
                     className="accent-[#8b4513]"
                   />
-                  <span>启用微黄茶渍/古物晕染污渍</span>
+                  <span>{theme === "republican" ? "启用油墨晕渍污斑效果" : "启用微黄茶渍/古物晕染污渍"}</span>
                 </label>
 
                 <p className="text-[11px] text-[#4a3728]/80 leading-relaxed font-serif">
-                  提示：如果您打算在真正的泛黄复古美术纸上直接进行打印，可以取消勾选这两项背景仿真效果，这样打印出来的背景会是纯白的，能更完美地贴合实物艺术纸的自带纹理！
+                  {theme === "republican"
+                    ? "提示：如在洁白新闻纸上直接打印，可取消勾选油墨污斑，打印背景将为纯白，更贴合实物纸张效果。"
+                    : "提示：如果您打算在真正的泛黄复古美术纸上直接进行打印，可以取消勾选这两项背景仿真效果，这样打印出来的背景会是纯白的，能更完美地贴合实物艺术纸的自带纹理！"
+                  }
                 </p>
               </div>
             </div>
