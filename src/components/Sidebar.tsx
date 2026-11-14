@@ -1014,6 +1014,7 @@ export default function Sidebar() {
                               <option value="floral">❦ 古雅卷草花纹</option>
                               <option value="star">✥ 占星家秘能星徽</option>
                               <option value="sword">⚔ 骑士公会交叉利剑</option>
+                              <option value="diamond">❖ 古典秘境菱纹</option>
                             </select>
                           </div>
                         )}
@@ -1176,6 +1177,8 @@ export default function Sidebar() {
                             <option value="dashed">古旧虚线印 (Dashed Outline)</option>
                             <option value="solid">朴素粗实墨 (Solid Outline)</option>
                             <option value="ornate">皇家花饰刻线 (Double Antique)</option>
+                            <option value="wenwu">民国文武线框 (Civil-Military)</option>
+                            <option value="yunwen">民国云纹边框 (Cloud Pattern)</option>
                           </select>
                         </div>
                       </div>

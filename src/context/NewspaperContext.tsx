@@ -218,11 +218,22 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   });
 
-  const [globalHeadingScale, setGlobalHeadingScale] = useState<number>(100);
-  const [globalBodyScale, setGlobalBodyScale] = useState<number>(100);
-  const [columnGap, setColumnGap] = useState<number>(6);
-  const [enableParchmentTexture, setEnableParchmentTexture] = useState<boolean>(true);
-  const [enableCoffeeStains, setEnableCoffeeStains] = useState<boolean>(true);
+  const getInitialLayoutSetting = <T,>(key: string, defaultValue: T): T => {
+    const saved = localStorage.getItem("newspaper_layout_settings");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed[key] !== undefined) return parsed[key];
+      } catch (e) {}
+    }
+    return defaultValue;
+  };
+
+  const [globalHeadingScale, setGlobalHeadingScale] = useState<number>(() => getInitialLayoutSetting("globalHeadingScale", 100));
+  const [globalBodyScale, setGlobalBodyScale] = useState<number>(() => getInitialLayoutSetting("globalBodyScale", 100));
+  const [columnGap, setColumnGap] = useState<number>(() => getInitialLayoutSetting("columnGap", 6));
+  const [enableParchmentTexture, setEnableParchmentTexture] = useState<boolean>(() => getInitialLayoutSetting("enableParchmentTexture", true));
+  const [enableCoffeeStains, setEnableCoffeeStains] = useState<boolean>(() => getInitialLayoutSetting("enableCoffeeStains", true));
 
   const [showPrintHelp, setShowPrintHelp] = useState<boolean>(false);
   const [showSaveManager, setShowSaveManager] = useState<boolean>(false);
@@ -234,6 +245,17 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
   useEffect(() => {
     localStorage.setItem("medieval_newspaper_data", JSON.stringify(newspaperData));
   }, [newspaperData]);
+
+  useEffect(() => {
+    const settings = {
+      globalHeadingScale,
+      globalBodyScale,
+      columnGap,
+      enableParchmentTexture,
+      enableCoffeeStains
+    };
+    localStorage.setItem("newspaper_layout_settings", JSON.stringify(settings));
+  }, [globalHeadingScale, globalBodyScale, columnGap, enableParchmentTexture, enableCoffeeStains]);
 
   const findSelectedBlock = (): Block | null => {
     if (!selectedBlockId) return null;

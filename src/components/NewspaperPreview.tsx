@@ -10,22 +10,41 @@ import { ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock } from "
 
 const renderMarkdown = (text: string) => {
   if (!text) return null;
-  const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|~~.*?~~|__.*?__)/g);
   
-  return parts.map((part, idx) => {
-    if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={idx} className="font-bold font-sans">{part.slice(2, -2)}</strong>;
-    }
-    if (part.startsWith('__') && part.endsWith('__')) {
-      return <u key={idx} className="underline decoration-[#2b221a]/50 underline-offset-2">{part.slice(2, -2)}</u>;
-    }
-    if (part.startsWith('*') && part.endsWith('*')) {
-      return <em key={idx} className="italic font-kai">{part.slice(1, -1)}</em>;
-    }
-    if (part.startsWith('~~') && part.endsWith('~~')) {
-      return <del key={idx} className="line-through decoration-[#2b221a]/70">{part.slice(2, -2)}</del>;
-    }
-    return <React.Fragment key={idx}>{part}</React.Fragment>;
+  // Split paragraphs by line breaks first
+  const lines = text.split("\n");
+  
+  return lines.map((line, lineIdx) => {
+    const parts = line.split(/(\*\*.*?\*\*|\*.*?\*|~~.*?~~|__.*?__|\[\[.*?\]\]|\^.*?\^)/g);
+    
+    const formattedLine = parts.map((part, idx) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={idx} className="font-bold font-sans">{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith('__') && part.endsWith('__')) {
+        return <u key={idx} className="underline decoration-[#2b221a]/50 underline-offset-2">{part.slice(2, -2)}</u>;
+      }
+      if (part.startsWith('*') && part.endsWith('*')) {
+        return <em key={idx} className="italic font-kai">{part.slice(1, -1)}</em>;
+      }
+      if (part.startsWith('~~') && part.endsWith('~~')) {
+        return <del key={idx} className="line-through decoration-[#2b221a]/70">{part.slice(2, -2)}</del>;
+      }
+      if (part.startsWith('[[') && part.endsWith(']]')) {
+        return <span key={idx} className="text-[#962a1a] font-bold border-b border-[#962a1a]/30 mx-0.5">{part.slice(2, -2)}</span>;
+      }
+      if (part.startsWith('^') && part.endsWith('^')) {
+        return <sup key={idx} className="text-[0.7em] font-sans font-bold text-[#8b4513] select-none mx-0.5">{part.slice(1, -1)}</sup>;
+      }
+      return <React.Fragment key={idx}>{part}</React.Fragment>;
+    });
+
+    return (
+      <React.Fragment key={lineIdx}>
+        {formattedLine}
+        {lineIdx < lines.length - 1 && <br />}
+      </React.Fragment>
+    );
   });
 };
 
@@ -74,6 +93,17 @@ export default function NewspaperPreview() {
   );
 
   const [activeId, setActiveId] = React.useState<string | null>(null);
+
+  const activeBlock = React.useMemo(() => {
+    if (!activeId) return null;
+    for (const row of newspaperData.rows) {
+      for (const col of row.columns) {
+        const b = col.blocks.find(b => b.id === activeId);
+        if (b) return b;
+      }
+    }
+    return null;
+  }, [activeId, newspaperData]);
 
   const findContainer = (id: string) => {
     for (const row of newspaperData.rows) {
@@ -216,10 +246,13 @@ export default function NewspaperPreview() {
           >
             {/* Fantasy: Coffee Stains */}
             {theme === "fantasy" && enableParchmentTexture && enableCoffeeStains && (
-              <div className="absolute top-[15%] left-[5%] w-[120px] h-[100px] bg-[#8b5a2b] opacity-5 rounded-full blur-2xl pointer-events-none rotate-12" />
+              <div className="absolute top-[12%] left-[4%] w-[140px] h-[110px] bg-[#8b5a2b] opacity-10 rounded-full blur-2xl pointer-events-none rotate-12" />
             )}
             {theme === "fantasy" && enableParchmentTexture && enableCoffeeStains && (
-              <div className="absolute bottom-[25%] right-[10%] w-[180px] h-[150px] bg-[#6f4e37] opacity-6 rounded-full blur-3xl pointer-events-none -rotate-45" />
+              <div className="absolute bottom-[22%] right-[8%] w-[200px] h-[160px] bg-[#6f4e37] opacity-12 rounded-full blur-3xl pointer-events-none -rotate-45" />
+            )}
+            {theme === "fantasy" && enableParchmentTexture && enableCoffeeStains && (
+              <div className="absolute top-[60%] left-[15%] w-[90px] h-[80px] bg-[#8b5a2b] opacity-8 rounded-full blur-xl pointer-events-none rotate-45" />
             )}
             {/* Republican: Oil Ink Smudges */}
             {theme === "republican" && enableCoffeeStains && <div className="ink-smudge-1" />}
@@ -240,9 +273,9 @@ export default function NewspaperPreview() {
                   <h1
                     style={{ fontSize: `calc(3rem * ${globalHeadingScale / 100})` }}
                     className="font-bold text-center leading-tight text-[#0d0d0d] font-serif tracking-[0.2em] py-1"
-                    dir="rtl"
+                    title="传统自右向左排印"
                   >
-                    {newspaperData.header.title}
+                    {newspaperData.header.title.split("").reverse().join("")}
                   </h1>
                   <div className="flex justify-between text-[9px] font-serif border-t border-[#1a1a1a]/50 pt-0.5 mt-1 px-1 text-[#1a1a1a]/70">
                     <span>{newspaperData.header.publisherEn || "THE CHINA TIMES"}</span>
@@ -332,8 +365,15 @@ export default function NewspaperPreview() {
 
 
              {/* NEWSPAPER CONTENT GRID (ROWS & COLUMNS) */}
-             <div className="space-y-4">
-               {newspaperData.rows.map((row) => {
+             <DndContext
+               sensors={sensors}
+               collisionDetection={closestCorners}
+               onDragStart={handleDragStart}
+               onDragOver={handleDragOver}
+               onDragEnd={handleDragEnd}
+             >
+               <div className="space-y-4">
+                 {newspaperData.rows.map((row) => {
                  const isRepublican = theme === "republican";
                  // Determine column grid template depending on split (fantasy only)
                  let gridClass = "grid-cols-1";
@@ -506,7 +546,9 @@ export default function NewspaperPreview() {
                                             (block as HeadlineBlock).size === "normal" ? "1.5rem" :
                                             (block as HeadlineBlock).size === "large" ? "2.2rem" : "3rem"
                                           } * ${globalHeadingScale / 100})` }}
-                                          className={`font-bold leading-tight tracking-normal text-[#1c1510] border-t-2 border-b-2 border-[#2b221a] py-1.5 ${(block as HeadlineBlock).font} ${(block as HeadlineBlock).align === "left" ? "text-left" : (block as HeadlineBlock).align === "right" ? "text-right" : (block as HeadlineBlock).align === "justify" ? "text-justify" : "text-center"} flex items-center justify-center gap-1.5`}
+                                          className={`font-bold leading-tight tracking-normal text-[#1c1510] border-t-2 border-b-2 ${
+                                            theme === "republican" ? "border-[#1a1a1a]" : "border-[#2b221a]"
+                                          } py-1.5 ${(block as HeadlineBlock).font} ${(block as HeadlineBlock).align === "left" ? "text-left justify-start" : (block as HeadlineBlock).align === "right" ? "text-right justify-end" : (block as HeadlineBlock).align === "justify" ? "text-justify justify-between" : "text-center justify-center"} flex items-center gap-1.5`}
                                         >
                                           {(block as HeadlineBlock).titleMarker && (block as HeadlineBlock).titleMarker !== "none" && (
                                             <span className="text-[0.7em] select-none opacity-80">
@@ -601,16 +643,22 @@ export default function NewspaperPreview() {
 
                                     {/* BLOCK RENDERING: DIVIDER */}
                                     {block.type === "divider" && (
-                                      <div className={`py-2 flex items-center justify-center ${theme === "republican" ? "h-full w-4 px-1" : "w-full py-2"}`}>
+                                      <div className={`py-2 flex items-center justify-center ${theme === "republican" ? "w-full my-2 px-1" : "w-full py-2"}`}>
                                         {theme === "republican" ? (
-                                          /* Vertical divider for Republican */
-                                          (block as DividerBlock).style === "double" || (block as DividerBlock).style === "wenwu" ? (
-                                            <div className="h-full border-r-[3px] border-l border-[#1a1a1a] w-1.5" />
-                                          ) : (block as DividerBlock).style === "dotted" ? (
-                                            <div className="h-full border-r border-dashed border-[#1a1a1a]/60" />
-                                          ) : (
-                                            <div className="h-full border-r border-[#1a1a1a]/40" />
-                                          )
+                                          /* Section cut line for Republican vertical columns */
+                                          <div className="w-full my-1">
+                                            {(block as DividerBlock).style === "double" || (block as DividerBlock).style === "wenwu" ? (
+                                              <div className="w-full border-t-[2px] border-b border-[#1a1a1a] h-1" />
+                                            ) : (block as DividerBlock).style === "dotted" ? (
+                                              <div className="w-full border-t border-dashed border-[#1a1a1a]/60" />
+                                            ) : (
+                                              <div className="w-full flex items-center justify-center gap-1.5 text-[9px] text-[#1a1a1a]/70">
+                                                <span className="w-full border-t border-[#1a1a1a]/30" />
+                                                <span className="shrink-0 font-bold select-none text-[8px]">■</span>
+                                                <span className="w-full border-t border-[#1a1a1a]/30" />
+                                              </div>
+                                            )}
+                                          </div>
                                         ) : (
                                           /* Horizontal divider for Fantasy */
                                           (block as DividerBlock).style === "double" ? (
@@ -625,6 +673,7 @@ export default function NewspaperPreview() {
                                                 {(block as DividerBlock).ornamentType === "floral" && "❦"}
                                                 {(block as DividerBlock).ornamentType === "star" && "✥"}
                                                 {(block as DividerBlock).ornamentType === "sword" && "⚔"}
+                                                {(block as DividerBlock).ornamentType === "diamond" && "❖"}
                                               </span>
                                               <div className="w-full border-t border-[#2b221a]/30" />
                                             </div>
@@ -703,6 +752,20 @@ export default function NewspaperPreview() {
                 );
               })}
             </div>
+
+            <DragOverlay>
+              {activeBlock ? (
+                <div className="p-3 bg-[#e8dcc4] border-2 border-[#8b4513] shadow-2xl rounded opacity-95 rotate-1 max-w-[280px] pointer-events-none text-xs font-serif text-[#2c241e]">
+                  <span className="font-bold text-[#8b4513] block mb-0.5">
+                    {activeBlock.type === "article" ? "✍ 文章区块" : activeBlock.type === "headline" ? "✦ 大标题区块" : activeBlock.type === "image" ? "🖼 版画插图" : activeBlock.type === "divider" ? "◇ 分隔线" : "🪙 告示商号"}
+                  </span>
+                  <p className="line-clamp-2 text-stone-700 text-[11px] leading-tight">
+                    {activeBlock.type === "article" ? (activeBlock as ArticleBlock).title : activeBlock.type === "headline" ? (activeBlock as HeadlineBlock).text : activeBlock.type === "image" ? ((activeBlock as ImageBlock).caption || "插图") : "区块移动中..."}
+                  </p>
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
 
             {/* Bottom footer mark — theme-aware */}
             <div className={`mt-6 pt-2 text-center text-[10px] font-serif tracking-widest flex justify-between px-1 ${theme === "republican" ? "border-t-[3px] border-[#1a1a1a] text-[#1a1a1a]/60 uppercase" : "border-t-2 border-[#2b221a] text-stone-600 uppercase"}`}>
