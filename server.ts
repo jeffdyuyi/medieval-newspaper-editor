@@ -33,10 +33,10 @@ function getGeminiClient(): GoogleGenAI {
   return aiInstance;
 }
 
-// API endpoint: Generate Medieval Fantasy Content
+// API endpoint: Generate Historical Newspaper Content
 app.post("/api/gemini/generate", async (req, res) => {
   try {
-    const { prompt, type, language = "zh" } = req.body;
+    const { prompt, type, language = "zh", theme = "fantasy" } = req.body;
 
     if (!prompt) {
       return res.status(400).json({ error: "Missing prompt parameter." });
@@ -51,6 +51,20 @@ app.post("/api/gemini/generate", async (req, res) => {
       console.warn("Gemini client initialization failed:", err.message);
       
       // Fallback local simulated generator
+      if (theme === "republican") {
+        return res.json({
+          isDemo: true,
+          title: `【要闻】${prompt.slice(0, 15)}`,
+          subtitle: "（配置 GEMINI_API_KEY 后可体验完整 AI 创作）本埠专电：各界瞩目",
+          author: "本报驻沪特派访员",
+          paragraphs: [
+            `本埠讯：近日关于“${prompt}”一事，社会各界纷表关切。昨日午后，相关同仁假座公会召开集议，商榷善后方针。`,
+            "席间商贾与学界诸公各抒胸臆，认为当前时局日新月异，凡关涉民生大计者，亟须通力合作，毋致贻误机宜。",
+            "闻悉有关方面已派员前往督促查勘，详细章程容候续布。本报特派访员随时追踪实情，以飨阅者。"
+          ]
+        });
+      }
+
       return res.json({
         isDemo: true,
         title: language === "zh" ? `【特报】${prompt.slice(0, 15)}...` : `[Special Report] ${prompt.slice(0, 20)}...`,
@@ -69,7 +83,9 @@ app.post("/api/gemini/generate", async (req, res) => {
     }
 
     let systemInstruction = "";
-    if (type === "proclamation") {
+    if (theme === "republican") {
+      systemInstruction = "你是一位20世纪初民国时期（如《申报》、《时事新报》）的资深主笔记者。根据用户提供的话题，撰写一篇具有浓郁民国浅近白话文风格的时代新闻报道或社会要闻。使用‘本埠讯’、‘据闻’、‘商界同人’、‘即席发表演说’、‘各界瞩目’等时代特色词汇。返回结构化JSON，包含标题(title)、副标题(subtitle)、作者(author)以及段落数组(paragraphs，包含3段左右的精彩报道内容)。";
+    } else if (type === "proclamation") {
       systemInstruction = language === "zh" 
         ? "你是一位中世纪皇家宣诏官。将用户的现代文本改写成一段极其庄严、古雅、富有中世纪奇幻色彩的中文帝国公告。使用‘奉天承运’、‘告尔臣民’、‘克日’、‘敕令’等富有历史厚重感的措辞。返回结构化JSON。"
         : "You are a medieval royal herald. Rewrite the user's text into an extremely grand, solemn, and archaic medieval fantasy proclamation in English, using words like 'Hear Ye', 'Decree', 'By Order of the King', etc. Return structured JSON.";

@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { 
   Feather, RefreshCw, HelpCircle, Scissors, Type as FontIcon, 
   Layout, Settings, FileText, Image as ImageIcon, Plus, 
   ArrowUp, ArrowDown, Trash2, Printer, Download, Undo2, Redo2, BookOpen, Save,
-  Coins as CoinsIcon
+  Coins as CoinsIcon, Sparkles
 } from "lucide-react";
 import { useNewspaper } from "../context/NewspaperContext";
 import { BlockType, ColumnSplit, ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock, PaperTone } from "../types";
@@ -38,6 +38,38 @@ export default function Sidebar() {
     undo, redo, canUndo, canRedo, setShowSaveManager,
     theme, switchTheme, updateRowHeight, triggerImageUpload
   } = useNewspaper();
+
+  const [aiTopic, setAiTopic] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleAiGenerate = async () => {
+    if (!aiTopic.trim() || !selectedBlockId) return;
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/gemini/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: aiTopic, theme })
+      });
+      const data = await res.json();
+      if (data && data.title && data.paragraphs) {
+        updateBlock(selectedBlockId, b => ({
+          ...b,
+          type: "article",
+          title: data.title,
+          subtitle: data.subtitle || "",
+          author: data.author || (theme === "republican" ? "本报特派记者" : "帝国记录官"),
+          paragraphs: Array.isArray(data.paragraphs) ? data.paragraphs : [data.paragraphs]
+        }) as ArticleBlock);
+        setAiTopic("");
+      }
+    } catch (err) {
+      console.error("AI Generation error:", err);
+      alert("AI 生成遇到网络或接口问题，请稍后重试。");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleExportPNG = async () => {
     const element = document.getElementById("printable-newspaper-content");
@@ -79,7 +111,10 @@ export default function Sidebar() {
         canvas.height = height * 2;
         const ctx = canvas.getContext("2d");
         if (ctx) {
-          ctx.fillStyle = "#f1e4cb";
+          const defaultBg = theme === "republican" 
+            ? (paperTone === "aged" ? "#eae6db" : paperTone === "antique" ? "#e0dacb" : paperTone === "bright" ? "#faf9f5" : "#f4f3ef")
+            : (paperTone === "aged" ? "#e8d7b7" : paperTone === "antique" ? "#dcc49c" : paperTone === "bright" ? "#fbf5e6" : "#f1e4cb");
+          ctx.fillStyle = defaultBg;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, 0, 0, width * 2, height * 2);
           const pngUrl = canvas.toDataURL("image/png");
@@ -413,6 +448,41 @@ export default function Sidebar() {
                     {/* ARTICLE BLOCK EDIT CONTROLS */}
                     {selectedBlock.type === "article" && (
                       <div className="space-y-4">
+                        {/* AI Writing Inspiration */}
+                        <div className="p-2.5 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-[#8b4513] flex items-center gap-1.5">
+                              <Sparkles className="w-3.5 h-3.5 text-[#8b4513]" />
+                              <span>{theme === "republican" ? "民国笔法·AI 撰写报道" : "帝国史官·AI 撰写奇闻"}</span>
+                            </span>
+                            {isGenerating && (
+                              <span className="text-[10px] text-[#8b4513] font-bold animate-pulse">正在提笔撰稿中...</span>
+                            )}
+                          </div>
+                          <div className="flex gap-1.5">
+                            <input
+                              type="text"
+                              value={aiTopic}
+                              onChange={(e) => setAiTopic(e.target.value)}
+                              placeholder={theme === "republican" ? "输入要闻话题，如：电车通车/洋行开市..." : "输入异闻话题，如：巨龙重现/炼金药水..."}
+                              className="flex-1 bg-[#dcd0b8] border border-[#8b4513] rounded px-2.5 py-1 text-xs text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513]"
+                              onKeyDown={(e) => { if (e.key === "Enter") handleAiGenerate(); }}
+                            />
+                            <button
+                              type="button"
+                              onClick={handleAiGenerate}
+                              disabled={isGenerating || !aiTopic.trim()}
+                              className="px-3 py-1 bg-[#8b4513] hover:bg-[#753a10] disabled:opacity-40 text-[#f5deb3] text-xs font-bold rounded transition-colors shrink-0 flex items-center gap-1 cursor-pointer"
+                            >
+                              <Sparkles className="w-3 h-3" />
+                              <span>生成</span>
+                            </button>
+                          </div>
+                          <p className="text-[10px] text-[#4a3728]/70 leading-tight">
+                            输入关键词即可由 AI 一键生成标题、副标题、署名及多段地道古风正文。
+                          </p>
+                        </div>
+
                         <div className="space-y-1">
                           <label className="text-xs font-bold text-[#8b4513]">文章大标题</label>
                           <input 
