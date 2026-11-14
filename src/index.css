@@ -10,8 +10,19 @@
   --font-zhimang: "Zhi Mang Xing", cursive;
   --font-gothic: "Grenze Gotisch", serif;
   --font-cinzel: "Cinzel", serif;
-  --font-fangsong: "FangSong", "STFangsong", serif;
-  --font-lishu: "LiSu", "STLiti", serif;
+  --font-fangsong: "FangSong", "STFangsong", "Noto Serif SC", serif;
+  --font-lishu: "LiSu", "STLiti", "Baoli SC", "Noto Serif SC", serif;
+}
+
+/* Paper tone modifiers */
+.tone-aged {
+  filter: sepia(0.08) contrast(1.02);
+}
+.tone-antique {
+  filter: sepia(0.2) contrast(1.06) brightness(0.96);
+}
+.tone-bright {
+  filter: brightness(1.04) contrast(0.98) saturate(0.9);
 }
 
 /* Multi-column layout helpers */
@@ -242,6 +253,7 @@
   overflow: hidden;
   word-break: break-all;
   text-align: justify;
+  text-justify: inter-ideograph;
   font-size: 13px;
   line-height: 1.8;
   padding: 8px 4px;

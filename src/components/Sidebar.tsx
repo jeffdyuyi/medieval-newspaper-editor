@@ -6,8 +6,9 @@ import {
   Coins as CoinsIcon
 } from "lucide-react";
 import { useNewspaper } from "../context/NewspaperContext";
-import { BlockType, ColumnSplit, ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock } from "../types";
+import { BlockType, ColumnSplit, ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock, PaperTone } from "../types";
 import { ALL_CLIPART } from "../clipart";
+import { FONT_OPTIONS } from "../constants";
 
 export { CoinsIcon };
 
@@ -26,6 +27,7 @@ export default function Sidebar() {
     columnGap, setColumnGap,
     enableParchmentTexture, setEnableParchmentTexture,
     enableCoffeeStains, setEnableCoffeeStains,
+    paperTone, setPaperTone,
     showPrintHelp, setShowPrintHelp,
     isExporting, setIsExporting,
     activeAddBlockColId, setActiveAddBlockColId,
@@ -34,31 +36,8 @@ export default function Sidebar() {
     updateRowSplit, addNewRow, deleteRow, moveRow,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, handleResetData,
     undo, redo, canUndo, canRedo, setShowSaveManager,
-    theme, switchTheme, updateRowHeight
+    theme, switchTheme, updateRowHeight, triggerImageUpload
   } = useNewspaper();
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const triggerImageUpload = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !selectedBlockId) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      updateBlock(selectedBlockId, b => ({
-        ...b,
-        type: "image",
-        src: base64,
-        isClipart: false,
-        clipartId: undefined
-      }) as ImageBlock);
-    };
-    reader.readAsDataURL(file);
-  };
 
   const handleExportPNG = async () => {
     const element = document.getElementById("printable-newspaper-content");
@@ -842,14 +821,6 @@ export default function Sidebar() {
                               <span>上传自定义图片</span>
                             </button>
                           </div>
-
-                          <input 
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleImageUpload}
-                            accept="image/*"
-                            className="hidden"
-                          />
                         </div>
 
                         {/* Clipart Library Selector if isClipart */}
@@ -1414,6 +1385,25 @@ export default function Sidebar() {
                       </div>
                     </div>
 
+                    {/* Republican row height controller */}
+                    {theme === "republican" && (
+                      <div className="space-y-1 pt-1.5 border-t border-[#8b4513]/20">
+                        <div className="flex justify-between text-[11px] font-bold text-[#8b4513]">
+                          <span>民国竖排行高</span>
+                          <span className="font-mono">{row.height || 480} 像素</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="240"
+                          max="800"
+                          step="20"
+                          value={row.height || 480}
+                          onChange={(e) => updateRowHeight(row.id, parseInt(e.target.value))}
+                          className="w-full accent-[#1a1a1a]"
+                        />
+                      </div>
+                    )}
+
                     {/* Show Column Blocks Count and Quick Block Insertion */}
                     <div className="grid grid-cols-3 gap-2 pt-1 text-[11px]">
                       {row.columns.map((col, colIdx) => (
@@ -1549,7 +1539,33 @@ export default function Sidebar() {
                 {theme === "republican" ? "纸张与油墨设定" : "古物仿真背景設定"}
               </h3>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
+                {/* Paper Tone Selector */}
+                <div className="space-y-1.5 pt-1">
+                  <label className="text-xs font-bold text-[#4a3728] block">纸张色调微调 (泛黄做旧度)</label>
+                  <div className="grid grid-cols-4 gap-1.5 text-center text-[10px]">
+                    {[
+                      { key: "default", label: "标准" },
+                      { key: "aged", label: "微黄" },
+                      { key: "antique", label: "古卷" },
+                      { key: "bright", label: "素白" },
+                    ].map(tone => (
+                      <button
+                        key={tone.key}
+                        type="button"
+                        onClick={() => setPaperTone(tone.key as PaperTone)}
+                        className={`py-1.5 border rounded-sm font-bold transition text-xs cursor-pointer ${
+                          paperTone === tone.key
+                            ? "bg-[#8b4513] border-[#8b4513] text-[#f5deb3] shadow-inner"
+                            : "bg-[#dcd0b8] border-[#8b4513]/40 text-[#4a3728] hover:bg-[#8b4513]/10"
+                        }`}
+                      >
+                        {tone.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {theme === "fantasy" && (
                   <label className="flex items-center gap-2 text-xs font-bold text-[#4a3728] cursor-pointer">
                     <input
@@ -1611,7 +1627,6 @@ export default function Sidebar() {
         </div>
 
       </aside>
-      <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
     </>
   );
 }

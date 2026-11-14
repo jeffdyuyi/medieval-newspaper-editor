@@ -192,6 +192,105 @@ export const REPUBLICAN_CLIPART: ClipartItem[] = [
       <path d="M55 27 Q58 22 63 23" stroke="currentColor" stroke-width="1.5" fill="none"/>
     </svg>`,
   },
+  {
+    id: "rickshaw",
+    name: "人力黄包车",
+    category: "交通",
+    themeGroup: "republican",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <circle cx="68" cy="68" r="18" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <circle cx="68" cy="68" r="3"/>
+      <line x1="68" y1="50" x2="68" y2="86" stroke="currentColor" stroke-width="1"/>
+      <line x1="50" y1="68" x2="86" y2="68" stroke="currentColor" stroke-width="1"/>
+      <line x1="55" y1="55" x2="81" y2="81" stroke="currentColor" stroke-width="1"/>
+      <line x1="55" y1="81" x2="81" y2="55" stroke="currentColor" stroke-width="1"/>
+      <path d="M72 45 Q75 32 60 32 L48 32 L48 55 L65 55 Z" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M48 52 L35 55 L35 60 L48 58" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M68 68 L20 62 L15 65" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M38 56 L38 72" stroke="currentColor" stroke-width="2"/>
+    </svg>`,
+  },
+  {
+    id: "pocket-watch",
+    name: "西洋怀表",
+    category: "百货",
+    themeGroup: "republican",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <circle cx="50" cy="58" r="30" fill="none" stroke="currentColor" stroke-width="3"/>
+      <circle cx="50" cy="58" r="26" fill="none" stroke="currentColor" stroke-width="1"/>
+      <circle cx="50" cy="58" r="2"/>
+      <line x1="50" y1="58" x2="50" y2="38" stroke="currentColor" stroke-width="2"/>
+      <line x1="50" y1="58" x2="64" y2="58" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="50" y1="32" x2="50" y2="35" stroke="currentColor" stroke-width="2"/>
+      <line x1="50" y1="81" x2="50" y2="84" stroke="currentColor" stroke-width="2"/>
+      <line x1="24" y1="58" x2="27" y2="58" stroke="currentColor" stroke-width="2"/>
+      <line x1="73" y1="58" x2="76" y2="58" stroke="currentColor" stroke-width="2"/>
+      <rect x="47" y="24" width="6" height="4" fill="currentColor"/>
+      <path d="M44 24 Q50 14 56 24" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="50" cy="17" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+    </svg>`,
+  },
+  {
+    id: "teacup",
+    name: "青瓷茶碗",
+    category: "市井",
+    themeGroup: "republican",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <ellipse cx="50" cy="80" rx="36" ry="6" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M26 50 Q28 72 50 75 Q72 72 74 50 Z" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <ellipse cx="50" cy="50" rx="24" ry="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M28 48 Q50 34 72 48" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="50" cy="36" r="3" fill="currentColor"/>
+      <path d="M42 22 Q46 16 44 10 M50 24 Q54 18 52 12 M58 22 Q62 16 60 10" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2" fill="none"/>
+    </svg>`,
+  },
+  {
+    id: "steamboat",
+    name: "轮船局商船",
+    category: "交通",
+    themeGroup: "republican",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <path d="M12 65 L88 65 L80 82 L20 82 Z" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <rect x="25" y="48" width="50" height="17" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="35" y="34" width="30" height="14" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="47" y="18" width="6" height="16" fill="currentColor"/>
+      <line x1="15" y1="88" x2="85" y2="88" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 2"/>
+      <circle cx="34" cy="56" r="2.5"/>
+      <circle cx="45" cy="56" r="2.5"/>
+      <circle cx="56" cy="56" r="2.5"/>
+      <circle cx="67" cy="56" r="2.5"/>
+      <path d="M53 14 Q58 8 68 10" stroke="currentColor" stroke-width="2" stroke-dasharray="2 2" fill="none"/>
+    </svg>`,
+  },
+  {
+    id: "square-seal",
+    name: "古籍朱方印",
+    category: "印信",
+    themeGroup: "republican",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <rect x="18" y="18" width="64" height="64" rx="2" fill="none" stroke="currentColor" stroke-width="3"/>
+      <rect x="22" y="22" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1"/>
+      <path d="M30 32 L44 32 M37 32 L37 68 M30 68 L44 68" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M56 32 L70 32 M63 32 L63 50 M56 50 L70 50 M56 68 L70 68 M70 50 L70 68" stroke="currentColor" stroke-width="2.5"/>
+    </svg>`,
+  },
+  {
+    id: "vintage-camera",
+    name: "风箱照相机",
+    category: "百货",
+    themeGroup: "republican",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <rect x="20" y="30" width="30" height="34" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M50 34 L68 40 L68 54 L50 60 Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="56" y1="36" x2="56" y2="58" stroke="currentColor" stroke-width="1"/>
+      <line x1="62" y1="38" x2="62" y2="56" stroke="currentColor" stroke-width="1"/>
+      <circle cx="73" cy="47" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="73" cy="47" r="3" fill="currentColor"/>
+      <line x1="35" y1="64" x2="18" y2="88" stroke="currentColor" stroke-width="2"/>
+      <line x1="35" y1="64" x2="35" y2="90" stroke="currentColor" stroke-width="2"/>
+      <line x1="35" y1="64" x2="52" y2="88" stroke="currentColor" stroke-width="2"/>
+    </svg>`,
+  },
 ];
 
 export const ALL_CLIPART: ClipartItem[] = [

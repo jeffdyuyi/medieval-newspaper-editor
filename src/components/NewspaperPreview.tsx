@@ -59,33 +59,12 @@ export default function NewspaperPreview() {
     columnGap, setColumnGap,
     enableParchmentTexture, setEnableParchmentTexture,
     enableCoffeeStains, setEnableCoffeeStains,
+    paperTone,
     activeAddBlockColId, setActiveAddBlockColId,
     selectBlockAndContext, updateBlock,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally,
-    theme, switchTheme, updateRowHeight
+    theme, switchTheme, updateRowHeight, triggerImageUpload
   } = useNewspaper();
-
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const triggerImageUpload = () => {
-    fileInputRef.current?.click();
-  };
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !selectedBlockId) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      updateBlock(selectedBlockId, b => ({
-        ...b,
-        type: "image",
-        src: base64,
-        isClipart: false,
-        clipartId: undefined
-      }) as ImageBlock);
-    };
-    reader.readAsDataURL(file);
-  };
-
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -239,6 +218,10 @@ export default function NewspaperPreview() {
           <div 
             id="printable-newspaper-content"
             className={`printable-newspaper w-full p-6 md:p-10 transition-all duration-300 shadow-2xl relative select-text ${
+              paperTone === "aged" ? "tone-aged" :
+              paperTone === "antique" ? "tone-antique" :
+              paperTone === "bright" ? "tone-bright" : ""
+            } ${
               theme === "republican"
                 ? "newsprint-bg text-[#0d0d0d] republican-double-border"
                 : `text-[#2b221a] border-4 newspaper-double-border ${enableParchmentTexture ? "parchment-bg" : "bg-[#fcf8ee] text-black"}`
@@ -778,7 +761,6 @@ export default function NewspaperPreview() {
         </div>
 
       </main>
-      <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
     </>
   );
 }

@@ -4,6 +4,8 @@ export type BlockType = "headline" | "article" | "image" | "divider" | "ad";
 
 export type NewspaperTheme = "fantasy" | "republican";
 
+export type PaperTone = "default" | "aged" | "antique" | "bright";
+
 export interface HeadlineBlock {
   id: string;
   type: "headline";

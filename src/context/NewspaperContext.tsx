@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { 
   NewspaperData, Row, Column, Block, BlockType, 
-  ColumnSplit, NewspaperHeader, NewspaperTheme,
-  ArticleBlock, HeadlineBlock
+  ColumnSplit, NewspaperHeader, NewspaperTheme, PaperTone,
+  ArticleBlock, HeadlineBlock, ImageBlock
 } from "../types";
 import { INITIAL_NEWSPAPER_DATA, REPUBLICAN_NEWSPAPER_DATA } from "../defaultData";
 
@@ -84,6 +84,8 @@ interface NewspaperContextType {
   setEnableParchmentTexture: React.Dispatch<React.SetStateAction<boolean>>;
   enableCoffeeStains: boolean;
   setEnableCoffeeStains: React.Dispatch<React.SetStateAction<boolean>>;
+  paperTone: PaperTone;
+  setPaperTone: React.Dispatch<React.SetStateAction<PaperTone>>;
   showPrintHelp: boolean;
   setShowPrintHelp: React.Dispatch<React.SetStateAction<boolean>>;
   showSaveManager: boolean;
@@ -113,6 +115,7 @@ interface NewspaperContextType {
   moveBlock: (blockId: string, colId: string, direction: "up" | "down") => void;
   moveBlockHorizontally: (blockId: string, fromColId: string, rowId: string, direction: "left" | "right") => void;
   handleResetData: () => void;
+  triggerImageUpload: () => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -234,6 +237,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [columnGap, setColumnGap] = useState<number>(() => getInitialLayoutSetting("columnGap", 6));
   const [enableParchmentTexture, setEnableParchmentTexture] = useState<boolean>(() => getInitialLayoutSetting("enableParchmentTexture", true));
   const [enableCoffeeStains, setEnableCoffeeStains] = useState<boolean>(() => getInitialLayoutSetting("enableCoffeeStains", true));
+  const [paperTone, setPaperTone] = useState<PaperTone>(() => getInitialLayoutSetting("paperTone", "default"));
 
   const [showPrintHelp, setShowPrintHelp] = useState<boolean>(false);
   const [showSaveManager, setShowSaveManager] = useState<boolean>(false);
@@ -241,6 +245,30 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const [activeAddBlockColId, setActiveAddBlockColId] = useState<string | null>(null);
   const [activeSidebarColId, setActiveSidebarColId] = useState<string | null>(null);
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const triggerImageUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedBlockId) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      updateBlock(selectedBlockId, b => ({
+        ...b,
+        type: "image",
+        src: base64,
+        isClipart: false,
+        clipartId: undefined
+      }) as ImageBlock);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
 
   useEffect(() => {
     localStorage.setItem("medieval_newspaper_data", JSON.stringify(newspaperData));
@@ -252,10 +280,11 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
       globalBodyScale,
       columnGap,
       enableParchmentTexture,
-      enableCoffeeStains
+      enableCoffeeStains,
+      paperTone
     };
     localStorage.setItem("newspaper_layout_settings", JSON.stringify(settings));
-  }, [globalHeadingScale, globalBodyScale, columnGap, enableParchmentTexture, enableCoffeeStains]);
+  }, [globalHeadingScale, globalBodyScale, columnGap, enableParchmentTexture, enableCoffeeStains, paperTone]);
 
   const findSelectedBlock = (): Block | null => {
     if (!selectedBlockId) return null;
@@ -604,6 +633,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     columnGap, setColumnGap,
     enableParchmentTexture, setEnableParchmentTexture,
     enableCoffeeStains, setEnableCoffeeStains,
+    paperTone, setPaperTone,
     showPrintHelp, setShowPrintHelp,
     showSaveManager, setShowSaveManager,
     isExporting, setIsExporting,
@@ -614,12 +644,14 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     findSelectedBlock, selectBlockAndContext, updateBlock, updateHeader,
     updateRowSplit, addNewRow, deleteRow, moveRow,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, handleResetData,
+    triggerImageUpload,
     undo, redo, canUndo, canRedo
   };
 
   return (
     <NewspaperContext.Provider value={contextValue}>
       {children}
+      <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
     </NewspaperContext.Provider>
   );
 };
