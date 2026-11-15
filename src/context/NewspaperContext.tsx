@@ -419,6 +419,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
   };
 
   const splitColumn = (rowId: string, colId: string) => {
+    let createdColId: string | null = null;
     setNewspaperData((prev) => ({
       ...prev,
       rows: prev.rows.map((row) => {
@@ -432,6 +433,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
         }
 
         const newColId = `col_${rowId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        createdColId = newColId;
         const newCol: Column = {
           id: newColId,
           blocks: [],
@@ -464,6 +466,12 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
         };
       }),
     }));
+
+    if (createdColId) {
+      setSelectedRowId(rowId);
+      setSelectedColumnId(createdColId);
+      setSelectedBlockId(null);
+    }
   };
 
   const deleteColumn = (rowId: string, colId: string) => {

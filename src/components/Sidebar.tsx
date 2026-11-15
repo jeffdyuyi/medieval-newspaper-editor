@@ -312,18 +312,7 @@ export default function Sidebar() {
           
           {/* MODE 1: COMPONENT & BLOCK PALETTE */}
           {activeTab === "blocks" && (
-            <div className="space-y-4 animate-fadeIn">
-              {/* Visual guideline box to teach users about the selection flow */}
-              <div className="p-3 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded-sm space-y-1.5 text-xs text-[#8b4513] leading-relaxed font-serif">
-                <span className="font-extrabold block">✨ 所见即所得排版指引：</span>
-                <ul className="space-y-1 text-[11px] list-disc pl-4 text-[#4a3728]">
-                  <li><strong>点击直接打字</strong>：在右侧报纸上<strong>直接点击文本</strong>即可原地输入，敲回车自然分段。</li>
-                  <li><strong>划选文本工具栏</strong>：选中文本立即浮出粗体、斜体、下划线与朱砂标红。</li>
-                  <li><strong>版式模板添加</strong>：从下方元件库拖拽至指定栏目，或直接点击【+ 添加】。</li>
-                  <li><strong>区块高级样式</strong>：悬停在区块上方可点击齿轮 ⚙️ 打开字体与装帧设置。</li>
-                </ul>
-              </div>
-
+            <div className="space-y-3 animate-fadeIn">
               {/* Modern WYSIWYG Drag Palette with Quick Add */}
               <BlockPalette theme={theme} />
 
@@ -1181,10 +1170,6 @@ export default function Sidebar() {
                           />
                         </div>
                       )}
-
-                      <div className="p-2 bg-[#8b4513]/10 border border-[#8b4513]/20 rounded text-[11px] text-[#4a3728] leading-relaxed">
-                        💡 <strong>报头文字原生编辑</strong>：报纸大名、副标标语、发刊期号、发售定价、印制地点与页脚版权文案，已全部支持在右侧报纸上<strong>单击直接打字修改</strong>！
-                      </div>
                     </div>
 
                     {/* Section 3: Paper Tone & Texture */}
@@ -1298,120 +1283,10 @@ export default function Sidebar() {
                       </div>
                     </div>
 
-                    {/* Section 5: Grid Row Manager */}
-                    <div className="space-y-3 font-serif">
-                      <div className="flex items-center justify-between pb-1 border-b border-[#8b4513]/30">
-                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">五、 版面行与分栏配比</span>
-                        <button 
-                          type="button"
-                          onClick={addNewRow}
-                          className="text-xs bg-[#8b4513] border border-[#d2b48c] hover:bg-[#753a10] text-[#f5deb3] px-2 py-0.5 rounded-sm font-bold transition-colors flex items-center gap-1 cursor-pointer"
-                        >
-                          <Plus className="w-3 h-3" />
-                          <span>添加版面行</span>
-                        </button>
-                      </div>
-
-                      <div className="space-y-2.5">
-                        {newspaperData.rows.map((row, idx) => (
-                          <div 
-                            key={row.id}
-                            onClick={() => {
-                              setSelectedRowId(row.id);
-                              setSelectedColumnId(row.columns[0]?.id || null);
-                            }}
-                            className={`p-2.5 bg-[#dcd0b8]/40 border rounded-sm transition space-y-2 cursor-pointer ${
-                              selectedRowId === row.id 
-                                ? "border-[#8b4513] bg-[#dcd0b8]/80 ring-1 ring-[#8b4513]" 
-                                : "border-[#8b4513]/30 hover:border-[#8b4513]/60"
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-[#8b4513]">行 #{idx + 1} ({row.columns.length} 栏)</span>
-                              
-                              <div className="flex items-center gap-1.5 no-print">
-                                <button 
-                                  type="button"
-                                  onClick={(e) => { e.stopPropagation(); moveRow(row.id, "up"); }}
-                                  disabled={idx === 0}
-                                  title="上移此行"
-                                  className="p-1 hover:bg-[#8b4513]/10 rounded-sm disabled:opacity-30 text-[#8b4513] cursor-pointer"
-                                >
-                                  <ArrowUp className="w-3 h-3" />
-                                </button>
-                                <button 
-                                  type="button"
-                                  onClick={(e) => { e.stopPropagation(); moveRow(row.id, "down"); }}
-                                  disabled={idx === newspaperData.rows.length - 1}
-                                  title="下移此行"
-                                  className="p-1 hover:bg-[#8b4513]/10 rounded-sm disabled:opacity-30 text-[#8b4513] cursor-pointer"
-                                >
-                                  <ArrowDown className="w-3 h-3" />
-                                </button>
-                                <button 
-                                  type="button"
-                                  onClick={(e) => { e.stopPropagation(); deleteRow(row.id); }}
-                                  title="删除此行"
-                                  className="p-1 hover:bg-red-100 hover:text-red-700 rounded-sm text-[#8b4513] transition-colors cursor-pointer"
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                </button>
-                              </div>
-                            </div>
-
-                            {/* Column Split Picker */}
-                            <div className="space-y-1">
-                              <div className="grid grid-cols-5 gap-1 text-center text-[10px]">
-                                {(["1", "1-1", "1-2", "2-1", "1-1-1"] as ColumnSplit[]).map(split => (
-                                  <button
-                                    key={split}
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      updateRowSplit(row.id, split);
-                                    }}
-                                    className={`py-1 border rounded-sm font-bold transition text-xs cursor-pointer ${
-                                      row.split === split 
-                                        ? "bg-[#8b4513] border-[#8b4513] text-[#f5deb3]" 
-                                        : "bg-[#e8dcc4] border-[#8b4513]/40 text-[#8b4513]/80 hover:bg-[#8b4513]/10"
-                                    }`}
-                                  >
-                                    {split === "1" && "单栏"}
-                                    {split === "1-1" && "1:1"}
-                                    {split === "1-2" && "1:2"}
-                                    {split === "2-1" && "2:1"}
-                                    {split === "1-1-1" && "1:1:1"}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-
-                            {theme === "republican" && (
-                              <div className="space-y-1 pt-1.5 border-t border-[#8b4513]/20">
-                                <div className="flex justify-between text-[11px] font-bold text-[#8b4513]">
-                                  <span>竖排行高</span>
-                                  <span className="font-mono">{row.height || 480}px</span>
-                                </div>
-                                <input
-                                  type="range"
-                                  min="240"
-                                  max="800"
-                                  step="20"
-                                  value={row.height || 480}
-                                  onChange={(e) => updateRowHeight(row.id, parseInt(e.target.value))}
-                                  className="w-full accent-[#1a1a1a]"
-                                />
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Section 6: AI Configuration */}
+                    {/* Section 5: AI Configuration */}
                     <div className="space-y-2 font-serif">
                       <div className="flex items-center justify-between pb-1 border-b border-[#8b4513]/30">
-                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">六、 AI 智能撰稿配置</span>
+                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">五、 AI 智能撰稿配置</span>
                         <span className="text-[10px] text-[#8b4513]/70 font-normal">纯前端/本地离线</span>
                       </div>
 

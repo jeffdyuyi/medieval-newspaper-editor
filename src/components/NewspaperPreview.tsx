@@ -857,25 +857,101 @@ export default function NewspaperPreview() {
                           />
                         )}
 
-                        {/* Inline column block-adder */}
-                        <div className={`no-print h-6 flex items-center justify-center transition duration-150 relative z-10 ${activeAddBlockColId === col.id ? "opacity-100" : "opacity-0 hover:opacity-100"}`}>
-                          <div className="w-full border-t border-dashed border-[#5a4b3d]/30 absolute" />
-                          <div className="relative inline-block">
-                            <button type="button" onClick={(e) => { e.stopPropagation(); setActiveAddBlockColId(activeAddBlockColId === col.id ? null : col.id); }}
-                              className="bg-[#231d18] hover:bg-[#342a20] text-[#e0a96d] border border-[#5a4b3d] rounded-full p-1 shadow-lg flex items-center gap-1 text-[10px] px-2 cursor-pointer relative z-50">
-                              <Plus className="w-3 h-3" /><span>在此增添文章或圖片</span>
-                            </button>
-                            {activeAddBlockColId === col.id && (
-                              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-36 bg-[#1a1511] border-2 border-[#e0a96d] p-1.5 rounded shadow-2xl space-y-1 text-left z-50 animate-fadeIn">
-                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "article"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">✍ 书写文字文章</button>
-                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "headline"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">✦ 装饰大字标题</button>
-                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "image"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">🖼 绘制插图木印</button>
-                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "divider"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">◇ 插入中饰隔线</button>
-                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "ad"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">🪙 刊登告示商售</button>
-                              </div>
-                            )}
+                        {/* Empty column prompt with quick block-picker buttons */}
+                        {col.blocks.length === 0 && (
+                          <div className={`no-print my-2 p-3.5 border-2 border-dashed rounded-sm flex flex-col items-center justify-center text-center space-y-2 min-h-[140px] transition-colors ${
+                            isRepublican
+                              ? "border-[#1a1a1a]/30 bg-[#1a1a1a]/4 hover:border-[#1a1a1a]/60"
+                              : "border-[#8b4513]/30 bg-[#8b4513]/4 hover:border-[#8b4513]/60"
+                          }`}>
+                            <div className={`text-xs font-bold flex items-center gap-1.5 ${isRepublican ? "text-[#1a1a1a] font-sans" : "text-[#8b4513] font-serif"}`}>
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>全新空白栏位 · 选择版式填入</span>
+                            </div>
+                            <div className="flex flex-wrap items-center justify-center gap-1.5 max-w-sm">
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "article"); }}
+                                className={`px-2.5 py-1 rounded text-[11px] font-bold shadow-xs cursor-pointer transition ${
+                                  isRepublican
+                                    ? "bg-[#1a1a1a] text-[#f4f3ef] hover:bg-[#333]"
+                                    : "bg-[#231d18] text-[#e0a96d] hover:bg-[#342a20] border border-[#5a4b3d]"
+                                }`}
+                              >
+                                {isRepublican ? "✍ 新闻正文" : "✍ 文章正文"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "headline"); }}
+                                className={`px-2.5 py-1 rounded text-[11px] font-bold shadow-xs cursor-pointer transition ${
+                                  isRepublican
+                                    ? "bg-[#1a1a1a] text-[#f4f3ef] hover:bg-[#333]"
+                                    : "bg-[#231d18] text-[#e0a96d] hover:bg-[#342a20] border border-[#5a4b3d]"
+                                }`}
+                              >
+                                {isRepublican ? "■ 新闻大标" : "✦ 大字标题"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "image"); }}
+                                className={`px-2.5 py-1 rounded text-[11px] font-bold shadow-xs cursor-pointer transition ${
+                                  isRepublican
+                                    ? "bg-[#1a1a1a] text-[#f4f3ef] hover:bg-[#333]"
+                                    : "bg-[#231d18] text-[#e0a96d] hover:bg-[#342a20] border border-[#5a4b3d]"
+                                }`}
+                              >
+                                {isRepublican ? "📷 报刊图片" : "🖼 木版插图"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "divider"); }}
+                                className={`px-2.5 py-1 rounded text-[11px] font-bold shadow-xs cursor-pointer transition ${
+                                  isRepublican
+                                    ? "bg-[#1a1a1a] text-[#f4f3ef] hover:bg-[#333]"
+                                    : "bg-[#231d18] text-[#e0a96d] hover:bg-[#342a20] border border-[#5a4b3d]"
+                                }`}
+                              >
+                                {isRepublican ? "— 版面切线" : "◇ 装饰隔线"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "ad"); }}
+                                className={`px-2.5 py-1 rounded text-[11px] font-bold shadow-xs cursor-pointer transition ${
+                                  isRepublican
+                                    ? "bg-[#1a1a1a] text-[#f4f3ef] hover:bg-[#333]"
+                                    : "bg-[#231d18] text-[#e0a96d] hover:bg-[#342a20] border border-[#5a4b3d]"
+                                }`}
+                              >
+                                {isRepublican ? "◎ 商业告白" : "🪙 告示商号"}
+                              </button>
+                            </div>
+                            <span className={`text-[10px] italic ${isRepublican ? "text-[#1a1a1a]/50 font-sans" : "text-[#8b4513]/60 font-serif"}`}>
+                              亦可从左侧素材库直接拖拽版式投放至此
+                            </span>
                           </div>
-                        </div>
+                        )}
+
+                        {/* Inline column block-adder (for columns that already have content) */}
+                        {col.blocks.length > 0 && (
+                          <div className={`no-print h-6 flex items-center justify-center transition duration-150 relative z-10 ${activeAddBlockColId === col.id ? "opacity-100" : "opacity-0 hover:opacity-100"}`}>
+                            <div className="w-full border-t border-dashed border-[#5a4b3d]/30 absolute" />
+                            <div className="relative inline-block">
+                              <button type="button" onClick={(e) => { e.stopPropagation(); setActiveAddBlockColId(activeAddBlockColId === col.id ? null : col.id); }}
+                                className="bg-[#231d18] hover:bg-[#342a20] text-[#e0a96d] border border-[#5a4b3d] rounded-full p-1 shadow-lg flex items-center gap-1 text-[10px] px-2 cursor-pointer relative z-50">
+                                <Plus className="w-3 h-3" /><span>在此增添文章或圖片</span>
+                              </button>
+                              {activeAddBlockColId === col.id && (
+                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-36 bg-[#1a1511] border-2 border-[#e0a96d] p-1.5 rounded shadow-2xl space-y-1 text-left z-50 animate-fadeIn">
+                                  <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "article"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">{isRepublican ? "✍ 新闻正文" : "✍ 书写文字文章"}</button>
+                                  <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "headline"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">{isRepublican ? "■ 新闻大标" : "✦ 装饰大字标题"}</button>
+                                  <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "image"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">{isRepublican ? "📷 报刊相片" : "🖼 绘制插图木印"}</button>
+                                  <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "divider"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">{isRepublican ? "— 版面切线" : "◇ 插入中饰隔线"}</button>
+                                  <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "ad"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">{isRepublican ? "◎ 商业告白" : "🪙 刊登告示商售"}</button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </DroppableColumn>
                     ))}
 
