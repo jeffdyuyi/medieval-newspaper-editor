@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, Plus, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Trash2, Image as ImageIcon } from "lucide-react";
+import { Eye, Plus, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Trash2, Settings, Image as ImageIcon } from "lucide-react";
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SortableBlock } from "./SortableBlock";
 import { useNewspaper } from "../context/NewspaperContext";
@@ -64,6 +64,7 @@ export default function NewspaperPreview() {
     enableCoffeeStains,
     paperTone,
     activeAddBlockColId, setActiveAddBlockColId,
+    setActiveTab, setBlockTabMode,
     selectBlockAndContext,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, updateBlock,
     theme, switchTheme, updateRowHeight, updateRowColumnFractions, updateHeader, triggerImageUpload,
@@ -481,6 +482,18 @@ export default function NewspaperPreview() {
                                   >
                                     {/* Block Level Quick Ink buttons overlay */}
                                     <div className="no-print absolute top-1 right-1 opacity-0 group-hover/block:opacity-100 flex items-center gap-1 bg-[#e8dcc4] p-1 rounded-sm border border-[#8b4513] shadow-lg transition z-10">
+                                      <button 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          selectBlockAndContext(block.id, col.id, row.id);
+                                          setActiveTab("blocks");
+                                          setBlockTabMode("edit");
+                                        }}
+                                        title="在左侧打开此区块的高级排版配置"
+                                        className="p-1 hover:bg-[#8b4513]/15 rounded-sm text-[#8b4513] hover:text-[#2c241e]"
+                                      >
+                                        <Settings className="w-3 h-3" />
+                                      </button>
                                       <button 
                                         onClick={(e) => { e.stopPropagation(); moveBlock(block.id, col.id, "up"); }}
                                         title="上移此模块"

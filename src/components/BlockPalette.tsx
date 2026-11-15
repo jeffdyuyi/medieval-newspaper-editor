@@ -1,14 +1,16 @@
 /**
  * BlockPalette.tsx
- * 左侧可拖拽的模板素材库面板。
- * 每张卡片用 @dnd-kit useDraggable 包裹，拖拽到 NewspaperPreview 中的列放置区后
- * 由上层 PaletteDropContext 的 onDragEnd 调用 addBlockToColumn。
- *
- * 注意：Palette DnD 与列内部排序 DnD 是两套独立的 DndContext，互不干扰。
+ * 左侧现代化版式模板素材库。
+ * 支持：
+ * 1. 抓手拖拽（Drag & Drop）放置到右侧报纸任意栏目；
+ * 2. 一键点击追加（Click-to-Add）：点击卡片或“➕”按钮，一秒追加到当前选中栏目末尾；
+ * 3. 始终驻留在素材库视图，添加后不强行跳走，支持连续顺畅排版。
  */
 import React from "react";
 import { useDraggable } from "@dnd-kit/core";
+import { Plus, GripVertical } from "lucide-react";
 import { BlockType, NewspaperTheme } from "../types";
+import { useNewspaper } from "../context/NewspaperContext";
 
 // ── Palette card data ────────────────────────────────────────────────
 interface PaletteCardDef {
@@ -34,14 +36,15 @@ const REPUBLICAN_CARDS: PaletteCardDef[] = [
   { type: "ad",       emoji: "◎", label: "广告版块",   desc: "民国商业告白" },
 ];
 
-// ── Single draggable palette card ────────────────────────────────────
+// ── Single draggable & clickable palette card ─────────────────────────
 interface PaletteCardProps {
+  key?: React.Key;
   card: PaletteCardDef;
   theme: NewspaperTheme;
-  key?: React.Key;
+  onQuickAdd: (type: BlockType) => void;
 }
 
-function PaletteCard({ card, theme }: PaletteCardProps) {
+function PaletteCard({ card, theme, onQuickAdd }: PaletteCardProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `palette::${card.type}`,
     data: { isPaletteItem: true, blockType: card.type },
@@ -56,20 +59,21 @@ function PaletteCard({ card, theme }: PaletteCardProps) {
       {...listeners}
       className={`
         select-none cursor-grab active:cursor-grabbing rounded border transition-all duration-150
-        p-2.5 text-left group
+        p-2.5 text-left group flex items-center justify-between
         ${isDragging ? "opacity-50 scale-95 shadow-inner" : "hover:shadow-md hover:-translate-y-0.5"}
         ${isRep
           ? "bg-[#f4f3ef] border-[#1a1a1a]/20 hover:border-[#1a1a1a]/50 hover:bg-[#eae9e4]"
           : "bg-[#f0e6cc] border-[#8b4513]/20 hover:border-[#8b4513]/50 hover:bg-[#ead9b6]"
         }
       `}
-      title={`拖拽到报纸版面上的栏目中`}
+      title="按住可拖拽到报纸任意栏目中；或点击右侧➕直接追加"
     >
-      <div className="flex items-center gap-2">
-        <span className={`text-base leading-none select-none ${isRep ? "text-[#1a1a1a]" : "text-[#8b4513]"}`}>
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        <GripVertical className={`w-3.5 h-3.5 opacity-40 group-hover:opacity-80 shrink-0 ${isRep ? "text-[#1a1a1a]" : "text-[#8b4513]"}`} />
+        <span className={`text-base leading-none select-none shrink-0 ${isRep ? "text-[#1a1a1a]" : "text-[#8b4513]"}`}>
           {card.emoji}
         </span>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className={`text-[11px] font-bold leading-tight truncate ${isRep ? "text-[#0d0d0d] font-sans" : "text-[#2b221a] font-serif"}`}>
             {card.label}
           </div>
@@ -77,11 +81,25 @@ function PaletteCard({ card, theme }: PaletteCardProps) {
             {card.desc}
           </div>
         </div>
-        {/* subtle grip indicator */}
-        <div className={`ml-auto opacity-0 group-hover:opacity-40 transition-opacity text-[8px] leading-none tracking-widest ${isRep ? "text-[#1a1a1a]" : "text-[#8b4513]"}`}>
-          ⠿
-        </div>
       </div>
+
+      {/* Quick Add Button */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onQuickAdd(card.type);
+        }}
+        title="点击直接追加到当前选中的栏目"
+        className={`ml-2 px-2 py-1 rounded text-[10px] font-bold flex items-center gap-0.5 transition-colors cursor-pointer shrink-0 shadow-sm ${
+          isRep
+            ? "bg-[#1a1a1a] text-[#f4f3ef] hover:bg-[#333]"
+            : "bg-[#8b4513] text-[#f5deb3] hover:bg-[#753a10]"
+        }`}
+      >
+        <Plus className="w-3 h-3" />
+        <span>添加</span>
+      </button>
     </div>
   );
 }
@@ -92,31 +110,90 @@ interface BlockPaletteProps {
 }
 
 export default function BlockPalette({ theme }: BlockPaletteProps) {
+  const {
+    newspaperData,
+    selectedColumnId,
+    setSelectedColumnId,
+    setSelectedRowId,
+    addBlockToColumn,
+  } = useNewspaper();
   const isRep = theme === "republican";
   const cards = isRep ? REPUBLICAN_CARDS : FANTASY_CARDS;
 
+  // 收集可放置的栏目列表供一键快捷添加选择
+  const targetColOptions: { id: string; label: string }[] = [];
+  newspaperData.rows.forEach((row, rowIdx) => {
+    row.columns.forEach((col, colIdx) => {
+      targetColOptions.push({
+        id: col.id,
+        label: `行 ${rowIdx + 1} - 栏 ${colIdx + 1} (已有 ${col.blocks.length} 块)`
+      });
+    });
+  });
+
+  const activeTargetColId = selectedColumnId || targetColOptions[0]?.id || "";
+
+  const handleQuickAdd = (type: BlockType) => {
+    if (activeTargetColId) {
+      addBlockToColumn(activeTargetColId, type);
+    }
+  };
+
   return (
-    <div className={`rounded border p-2 ${isRep ? "bg-[#eae9e4] border-[#1a1a1a]/20" : "bg-[#e8dcc4] border-[#8b4513]/20"}`}>
+    <div className={`rounded border p-2.5 ${isRep ? "bg-[#eae9e4] border-[#1a1a1a]/20" : "bg-[#e8dcc4] border-[#8b4513]/20"}`}>
       {/* Panel header */}
-      <div className={`text-[10px] font-bold tracking-widest uppercase mb-2 pb-1.5 border-b flex items-center gap-1.5
+      <div className={`text-[10px] font-bold tracking-widest uppercase mb-1.5 pb-1 border-b flex items-center justify-between
         ${isRep ? "text-[#1a1a1a]/60 border-[#1a1a1a]/15 font-sans" : "text-[#8b4513]/60 border-[#8b4513]/15 font-serif"}`}
       >
-        <span>⠿</span>
-        <span>拖拽模板到版面栏目</span>
+        <span className="flex items-center gap-1">
+          <span>📦</span>
+          <span>版式元件库</span>
+        </span>
+        <span className="text-[9px] font-normal opacity-75">可拖拽 · 可点击追加</span>
       </div>
 
+      {/* Target Column Selector for Quick Add */}
+      {targetColOptions.length > 0 && (
+        <div className={`mb-2 p-1.5 rounded flex items-center gap-1.5 text-xs border ${
+          isRep ? "bg-[#f4f3ef] border-[#1a1a1a]/20" : "bg-[#dcd0b8]/60 border-[#8b4513]/30"
+        }`}>
+          <span className={`text-[10px] font-bold shrink-0 ${isRep ? "text-[#1a1a1a]/70 font-sans" : "text-[#8b4513] font-serif"}`}>
+            添加至:
+          </span>
+          <select
+            value={activeTargetColId}
+            onChange={(e) => {
+              const colId = e.target.value;
+              setSelectedColumnId(colId);
+              for (const r of newspaperData.rows) {
+                if (r.columns.some(c => c.id === colId)) {
+                  setSelectedRowId(r.id);
+                  break;
+                }
+              }
+            }}
+            className={`flex-1 min-w-0 bg-transparent text-[11px] font-bold border-0 focus:outline-none cursor-pointer truncate ${
+              isRep ? "text-[#0d0d0d] font-sans" : "text-[#2c241e] font-serif"
+            }`}
+          >
+            {targetColOptions.map(opt => (
+              <option key={opt.id} value={opt.id}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Hint */}
-      <p className={`text-[9px] leading-relaxed mb-2 ${isRep ? "text-[#1a1a1a]/40 font-sans" : "text-[#2b221a]/40 font-serif"}`}>
-        将下方模板拖拽至右侧报纸的任意栏目中，自动创建对应内容块。
+      <p className={`text-[9px] leading-relaxed mb-2.5 ${isRep ? "text-[#1a1a1a]/60 font-sans" : "text-[#2b221a]/60 font-serif"}`}>
+        按住抓手<strong>拖拽到任意栏目</strong>；或点击<strong>【+ 添加】</strong>直接插入目标栏目末尾。
       </p>
 
       {/* Cards */}
       <div className="space-y-1.5">
         {cards.map((card) => (
-          <PaletteCard key={card.type} card={card} theme={theme} />
+          <PaletteCard key={card.type} card={card} theme={theme} onQuickAdd={handleQuickAdd} />
         ))}
       </div>
     </div>
   );
 }
-

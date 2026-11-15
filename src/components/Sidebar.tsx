@@ -261,201 +261,57 @@ export default function Sidebar() {
         <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#e8dcc4] text-sm scrollbar-thin">
           
           {/* TAB 1: EDIT BLOCKS (CONTEXT AWARE) */}
-          {activeTab === "blocks" && (() => {
-            // Helper options for target column
-            const targetColOptions: { id: string, label: string }[] = [];
-            newspaperData.rows.forEach((row, rowIdx) => {
-              row.columns.forEach((col, colIdx) => {
-                targetColOptions.push({
-                  id: col.id,
-                  label: `行 ${rowIdx + 1} - 栏 ${colIdx + 1} (已有 ${col.blocks.length} 个区块)`
-                });
-              });
-            });
+          {activeTab === "blocks" && (
+            <div className="space-y-4">
+              {/* Visual guideline box to teach users about the selection flow */}
+              {!selectedBlock && (
+                <div className="p-3 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded-sm space-y-1.5 text-xs text-[#8b4513] leading-relaxed font-serif">
+                  <span className="font-extrabold block">✨ 原位打字与排版指引：</span>
+                  <ul className="space-y-1 text-[11px] list-disc pl-4 text-[#4a3728]">
+                    <li><strong>点击直接打字</strong>：在右侧报纸上<strong>直接点击文本</strong>即可原地输入，敲回车自然分段。</li>
+                    <li><strong>划选文本工具栏</strong>：选中文本立即浮出粗体、斜体、下划线与朱砂标红。</li>
+                    <li><strong>版式模板添加</strong>：从下方元件库拖拽至指定栏目，或直接点击【+添加】。</li>
+                    <li><strong>悬停区块高级排版</strong>：悬停在区块上方可点击齿轮⚙️打开详细字体样式。</li>
+                  </ul>
+                </div>
+              )}
 
-            const activeTargetColId = selectedColumnId || targetColOptions[0]?.id || "";
+              {/* Sub-tab switcher if a block is selected */}
+              {selectedBlock && (
+                <div className="flex border-b border-[#8b4513] mb-4 text-xs bg-[#dcd0b8]/40 rounded p-0.5 no-print">
+                  <button
+                    type="button"
+                    onClick={() => setBlockTabMode("edit")}
+                    className={`flex-1 py-1.5 font-bold rounded-sm transition-colors text-center cursor-pointer ${blockTabMode === "edit" ? "bg-[#8b4513] text-[#f5deb3]" : "text-[#8b4513] hover:bg-[#8b4513]/10"}`}
+                  >
+                    ✍️ 编辑选中区块
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBlockTabMode("create")}
+                    className={`flex-1 py-1.5 font-bold rounded-sm transition-colors text-center cursor-pointer ${blockTabMode === "create" ? "bg-[#8b4513] text-[#f5deb3]" : "text-[#8b4513] hover:bg-[#8b4513]/10"}`}
+                  >
+                    ➕ 版式元件库
+                  </button>
+                </div>
+              )}
 
-            return (
-              <div className="space-y-4">
-                {/* Visual guideline box to teach users about the selection flow */}
-                {!selectedBlock && (
-                  <div className="p-3 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded-sm space-y-1.5 text-xs text-[#8b4513] leading-relaxed font-serif">
-                    <span className="font-extrabold block">✨ 所见即所得编辑指引：</span>
-                    <ul className="space-y-1 text-[11px] list-disc pl-4 text-[#4a3728]">
-                      <li><strong>从素材库拖拽</strong>：直接将下方模板拖到报纸各栏中放置。</li>
-                      <li><strong>双击原地编辑</strong>：在右侧报纸上<strong>双击文字/标题</strong>即可就地修改！</li>
-                      <li><strong>拖拉边框调尺寸</strong>：悬停在两列之间拉动分割条调列宽，拉动行底部调高度。</li>
-                    </ul>
-                  </div>
-                )}
+              {/* If we are in create mode or no block is selected, show classified creation view */}
+              {(blockTabMode === "create" || !selectedBlock) ? (
+                <div className="space-y-3 animate-fadeIn">
+                  {/* Modern WYSIWYG Drag Palette with Quick Add */}
+                  <BlockPalette theme={theme} />
 
-                {/* Sub-tab switcher if a block is selected */}
-                {selectedBlock && (
-                  <div className="flex border-b border-[#8b4513] mb-4 text-xs bg-[#dcd0b8]/40 rounded p-0.5 no-print">
-                    <button
-                      type="button"
-                      onClick={() => setBlockTabMode("edit")}
-                      className={`flex-1 py-1.5 font-bold rounded-sm transition-colors text-center ${blockTabMode === "edit" ? "bg-[#8b4513] text-[#f5deb3]" : "text-[#8b4513] hover:bg-[#8b4513]/10"}`}
-                    >
-                      ✍️ 编辑选中区块
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setBlockTabMode("create")}
-                      className={`flex-1 py-1.5 font-bold rounded-sm transition-colors text-center ${blockTabMode === "create" ? "bg-[#8b4513] text-[#f5deb3]" : "text-[#8b4513] hover:bg-[#8b4513]/10"}`}
-                    >
-                      ➕ 创建全新区块
-                    </button>
-                  </div>
-                )}
-
-                {/* If we are in create mode or no block is selected, show classified creation view */}
-                {(blockTabMode === "create" || !selectedBlock) ? (
-                  <div className="space-y-4 animate-fadeIn">
-                    {/* Modern WYSIWYG Drag Palette */}
-                    <BlockPalette theme={theme} />
-
-                    <div className="p-3 bg-[#dcd0b8]/40 border border-[#8b4513]/40 rounded-sm space-y-1.5">
-                      <label className="text-xs font-bold text-[#8b4513] block">📥 或点击按钮快速添加至指定位置</label>
-                      <select
-                        value={activeTargetColId}
-                        onChange={(e) => {
-                          const colId = e.target.value;
-                          setSelectedColumnId(colId);
-                          for (const r of newspaperData.rows) {
-                            if (r.columns.some(c => c.id === colId)) {
-                              setSelectedRowId(r.id);
-                              break;
-                            }
-                          }
-                        }}
-                        className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs font-serif font-bold"
-                      >
-                        {targetColOptions.map(opt => (
-                          <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                      </select>
-                      <p className="text-[10px] text-[#8b4513]/70">提示：除了上方拖拽，点击下方按钮也可一键追加至此栏目末尾。</p>
+                  {selectedBlock && (
+                    <div className="p-2.5 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded text-xs text-[#8b4513] flex items-center justify-between no-print mt-2">
+                      <span>正在浏览版式元件库</span>
+                      <button onClick={() => setBlockTabMode("edit")} className="font-bold underline hover:text-[#2c241e] cursor-pointer">
+                        返回排版当前选中区块 →
+                      </button>
                     </div>
-
-                    <div className="space-y-4 font-serif">
-                      {/* Category 1: Text & News */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-1.5 pb-1 border-b border-[#8b4513]/30">
-                          <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">一、 文字与舆论 (文本区块)</span>
-                        </div>
-                        <div className="grid grid-cols-1 gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              addBlockToColumn(activeTargetColId, "article");
-                            }}
-                            className="flex items-start gap-3 p-3 bg-[#dcd0b8]/20 border border-[#8b4513]/30 hover:border-[#8b4513] hover:bg-[#8b4513]/5 rounded transition text-left cursor-pointer group"
-                          >
-                            <div className="p-2 bg-[#8b4513]/10 border border-[#8b4513]/20 rounded text-[#8b4513] group-hover:bg-[#8b4513] group-hover:text-[#f5deb3] transition-colors">
-                              <FileText className="w-5 h-5" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-bold text-[#2c241e] text-xs flex items-center gap-1.5">
-                                见闻文章 <span className="text-[9px] bg-[#8b4513] text-[#f5deb3] px-1 py-0.5 rounded-sm">主打内容</span>
-                              </p>
-                              <p className="text-[11px] text-[#4a3728]/80 mt-0.5 leading-relaxed">撰写详细纪实、帝国大事件、战报或奇幻异闻。</p>
-                            </div>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              addBlockToColumn(activeTargetColId, "headline");
-                            }}
-                            className="flex items-start gap-3 p-3 bg-[#dcd0b8]/20 border border-[#8b4513]/30 hover:border-[#8b4513] hover:bg-[#8b4513]/5 rounded transition text-left cursor-pointer group"
-                          >
-                            <div className="p-2 bg-[#8b4513]/10 border border-[#8b4513]/20 rounded text-[#8b4513] group-hover:bg-[#8b4513] group-hover:text-[#f5deb3] transition-colors">
-                              <FontIcon className="w-5 h-5" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-bold text-[#2c241e] text-xs">装饰大标</p>
-                              <p className="text-[11px] text-[#4a3728]/80 mt-0.5 leading-relaxed">添加醒目的通栏大标题、版块头或震撼大字标语。</p>
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Category 2: Graphics & Decor */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-1.5 pb-1 border-b border-[#8b4513]/30">
-                          <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">二、 图像与装点 (视觉区块)</span>
-                        </div>
-                        <div className="grid grid-cols-1 gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              addBlockToColumn(activeTargetColId, "image");
-                            }}
-                            className="flex items-start gap-3 p-3 bg-[#dcd0b8]/20 border border-[#8b4513]/30 hover:border-[#8b4513] hover:bg-[#8b4513]/5 rounded transition text-left cursor-pointer group"
-                          >
-                            <div className="p-2 bg-[#8b4513]/10 border border-[#8b4513]/20 rounded text-[#8b4513] group-hover:bg-[#8b4513] group-hover:text-[#f5deb3] transition-colors">
-                              <ImageIcon className="w-5 h-5" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-bold text-[#2c241e] text-xs">版画插图</p>
-                              <p className="text-[11px] text-[#4a3728]/80 mt-0.5 leading-relaxed">绘制巨龙、法书等羊皮纸木雕印章，或上传自定义图片。</p>
-                            </div>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              addBlockToColumn(activeTargetColId, "divider");
-                            }}
-                            className="flex items-start gap-3 p-3 bg-[#dcd0b8]/20 border border-[#8b4513]/30 hover:border-[#8b4513] hover:bg-[#8b4513]/5 rounded transition text-left cursor-pointer group"
-                          >
-                            <div className="p-2 bg-[#8b4513]/10 border border-[#8b4513]/20 rounded text-[#8b4513] group-hover:bg-[#8b4513] group-hover:text-[#f5deb3] transition-colors">
-                              <Scissors className="w-5 h-5" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-bold text-[#2c241e] text-xs">花式隔线</p>
-                              <p className="text-[11px] text-[#4a3728]/80 mt-0.5 leading-relaxed">使用皇家鸢尾花、利剑等徽章，或双实线、虚线进行视觉分割。</p>
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Category 3: Marketplace & Ads */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-1.5 pb-1 border-b border-[#8b4513]/30">
-                          <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">三、 市井与行商 (便民区块)</span>
-                        </div>
-                        <div className="grid grid-cols-1 gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              addBlockToColumn(activeTargetColId, "ad");
-                            }}
-                            className="flex items-start gap-3 p-3 bg-[#dcd0b8]/20 border border-[#8b4513]/30 hover:border-[#8b4513] hover:bg-[#8b4513]/5 rounded transition text-left cursor-pointer group"
-                          >
-                            <div className="p-2 bg-[#8b4513]/10 border border-[#8b4513]/20 rounded text-[#8b4513] group-hover:bg-[#8b4513] group-hover:text-[#f5deb3] transition-colors">
-                              <CoinsIcon className="w-5 h-5" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-bold text-[#2c241e] text-xs">行商布告</p>
-                              <p className="text-[11px] text-[#4a3728]/80 mt-0.5 leading-relaxed">刊登酒馆雇佣、药水促募、铁匠铺神兵交易等公告。</p>
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {selectedBlock && (
-                      <div className="p-3 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded text-xs text-[#8b4513] flex items-center justify-between no-print mt-2">
-                        <span>正在浏览创建新区块</span>
-                        <button onClick={() => setBlockTabMode("edit")} className="font-bold underline hover:text-[#2c241e]">
-                          返回编辑当前选中区块
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
+                  )}
+                </div>
+              ) : (
                   <div className="space-y-4 animate-fadeIn">
                     {/* Block Header info */}
                     <div className="pb-3 border-b border-[#8b4513] flex items-center justify-between">
@@ -1163,8 +1019,7 @@ export default function Sidebar() {
                   </div>
                 )}
               </div>
-            );
-          })()}
+            )}
 
           {/* TAB 3: NEWSPAPER HEADER SETTINGS */}
           {activeTab === "header" && (

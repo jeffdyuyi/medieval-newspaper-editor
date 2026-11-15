@@ -195,7 +195,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
   });
 
   const [activeTab, setActiveTab] = useState<"header" | "layout" | "blocks" | "settings">("blocks");
-  const [blockTabMode, setBlockTabMode] = useState<"edit" | "create">("edit");
+  const [blockTabMode, setBlockTabMode] = useState<"edit" | "create">("create");
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(() => {
     const saved = localStorage.getItem("medieval_newspaper_data");
     if (!saved) return null;
@@ -346,8 +346,6 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     setSelectedBlockId(blockId);
     setSelectedColumnId(colId);
     setSelectedRowId(rowId);
-    setBlockTabMode("edit");
-    setActiveTab("blocks");
   };
 
   const updateBlock = (blockId: string, updater: (block: Block) => Block) => {
@@ -640,8 +638,6 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
 
     setSelectedBlockId(newBlockId);
     setSelectedColumnId(colId);
-    setBlockTabMode("edit");
-    setActiveTab("blocks");
   };
 
   const deleteBlock = (blockId: string) => {
