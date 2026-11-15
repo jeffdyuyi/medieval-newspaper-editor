@@ -372,8 +372,8 @@ export default function NewspaperPreview() {
                       <div className={`absolute -inset-2 border border-dashed rounded pointer-events-none no-print ${isRepublican ? "border-[#1a1a1a]/40" : "border-[#8b4513]/50"}`} />
                     )}
 
-                    {/* In-place Row Action Toolbar (Floating pill for in-situ row manipulation) */}
-                    <div className="no-print absolute -top-3.5 right-2 opacity-0 group-hover/row:opacity-100 hover:opacity-100 transition-opacity duration-200 z-30 flex items-center gap-1 bg-[#231d18]/95 hover:bg-[#1a1511] text-[#e0a96d] px-2 py-0.5 rounded-full border border-[#8b4513] shadow-md text-[11px] select-none backdrop-blur-sm">
+                    {/* In-place Row Action Toolbar (Floating pill for in-situ row manipulation, placed at top-left) */}
+                    <div className="no-print absolute -top-3.5 left-3 opacity-0 group-hover/row:opacity-100 hover:opacity-100 transition-opacity duration-200 z-30 flex items-center gap-1 bg-[#231d18]/95 hover:bg-[#1a1511] text-[#e0a96d] px-2 py-0.5 rounded-full border border-[#8b4513] shadow-md text-[11px] select-none backdrop-blur-sm">
                       <span className="text-[10px] text-stone-400 font-mono pr-1 border-r border-[#5a4b3d]">板块 #{rowIdx + 1}</span>
                       <button
                         type="button"
@@ -448,7 +448,7 @@ export default function NewspaperPreview() {
                                     }}
                                   >
                                     {/* Block Level Quick Ink buttons overlay */}
-                                    <div className="no-print absolute top-1 right-1 opacity-0 group-hover/block:opacity-100 flex items-center gap-1 bg-[#e8dcc4] p-1 rounded-sm border border-[#8b4513] shadow-lg transition z-10">
+                                    <div className="no-print absolute top-1.5 right-1.5 opacity-0 group-hover/block:opacity-100 hover:opacity-100 flex items-center gap-0.5 bg-[#e8dcc4]/95 backdrop-blur-xs p-0.5 rounded border border-[#8b4513]/70 shadow-md transition z-10">
                                       <button 
                                         onClick={(e) => {
                                           e.stopPropagation();

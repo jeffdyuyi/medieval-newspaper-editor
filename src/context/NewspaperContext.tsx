@@ -92,6 +92,10 @@ interface NewspaperContextType {
   setShowPrintHelp: React.Dispatch<React.SetStateAction<boolean>>;
   showSaveManager: boolean;
   setShowSaveManager: React.Dispatch<React.SetStateAction<boolean>>;
+  showAboutModal: boolean;
+  setShowAboutModal: React.Dispatch<React.SetStateAction<boolean>>;
+  sidebarWidth: number;
+  setSidebarWidth: React.Dispatch<React.SetStateAction<number>>;
   isExporting: boolean;
   setIsExporting: React.Dispatch<React.SetStateAction<boolean>>;
   activeAddBlockColId: string | null;
@@ -257,6 +261,20 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const [showPrintHelp, setShowPrintHelp] = useState<boolean>(false);
   const [showSaveManager, setShowSaveManager] = useState<boolean>(false);
+  const [showAboutModal, setShowAboutModal] = useState<boolean>(false);
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    const saved = localStorage.getItem("sidebar_width");
+    if (saved) {
+      const val = parseInt(saved, 10);
+      if (!isNaN(val) && val >= 280 && val <= 700) return val;
+    }
+    return 380;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("sidebar_width", String(sidebarWidth));
+  }, [sidebarWidth]);
+
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
   const [activeAddBlockColId, setActiveAddBlockColId] = useState<string | null>(null);
@@ -833,6 +851,8 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     geminiApiKey, setGeminiApiKey,
     showPrintHelp, setShowPrintHelp,
     showSaveManager, setShowSaveManager,
+    showAboutModal, setShowAboutModal,
+    sidebarWidth, setSidebarWidth,
     isExporting, setIsExporting,
     activeAddBlockColId, setActiveAddBlockColId,
     activeSidebarColId, setActiveSidebarColId,

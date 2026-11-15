@@ -22,7 +22,7 @@ export default function WelcomeModal() {
             transition={{ delay: 0.1 }}
             className="text-2xl md:text-4xl font-bold font-serif text-[#e8dcc4] tracking-widest"
           >
-            历史报刊排版模板
+            不咕鸟小报编辑器
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0 }}

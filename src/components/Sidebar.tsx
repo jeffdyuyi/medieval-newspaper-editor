@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Feather, RefreshCw, HelpCircle, Scissors, Type as FontIcon, 
   Layout, Settings, FileText, Image as ImageIcon, Plus, 
   ArrowUp, ArrowDown, Trash2, Printer, Download, Undo2, Redo2, BookOpen, Save,
-  Coins as CoinsIcon, Sparkles, Boxes, SlidersHorizontal
+  Coins as CoinsIcon, Sparkles, Boxes, SlidersHorizontal, Info
 } from "lucide-react";
+import logoUrl from "../assets/logo";
 import { useNewspaper } from "../context/NewspaperContext";
 import { ColumnSplit, ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock, PaperTone } from "../types";
 import { ALL_CLIPART } from "../clipart";
@@ -26,6 +27,8 @@ export default function Sidebar() {
     enableCoffeeStains, setEnableCoffeeStains,
     paperTone, setPaperTone,
     setShowPrintHelp,
+    showAboutModal, setShowAboutModal,
+    sidebarWidth, setSidebarWidth,
     isExporting, setIsExporting,
     activeSidebarColId, setActiveSidebarColId,
     findSelectedBlock, updateBlock, updateHeader,
@@ -39,6 +42,36 @@ export default function Sidebar() {
   const [aiTopic, setAiTopic] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+
+  // Drag resizer for sidebar width
+  const isDraggingSidebarRef = useRef(false);
+
+  const handleSidebarResizeStart = (e: React.PointerEvent) => {
+    e.preventDefault();
+    isDraggingSidebarRef.current = true;
+    const startX = e.clientX;
+    const startW = sidebarWidth;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+
+    const onPointerMove = (ev: PointerEvent) => {
+      if (!isDraggingSidebarRef.current) return;
+      const delta = ev.clientX - startX;
+      const newWidth = Math.min(Math.max(startW + delta, 280), 680);
+      setSidebarWidth(newWidth);
+    };
+
+    const onPointerUp = () => {
+      isDraggingSidebarRef.current = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+  };
 
   const handleAiGenerate = async () => {
     if (!aiTopic.trim() || !selectedBlockId) return;
@@ -168,94 +201,114 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="hidden md:flex w-full md:w-[420px] bg-[#e8dcc4] text-[#4a3728] border-b-2 md:border-b-0 md:border-r-2 border-[#8b4513] flex-col shrink-0 no-print shadow-2xl z-20">
+      <aside 
+        className="hidden md:flex bg-[#e8dcc4] text-[#4a3728] border-b-2 md:border-b-0 md:border-r-2 border-[#8b4513] flex-col shrink-0 no-print shadow-2xl z-20 relative select-none"
+        style={{ width: `${sidebarWidth}px`, minWidth: "280px", maxWidth: "680px" }}
+      >
+        {/* Drag handle to resize sidebar */}
+        <div
+          onPointerDown={handleSidebarResizeStart}
+          className="hidden md:block absolute top-0 -right-1.5 bottom-0 w-3 cursor-col-resize z-40 group select-none"
+          title="按住左右拖拽，自由调节侧边栏与报纸画布比例"
+        >
+          <div className="w-1 h-full mx-auto group-hover:bg-[#8b4513] group-active:bg-[#8b4513] transition-colors rounded-full opacity-0 group-hover:opacity-100 group-active:opacity-100" />
+        </div>
         
         {/* Editor Title Banner */}
-        <div className="p-4 bg-[#dcd0b8] border-b border-[#8b4513] flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 bg-[#8b4513] border-2 border-[#d2b48c] rounded shadow-md text-[#f5deb3]">
-              <Feather className="w-5 h-5" />
+        <div className="px-3 py-2 bg-[#dcd0b8] border-b border-[#8b4513] flex items-center justify-between shrink-0">
+          <button
+            type="button"
+            onClick={() => setShowAboutModal(true)}
+            className="flex items-center gap-2 hover:opacity-85 transition-opacity text-left cursor-pointer group"
+            title="点击查看作者信息、俱乐部及排版指南"
+          >
+            <div className="w-7 h-7 rounded bg-[#2c221a] border border-[#8b4513] p-1 shadow flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <img src={logoUrl} alt="不咕鸟" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h1 className="text-sm font-bold font-serif tracking-widest uppercase text-[#2c241e]">历史报刊排版模板</h1>
-              <p className="text-[10px] italic text-[#8b4513] opacity-80">v2.4 - 中世纪奇幻版</p>
+              <h1 className="text-xs font-bold font-serif tracking-wider uppercase text-[#2c241e] leading-tight">
+                不咕鸟小报编辑器
+              </h1>
+              <p className="text-[9px] text-[#8b4513] opacity-80 leading-none mt-0.5">
+                {theme === "republican" ? "民国报刊排版 · 点击关于" : "中世纪奇幻报刊 · 点击关于"}
+              </p>
             </div>
-          </div>
+          </button>
           
-          <div className="flex gap-2">
+          <div className="flex items-center gap-1">
             <button 
               onClick={undo}
               disabled={!canUndo}
               title="撤销 (Undo)"
-              className="p-1.5 border border-[#8b4513] text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3] rounded-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="p-1 border border-[#8b4513]/60 text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3] rounded-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
             >
-              <Undo2 className="w-4 h-4" />
+              <Undo2 className="w-3.5 h-3.5" />
             </button>
             <button 
               onClick={redo}
               disabled={!canRedo}
               title="重做 (Redo)"
-              className="p-1.5 border border-[#8b4513] text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3] rounded-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="p-1 border border-[#8b4513]/60 text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3] rounded-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
             >
-              <Redo2 className="w-4 h-4" />
+              <Redo2 className="w-3.5 h-3.5" />
             </button>
             <button 
               onClick={() => setShowSaveManager(true)}
               title="存档管理 (多草稿)"
-              className="p-1.5 border border-[#8b4513] text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3] rounded-sm transition-colors"
+              className="p-1 border border-[#8b4513]/60 text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3] rounded-xs transition-colors cursor-pointer"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-3.5 h-3.5" />
             </button>
-            <div className="w-[1px] bg-[#8b4513]/30 mx-1 my-1"></div>
+            <div className="w-[1px] h-3.5 bg-[#8b4513]/30 mx-0.5"></div>
             <button 
               onClick={handleResetData}
               title="重置到默认模板"
-              className="p-1.5 border border-[#8b4513] text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3] rounded-sm transition-colors"
+              className="p-1 border border-[#8b4513]/60 text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3] rounded-xs transition-colors cursor-pointer"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-3.5 h-3.5" />
             </button>
             <button 
-              onClick={() => setShowPrintHelp(true)}
-              title="查看排版印刷指引"
-              className="p-1.5 border border-[#8b4513] text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3] rounded-sm transition-colors"
+              onClick={() => setShowAboutModal(true)}
+              title="关于作者与排版说明"
+              className="p-1 border border-[#8b4513]/60 text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3] rounded-xs transition-colors cursor-pointer"
             >
-              <HelpCircle className="w-4 h-4" />
+              <HelpCircle className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
         {/* Tab Selection Row (Plan A: Two Core Modes) */}
-        <div className="grid grid-cols-2 text-center bg-[#dcd0b8] border-b border-[#8b4513] text-xs font-serif">
+        <div className="grid grid-cols-2 text-center bg-[#dcd0b8] border-b border-[#8b4513] text-xs font-serif shrink-0">
           <button 
             type="button"
             onClick={() => setActiveTab("blocks")}
-            className={`py-3 flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+            className={`py-2 flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-xs ${
               activeTab === "blocks" 
-                ? "bg-[#e8dcc4] text-[#2c241e] font-bold border-b-2 border-[#8b4513] shadow-sm" 
+                ? "bg-[#e8dcc4] text-[#2c241e] font-bold border-b-2 border-[#8b4513] shadow-xs" 
                 : "text-[#8b4513]/75 hover:text-[#2c241e] hover:bg-[#e8dcc4]/50"
             }`}
           >
-            <Boxes className="w-4 h-4" />
-            <span className="text-xs font-bold tracking-wider">📦 版式素材库</span>
+            <Boxes className="w-3.5 h-3.5" />
+            <span className="font-bold tracking-wider">📦 版式素材库</span>
           </button>
           <button 
             type="button"
             onClick={() => setActiveTab("inspector")}
-            className={`py-3 flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+            className={`py-2 flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-xs ${
               activeTab !== "blocks" 
-                ? "bg-[#e8dcc4] text-[#2c241e] font-bold border-b-2 border-[#8b4513] shadow-sm" 
+                ? "bg-[#e8dcc4] text-[#2c241e] font-bold border-b-2 border-[#8b4513] shadow-xs" 
                 : "text-[#8b4513]/75 hover:text-[#2c241e] hover:bg-[#e8dcc4]/50"
             }`}
           >
-            <SlidersHorizontal className="w-4 h-4" />
-            <span className="text-xs font-bold tracking-wider">
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span className="font-bold tracking-wider">
               {selectedBlock ? "🎨 区块排版" : "🗞️ 整版属性"}
             </span>
           </button>
         </div>
 
         {/* Tab Contents Scroll */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#e8dcc4] text-sm scrollbar-thin">
+        <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5 bg-[#e8dcc4] text-xs scrollbar-thin">
           
           {/* MODE 1: COMPONENT & BLOCK PALETTE */}
           {activeTab === "blocks" && (
@@ -1393,26 +1446,26 @@ export default function Sidebar() {
         </div>
 
         {/* BOTTOM ACTION BAR: EXPORT PANEL */}
-        <div className="p-4 bg-[#dcd0b8] border-t-2 border-[#8b4513] space-y-2.5 no-print">
+        <div className="p-2.5 bg-[#dcd0b8] border-t-2 border-[#8b4513] space-y-1.5 no-print shrink-0">
           <button 
             type="button"
             onClick={handlePrintPDF}
-            className="w-full py-2.5 bg-[#8b4513] hover:bg-[#753a10] text-[#f5deb3] font-extrabold rounded-sm shadow-[0_4px_0_#2c241e] active:translate-y-[2px] active:shadow-[0_2px_0_#2c241e] transition-all border border-[#d2b48c] uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-2 bg-[#8b4513] hover:bg-[#753a10] text-[#f5deb3] font-bold rounded-xs shadow-[0_2px_0_#2c241e] active:translate-y-[1px] active:shadow-none transition-all border border-[#d2b48c] uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer text-xs"
           >
-            <Printer className="w-5 h-5" />
-            <span>打印 / 导出高分辨率PDF (印刷用)</span>
+            <Printer className="w-4 h-4" />
+            <span>打印 / 导出高分辨率PDF (印刷级)</span>
           </button>
           
           <button 
             type="button"
             onClick={handleExportPNG}
             disabled={isExporting}
-            className="w-full py-2 bg-transparent hover:bg-[#8b4513]/10 border border-[#8b4513] text-[#8b4513] text-xs font-extrabold rounded-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40"
+            className="w-full py-1.5 bg-transparent hover:bg-[#8b4513]/10 border border-[#8b4513] text-[#8b4513] text-[11px] font-bold rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40"
           >
             {isExporting ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              <RefreshCw className="w-3 h-3 animate-spin" />
             ) : (
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-3 h-3" />
             )}
             <span>{isExporting ? "正在编译高清像素..." : "导出 2 倍印刷规格高清图片"}</span>
           </button>

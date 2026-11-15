@@ -20,6 +20,7 @@ import NewspaperPreview from "./components/NewspaperPreview";
 import SaveManager from "./components/SaveManager";
 import MobileNav from "./components/MobileNav";
 import WelcomeModal from "./components/WelcomeModal";
+import AboutModal from "./components/AboutModal";
 import { Block, BlockType, ArticleBlock, HeadlineBlock, ImageBlock } from "./types";
 
 export default function App() {
@@ -36,6 +37,8 @@ export default function App() {
     setShowPrintHelp,
     showSaveManager,
     setShowSaveManager,
+    showAboutModal,
+    setShowAboutModal,
   } = useNewspaper();
 
   const sensors = useSensors(
@@ -347,6 +350,7 @@ export default function App() {
         </AnimatePresence>
 
         {showSaveManager && <SaveManager onClose={() => setShowSaveManager(false)} />}
+        <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />
 
         {/* Global Drag Overlay */}
         <DragOverlay dropAnimation={null}>{renderOverlayContent()}</DragOverlay>
