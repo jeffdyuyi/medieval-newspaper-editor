@@ -18,9 +18,20 @@ interface EditableTextProps {
   tagName?: "h1" | "h2" | "h3" | "h4" | "p" | "span" | "div";
   placeholder?: string;
   multiline?: boolean;
+  allowHtml?: boolean;
+  autoFocus?: boolean;
   onEnter?: () => void;
   onBackspaceEmpty?: () => void;
   title?: string;
+}
+
+function cleanHtml(html: string): string {
+  if (!html) return "";
+  const trimmed = html.trim();
+  if (trimmed === "<br>" || trimmed === "<div><br></div>" || trimmed === "<p><br></p>") {
+    return "";
+  }
+  return html;
 }
 
 export default function EditableText({
@@ -31,6 +42,8 @@ export default function EditableText({
   tagName = "span",
   placeholder = "点击输入文本...",
   multiline = false,
+  allowHtml = false,
+  autoFocus = false,
   onEnter,
   onBackspaceEmpty,
   title,
@@ -40,30 +53,57 @@ export default function EditableText({
   const isFocusedRef = useRef(false);
   const lastKnownValueRef = useRef(value);
 
-  // 仅在未聚焦或外部数据因撤销/重做/导入而发生变化时，才同步 DOM 内容，彻底避免打字时光标乱跳
+  // 辅助获取当前输入框最新内容
+  const getCurrentValue = useCallback(() => {
+    if (!elementRef.current) return "";
+    if (allowHtml) {
+      return cleanHtml(elementRef.current.innerHTML);
+    }
+    return elementRef.current.innerText.replace(/\r\n/g, "\n");
+  }, [allowHtml]);
+
+  // 同步外部传入数据：仅在未聚焦或内容外部发生实质变化时同步，避免打字光标跳动
   useEffect(() => {
     if (!elementRef.current) return;
-    if (!isFocusedRef.current && elementRef.current.innerText !== value) {
-      elementRef.current.innerText = value || "";
-      lastKnownValueRef.current = value || "";
+    if (allowHtml) {
+      if (!isFocusedRef.current && elementRef.current.innerHTML !== (value || "")) {
+        elementRef.current.innerHTML = value || "";
+        lastKnownValueRef.current = value || "";
+      }
+    } else {
+      if (!isFocusedRef.current && elementRef.current.innerText !== (value || "")) {
+        elementRef.current.innerText = value || "";
+        lastKnownValueRef.current = value || "";
+      }
     }
-  }, [value]);
+  }, [value, allowHtml]);
+
+  // 自动聚焦支持（用于新段落自动流转）
+  useEffect(() => {
+    if (autoFocus && elementRef.current) {
+      elementRef.current.focus();
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(elementRef.current);
+      range.collapse(false);
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    }
+  }, [autoFocus]);
 
   const commitValue = useCallback(() => {
-    if (!elementRef.current) return;
-    const currentText = elementRef.current.innerText.replace(/\r\n/g, "\n");
-    if (currentText !== lastKnownValueRef.current) {
-      lastKnownValueRef.current = currentText;
-      onChange(currentText);
+    const currentVal = getCurrentValue();
+    if (currentVal !== lastKnownValueRef.current) {
+      lastKnownValueRef.current = currentVal;
+      onChange(currentVal);
     }
-  }, [onChange]);
+  }, [getCurrentValue, onChange]);
 
   const handleInput = () => {
     if (isComposingRef.current) return;
-    if (!elementRef.current) return;
-    const currentText = elementRef.current.innerText.replace(/\r\n/g, "\n");
-    lastKnownValueRef.current = currentText;
-    onChange(currentText);
+    const currentVal = getCurrentValue();
+    lastKnownValueRef.current = currentVal;
+    onChange(currentVal);
   };
 
   const handleFocus = () => {
@@ -73,6 +113,21 @@ export default function EditableText({
   const handleBlur = () => {
     isFocusedRef.current = false;
     commitValue();
+  };
+
+  // 纯净粘贴拦截：过滤外来带样式的脏 HTML，严格保持报纸古典字形风格
+  const handlePaste = (e: React.ClipboardEvent<HTMLElement>) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData("text/plain");
+    if (!text) return;
+
+    if (!multiline) {
+      const singleLine = text.replace(/[\r\n]+/g, " ").trim();
+      document.execCommand("insertText", false, singleLine);
+    } else {
+      document.execCommand("insertText", false, text);
+    }
+    handleInput();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
@@ -114,6 +169,7 @@ export default function EditableText({
       onFocus={handleFocus}
       onBlur={handleBlur}
       onKeyDown={handleKeyDown}
+      onPaste={handlePaste}
       onCompositionStart={() => { isComposingRef.current = true; }}
       onCompositionEnd={() => {
         isComposingRef.current = false;
@@ -123,6 +179,7 @@ export default function EditableText({
       className={`outline-none transition-shadow cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-stone-400 empty:before:italic focus:bg-amber-500/10 focus:ring-1 focus:ring-[#8b4513]/40 rounded-sm px-0.5 selection:bg-[#8b4513]/20 ${className}`}
       style={style}
       data-placeholder={placeholder}
+      dangerouslySetInnerHTML={{ __html: value || "" }}
     />
   );
 }

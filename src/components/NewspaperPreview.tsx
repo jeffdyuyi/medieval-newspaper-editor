@@ -11,46 +11,6 @@ import ColumnResizeHandle from "./ColumnResizeHandle";
 import RowResizeHandle from "./RowResizeHandle";
 import DroppableColumn from "./DroppableColumn";
 
-const renderMarkdown = (text: string) => {
-  if (!text) return null;
-  
-  // Split paragraphs by line breaks first
-  const lines = text.split("\n");
-  
-  return lines.map((line, lineIdx) => {
-    const parts = line.split(/(\*\*.*?\*\*|\*.*?\*|~~.*?~~|__.*?__|\[\[.*?\]\]|\^.*?\^)/g);
-    
-    const formattedLine = parts.map((part, idx) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={idx} className="font-bold font-sans">{part.slice(2, -2)}</strong>;
-      }
-      if (part.startsWith('__') && part.endsWith('__')) {
-        return <u key={idx} className="underline decoration-[#2b221a]/50 underline-offset-2">{part.slice(2, -2)}</u>;
-      }
-      if (part.startsWith('*') && part.endsWith('*')) {
-        return <em key={idx} className="italic font-kai">{part.slice(1, -1)}</em>;
-      }
-      if (part.startsWith('~~') && part.endsWith('~~')) {
-        return <del key={idx} className="line-through decoration-[#2b221a]/70">{part.slice(2, -2)}</del>;
-      }
-      if (part.startsWith('[[') && part.endsWith(']]')) {
-        return <span key={idx} className="text-[#962a1a] font-bold border-b border-[#962a1a]/30 mx-0.5">{part.slice(2, -2)}</span>;
-      }
-      if (part.startsWith('^') && part.endsWith('^')) {
-        return <sup key={idx} className="text-[0.7em] font-sans font-bold text-[#8b4513] select-none mx-0.5">{part.slice(1, -1)}</sup>;
-      }
-      return <React.Fragment key={idx}>{part}</React.Fragment>;
-    });
-
-    return (
-      <React.Fragment key={lineIdx}>
-        {formattedLine}
-        {lineIdx < lines.length - 1 && <br />}
-      </React.Fragment>
-    );
-  });
-};
-
 export default function NewspaperPreview() {
   const {
     newspaperData,
@@ -64,12 +24,15 @@ export default function NewspaperPreview() {
     enableCoffeeStains,
     paperTone,
     activeAddBlockColId, setActiveAddBlockColId,
-    setActiveTab, setBlockTabMode,
+    setActiveTab,
     selectBlockAndContext,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, updateBlock,
     theme, switchTheme, updateRowHeight, updateRowColumnFractions, updateHeader, triggerImageUpload,
     splitColumn, deleteColumn, insertRowBelow, moveRow, deleteRow
   } = useNewspaper();
+
+  // 记录新回车分段时的自动对焦目标
+  const [focusedPara, setFocusedPara] = React.useState<{ blockId: string; index: number } | null>(null);
 
   return (
     <>
@@ -174,12 +137,16 @@ export default function NewspaperPreview() {
                   </div>
                   <EditableText
                     tagName="h1"
-                    value={newspaperData.header.title.split("").reverse().join("")}
-                    onChange={(val) => updateHeader(h => ({ ...h, title: val.split("").reverse().join("") }))}
-                    style={{ fontSize: `calc(3rem * ${globalHeadingScale / 100})` }}
+                    value={newspaperData.header.title}
+                    onChange={(val) => updateHeader(h => ({ ...h, title: val }))}
+                    style={{ 
+                      fontSize: `calc(3rem * ${globalHeadingScale / 100})`,
+                      direction: "rtl",
+                      unicodeBidi: "bidi-override"
+                    }}
                     className="font-bold text-center leading-tight text-[#0d0d0d] font-serif tracking-[0.2em] py-1 block w-full"
                     placeholder="报头大标题"
-                    title="点击直接原位编辑报头大标题"
+                    title="点击直接原位编辑报头大标题（民国横匾右至左排版）"
                   />
                   <div className="flex justify-between text-[9px] font-serif border-t border-[#1a1a1a]/50 pt-0.5 mt-1 px-1 text-[#1a1a1a]/70 select-text">
                     <EditableText
@@ -626,6 +593,8 @@ export default function NewspaperPreview() {
                                               key={pIdx}
                                               tagName="p"
                                               multiline
+                                              allowHtml
+                                              autoFocus={focusedPara?.blockId === block.id && focusedPara?.index === pIdx}
                                               value={p}
                                               onChange={(val) => {
                                                 const nextParas = [...(block as ArticleBlock).paragraphs];
@@ -636,11 +605,13 @@ export default function NewspaperPreview() {
                                                 const nextParas = [...(block as ArticleBlock).paragraphs];
                                                 nextParas.splice(pIdx + 1, 0, "");
                                                 updateBlock(block.id, b => ({ ...b, paragraphs: nextParas } as ArticleBlock));
+                                                setFocusedPara({ blockId: block.id, index: pIdx + 1 });
                                               }}
                                               onBackspaceEmpty={() => {
                                                 if ((block as ArticleBlock).paragraphs.length > 1) {
                                                   const nextParas = (block as ArticleBlock).paragraphs.filter((_, idx) => idx !== pIdx);
                                                   updateBlock(block.id, b => ({ ...b, paragraphs: nextParas } as ArticleBlock));
+                                                  setFocusedPara({ blockId: block.id, index: Math.max(0, pIdx - 1) });
                                                 }
                                               }}
                                               className={`${pIdx === 0 && (block as ArticleBlock).dropCap ? (theme === "republican" ? "char-drop-large" : "drop-cap") : ""} block w-full leading-relaxed`}
@@ -836,6 +807,7 @@ export default function NewspaperPreview() {
                                         <EditableText
                                           tagName="p"
                                           multiline
+                                          allowHtml
                                           value={(block as AdBlock).content}
                                           onChange={(val) => updateBlock(block.id, b => ({ ...b, content: val } as AdBlock))}
                                           style={{ fontSize: (block as AdBlock).contentFontSize === "xs" ? "10px" : (block as AdBlock).contentFontSize === "sm" ? "11px" : (block as AdBlock).contentFontSize === "md" ? "12px" : (block as AdBlock).contentFontSize === "lg" ? "14px" : "11px" }}

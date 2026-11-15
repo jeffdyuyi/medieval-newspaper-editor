@@ -84,8 +84,19 @@ export default function SelectionToolbar() {
 
   if (!isVisible || !position) return null;
 
+  const dispatchInput = (node: Node | null) => {
+    const parentEl = node instanceof HTMLElement ? node : node?.parentElement;
+    const editable = parentEl?.closest("[contenteditable='true']");
+    if (editable) {
+      editable.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  };
+
   const executeCmd = (cmd: string, val: string | undefined = undefined) => {
+    const selection = window.getSelection();
+    const container = selection?.rangeCount ? selection.getRangeAt(0).commonAncestorContainer : null;
     document.execCommand(cmd, false, val);
+    dispatchInput(container);
     updatePosition();
   };
 
@@ -101,8 +112,10 @@ export default function SelectionToolbar() {
     span.className = "text-[#962a1a] font-bold border-b border-[#962a1a]/30 mx-0.5";
     span.textContent = selectedText;
 
+    const container = range.commonAncestorContainer;
     range.deleteContents();
     range.insertNode(span);
+    dispatchInput(container);
     selection.removeAllRanges();
     setIsVisible(false);
   };

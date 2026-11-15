@@ -16,7 +16,6 @@ export default function Sidebar() {
   const {
     newspaperData,
     activeTab, setActiveTab,
-    blockTabMode, setBlockTabMode,
     selectedBlockId, setSelectedBlockId,
     selectedRowId, setSelectedRowId,
     selectedColumnId, setSelectedColumnId,

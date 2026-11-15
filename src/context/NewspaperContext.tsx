@@ -68,8 +68,6 @@ interface NewspaperContextType {
   setNewspaperData: React.Dispatch<React.SetStateAction<NewspaperData>>;
   activeTab: SidebarTab;
   setActiveTab: React.Dispatch<React.SetStateAction<SidebarTab>>;
-  blockTabMode: "edit" | "create";
-  setBlockTabMode: React.Dispatch<React.SetStateAction<"edit" | "create">>;
   selectedBlockId: string | null;
   setSelectedBlockId: React.Dispatch<React.SetStateAction<string | null>>;
   selectedRowId: string | null;
@@ -197,7 +195,6 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
   });
 
   const [activeTab, setActiveTab] = useState<SidebarTab>("blocks");
-  const [blockTabMode, setBlockTabMode] = useState<"edit" | "create">("create");
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(() => {
     const saved = localStorage.getItem("medieval_newspaper_data");
     if (!saved) return null;
@@ -824,7 +821,6 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
   const contextValue: NewspaperContextType = {
     newspaperData, setNewspaperData,
     activeTab, setActiveTab,
-    blockTabMode, setBlockTabMode,
     selectedBlockId, setSelectedBlockId,
     selectedRowId, setSelectedRowId,
     selectedColumnId, setSelectedColumnId,

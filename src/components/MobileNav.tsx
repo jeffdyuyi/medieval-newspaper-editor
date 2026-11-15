@@ -15,19 +15,19 @@ export default function MobileNav() {
     selectedBlockId, setSelectedBlockId,
     selectedColumnId, setSelectedColumnId,
     selectedRowId,
-    blockTabMode, setBlockTabMode,
     globalHeadingScale, setGlobalHeadingScale,
     globalBodyScale, setGlobalBodyScale,
     columnGap, setColumnGap,
     enableParchmentTexture, setEnableParchmentTexture,
     enableCoffeeStains, setEnableCoffeeStains,
+    paperTone, setPaperTone,
     setShowPrintHelp,
     showSaveManager, setShowSaveManager,
     setIsExporting,
     findSelectedBlock, updateBlock, updateHeader,
     addBlockToColumn, deleteBlock,
     undo, redo, canUndo, canRedo,
-    theme,
+    theme, switchTheme,
   } = useNewspaper();
 
   const [drawerOpen, setDrawerOpen] = useState<"tabs" | "block" | null>(null);
@@ -574,12 +574,169 @@ export default function MobileNav() {
           <div className="flex border-b border-[#8b4513]/30">
             {navTabs.map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 py-2 text-[11px] font-bold flex flex-col items-center gap-0.5 transition-colors ${activeTab === tab.id ? "bg-[#8b4513] text-[#f5deb3]" : "text-[#8b4513]"}`}
+                className={`flex-1 py-2 text-[11px] font-bold flex flex-col items-center gap-0.5 transition-colors cursor-pointer ${activeTab === tab.id ? "bg-[#8b4513] text-[#f5deb3]" : "text-[#8b4513]"}`}
               >
                 {tab.icon}
                 {tab.label}
               </button>
             ))}
+          </div>
+
+          {/* Drawer Content */}
+          <div className="overflow-y-auto p-4 space-y-4 flex-1 text-sm scrollbar-thin">
+            {activeTab === "blocks" ? (
+              <div className="space-y-3 font-serif">
+                <div className="p-2 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded text-xs text-[#8b4513]">
+                  <span>快速添加版式区块至指定栏位</span>
+                </div>
+                {/* Target column selector */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-[#8b4513] block">目标栏位</label>
+                  <select
+                    value={activeTargetColId}
+                    onChange={(e) => setSelectedColumnId(e.target.value)}
+                    className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-2.5 py-1.5 text-xs text-[#2c241e] font-serif font-bold"
+                  >
+                    {targetColOptions.map(opt => (
+                      <option key={opt.id} value={opt.id}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* Quick Add buttons */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { addBlockToColumn(activeTargetColId, "article"); setDrawerOpen(null); }}
+                    className="p-2.5 bg-[#dcd0b8]/40 border border-[#8b4513]/30 rounded text-left flex items-center gap-2 hover:bg-[#8b4513]/10 cursor-pointer"
+                  >
+                    <FileText className="w-4 h-4 text-[#8b4513]" />
+                    <div>
+                      <div className="font-bold text-xs text-[#2c241e]">见闻文章</div>
+                      <div className="text-[10px] text-[#4a3728]/70">正文多段落</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { addBlockToColumn(activeTargetColId, "headline"); setDrawerOpen(null); }}
+                    className="p-2.5 bg-[#dcd0b8]/40 border border-[#8b4513]/30 rounded text-left flex items-center gap-2 hover:bg-[#8b4513]/10 cursor-pointer"
+                  >
+                    <FontIcon className="w-4 h-4 text-[#8b4513]" />
+                    <div>
+                      <div className="font-bold text-xs text-[#2c241e]">装饰大标</div>
+                      <div className="text-[10px] text-[#4a3728]/70">头条大字标</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { addBlockToColumn(activeTargetColId, "image"); setDrawerOpen(null); }}
+                    className="p-2.5 bg-[#dcd0b8]/40 border border-[#8b4513]/30 rounded text-left flex items-center gap-2 hover:bg-[#8b4513]/10 cursor-pointer"
+                  >
+                    <ImageIcon className="w-4 h-4 text-[#8b4513]" />
+                    <div>
+                      <div className="font-bold text-xs text-[#2c241e]">版画插图</div>
+                      <div className="text-[10px] text-[#4a3728]/70">木刻版画</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { addBlockToColumn(activeTargetColId, "divider"); setDrawerOpen(null); }}
+                    className="p-2.5 bg-[#dcd0b8]/40 border border-[#8b4513]/30 rounded text-left flex items-center gap-2 hover:bg-[#8b4513]/10 cursor-pointer"
+                  >
+                    <Scissors className="w-4 h-4 text-[#8b4513]" />
+                    <div>
+                      <div className="font-bold text-xs text-[#2c241e]">花式隔线</div>
+                      <div className="text-[10px] text-[#4a3728]/70">徽章分隔条</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { addBlockToColumn(activeTargetColId, "ad"); setDrawerOpen(null); }}
+                    className="col-span-2 p-2.5 bg-[#dcd0b8]/40 border border-[#8b4513]/30 rounded text-left flex items-center gap-2 hover:bg-[#8b4513]/10 cursor-pointer"
+                  >
+                    <CoinsIcon className="w-4 h-4 text-[#8b4513]" />
+                    <div>
+                      <div className="font-bold text-xs text-[#2c241e]">行商布告</div>
+                      <div className="text-[10px] text-[#4a3728]/70">药水招募公告框</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 font-serif">
+                {/* Theme switcher */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[#8b4513] block">报刊风格</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => switchTheme("fantasy")}
+                      className={`py-2 px-2 rounded-sm text-xs font-bold border cursor-pointer ${theme === "fantasy" ? "bg-[#8b4513] text-[#f5deb3]" : "bg-[#dcd0b8] text-[#4a3728]"}`}
+                    >
+                      ⚔ 中世纪奇幻
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => switchTheme("republican")}
+                      className={`py-2 px-2 rounded-sm text-xs font-bold border cursor-pointer ${theme === "republican" ? "bg-[#1a1a1a] text-[#f4f3ef]" : "bg-[#dcd0b8] text-[#4a3728]"}`}
+                    >
+                      ■ 民国报刊
+                    </button>
+                  </div>
+                </div>
+
+                {/* Paper Tone */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[#4a3728] block">纸张色调</label>
+                  <div className="grid grid-cols-4 gap-1 text-[10px]">
+                    {[
+                      { key: "default", label: "标准" },
+                      { key: "aged", label: "微黄" },
+                      { key: "antique", label: "古卷" },
+                      { key: "bright", label: "素白" },
+                    ].map(tone => (
+                      <button
+                        key={tone.key}
+                        type="button"
+                        onClick={() => setPaperTone(tone.key as any)}
+                        className={`py-1.5 border rounded-sm font-bold cursor-pointer ${paperTone === tone.key ? "bg-[#8b4513] text-[#f5deb3]" : "bg-[#dcd0b8] text-[#4a3728]"}`}
+                      >
+                        {tone.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Scales */}
+                <div className="space-y-2">
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs font-bold text-[#4a3728]">
+                      <span>标题大小缩放</span>
+                      <span>{globalHeadingScale}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="75" max="150" step="5"
+                      value={globalHeadingScale}
+                      onChange={e => setGlobalHeadingScale(parseInt(e.target.value))}
+                      className="w-full accent-[#8b4513]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs font-bold text-[#4a3728]">
+                      <span>正文文字缩放</span>
+                      <span>{globalBodyScale}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="80" max="140" step="5"
+                      value={globalBodyScale}
+                      onChange={e => setGlobalBodyScale(parseInt(e.target.value))}
+                      className="w-full accent-[#8b4513]"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
