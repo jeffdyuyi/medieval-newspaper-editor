@@ -100,8 +100,6 @@ interface NewspaperContextType {
   setIsExporting: React.Dispatch<React.SetStateAction<boolean>>;
   activeAddBlockColId: string | null;
   setActiveAddBlockColId: React.Dispatch<React.SetStateAction<string | null>>;
-  activeSidebarColId: string | null;
-  setActiveSidebarColId: React.Dispatch<React.SetStateAction<string | null>>;
   showWelcomeModal: boolean;
   setShowWelcomeModal: React.Dispatch<React.SetStateAction<boolean>>;
   theme: NewspaperTheme;
@@ -278,7 +276,6 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
   const [activeAddBlockColId, setActiveAddBlockColId] = useState<string | null>(null);
-  const [activeSidebarColId, setActiveSidebarColId] = useState<string | null>(null);
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -863,7 +860,6 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     sidebarWidth, setSidebarWidth,
     isExporting, setIsExporting,
     activeAddBlockColId, setActiveAddBlockColId,
-    activeSidebarColId, setActiveSidebarColId,
     showWelcomeModal, setShowWelcomeModal,
     theme, switchTheme, updateRowHeight, updateRowColumnFractions,
     findSelectedBlock, selectBlockAndContext, updateBlock, updateHeader,

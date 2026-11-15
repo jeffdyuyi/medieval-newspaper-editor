@@ -31,8 +31,6 @@ export default function App() {
     theme,
     activeAddBlockColId,
     setActiveAddBlockColId,
-    activeSidebarColId,
-    setActiveSidebarColId,
     showPrintHelp,
     setShowPrintHelp,
     showSaveManager,
@@ -278,12 +276,11 @@ export default function App() {
         <WelcomeModal />
 
         {/* Click-outside backdrop overlay */}
-        {(activeAddBlockColId !== null || activeSidebarColId !== null) && (
+        {activeAddBlockColId !== null && (
           <div
             className="fixed inset-0 z-40 bg-transparent cursor-default"
             onClick={() => {
               setActiveAddBlockColId(null);
-              setActiveSidebarColId(null);
             }}
           />
         )}

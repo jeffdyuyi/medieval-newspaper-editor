@@ -52,7 +52,7 @@ export default function DroppableColumn({
       onClick={onClick}
       className={`group/col
         ${isRepublican
-          ? `rep-col-container relative ${
+          ? `rep-col-container relative min-w-[120px] ${
               isSelected ? "bg-[#1a1a1a]/5 outline outline-1 outline-dashed outline-[#1a1a1a]/30" : ""
             }`
           : `space-y-4 relative min-h-[60px] p-1 rounded-sm transition ${

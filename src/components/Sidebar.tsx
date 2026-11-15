@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { 
-  Feather, RefreshCw, HelpCircle, Scissors, Type as FontIcon, 
-  Layout, Settings, FileText, Image as ImageIcon, Plus, 
-  ArrowUp, ArrowDown, Trash2, Printer, Download, Undo2, Redo2, BookOpen, Save,
-  Coins as CoinsIcon, Sparkles, Boxes, SlidersHorizontal, Info
+  RefreshCw, HelpCircle, Scissors, Type as FontIcon, 
+  Layout, Settings, FileText, Image as ImageIcon, 
+  Trash2, Printer, Download, Undo2, Redo2, BookOpen, Save,
+  Coins as CoinsIcon, Sparkles, Boxes, SlidersHorizontal
 } from "lucide-react";
 import logoUrl from "../assets/logo";
 import { useNewspaper } from "../context/NewspaperContext";
-import { ColumnSplit, ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock, PaperTone } from "../types";
+import { ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock, PaperTone } from "../types";
 import { ALL_CLIPART } from "../clipart";
 import { FONT_OPTIONS } from "../constants";
 import { generateArticleAI } from "../utils/aiGenerator";
@@ -30,12 +30,10 @@ export default function Sidebar() {
     showAboutModal, setShowAboutModal,
     sidebarWidth, setSidebarWidth,
     isExporting, setIsExporting,
-    activeSidebarColId, setActiveSidebarColId,
     findSelectedBlock, updateBlock, updateHeader,
-    updateRowSplit, addNewRow, deleteRow, moveRow,
     addBlockToColumn, deleteBlock, moveBlock, handleResetData,
     undo, redo, canUndo, canRedo, setShowSaveManager,
-    theme, switchTheme, updateRowHeight, triggerImageUpload,
+    theme, switchTheme, triggerImageUpload,
     geminiApiKey, setGeminiApiKey
   } = useNewspaper();
 

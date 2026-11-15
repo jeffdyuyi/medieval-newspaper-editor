@@ -859,11 +859,18 @@ export default function NewspaperPreview() {
 
                         {/* Empty column prompt with quick block-picker buttons */}
                         {col.blocks.length === 0 && (
-                          <div className={`no-print my-2 p-3.5 border-2 border-dashed rounded-sm flex flex-col items-center justify-center text-center space-y-2 min-h-[140px] transition-colors ${
-                            isRepublican
-                              ? "border-[#1a1a1a]/30 bg-[#1a1a1a]/4 hover:border-[#1a1a1a]/60"
-                              : "border-[#8b4513]/30 bg-[#8b4513]/4 hover:border-[#8b4513]/60"
-                          }`}>
+                          <div 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedRowId(row.id);
+                              setSelectedColumnId(col.id);
+                            }}
+                            className={`no-print my-2 p-3.5 border-2 border-dashed rounded-sm flex flex-col items-center justify-center text-center space-y-2 min-h-[140px] transition-colors [writing-mode:horizontal-tb] select-none ${
+                              isRepublican
+                                ? "border-[#1a1a1a]/30 bg-[#1a1a1a]/4 hover:border-[#1a1a1a]/60"
+                                : "border-[#8b4513]/30 bg-[#8b4513]/4 hover:border-[#8b4513]/60"
+                            }`}
+                          >
                             <div className={`text-xs font-bold flex items-center gap-1.5 ${isRepublican ? "text-[#1a1a1a] font-sans" : "text-[#8b4513] font-serif"}`}>
                               <Plus className="w-3.5 h-3.5" />
                               <span>全新空白栏位 · 选择版式填入</span>

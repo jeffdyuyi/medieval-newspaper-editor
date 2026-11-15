@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import {
-  Scissors, Type as FontIcon, Layout, Settings, X, ChevronUp,
-  Feather, Save, Undo2, Redo2, Printer, FileText, Image as ImageIcon, Plus, BookOpen,
+  Scissors, Type as FontIcon, Settings, X, ChevronUp,
+  Save, Undo2, Redo2, Printer, FileText, Image as ImageIcon, Plus, BookOpen,
   Coins as CoinsIcon, Boxes, SlidersHorizontal
 } from "lucide-react";
+import logoUrl from "../assets/logo";
 import { useNewspaper } from "../context/NewspaperContext";
 import { ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock } from "../types";
 import { ALL_CLIPART } from "../clipart";
@@ -22,6 +23,7 @@ export default function MobileNav() {
     enableCoffeeStains, setEnableCoffeeStains,
     paperTone, setPaperTone,
     setShowPrintHelp,
+    showAboutModal, setShowAboutModal,
     showSaveManager, setShowSaveManager,
     setIsExporting,
     findSelectedBlock, updateBlock, updateHeader,
@@ -98,12 +100,17 @@ export default function MobileNav() {
     <>
       {/* Mobile Top Action Bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#dcd0b8] border-b border-[#8b4513] px-3 py-2 flex items-center justify-between no-print">
-        <div className="flex items-center gap-2">
-          <div className="p-1 bg-[#8b4513] text-[#f5deb3] rounded">
-            <Feather className="w-4 h-4" />
+        <button
+          type="button"
+          onClick={() => setShowAboutModal(true)}
+          className="flex items-center gap-2 cursor-pointer"
+          title="点击查看关于"
+        >
+          <div className="w-6 h-6 rounded bg-[#2c221a] border border-[#8b4513] p-0.5 flex items-center justify-center shrink-0">
+            <img src={logoUrl} alt="不咕鸟" className="w-full h-full object-contain" />
           </div>
-          <span className="text-xs font-bold font-serif text-[#2c241e]">历史报刊排版模板</span>
-        </div>
+          <span className="text-xs font-bold font-serif text-[#2c241e]">不咕鸟小报编辑器</span>
+        </button>
         <div className="flex items-center gap-1">
           <button onClick={undo} disabled={!canUndo} className="p-1.5 border border-[#8b4513]/60 text-[#8b4513] rounded disabled:opacity-30">
             <Undo2 className="w-3.5 h-3.5" />
