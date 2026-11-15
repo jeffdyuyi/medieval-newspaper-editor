@@ -119,31 +119,45 @@
 }
 
 /* Print Stylesheet */
+@page {
+  size: A4 portrait;
+  margin: 6mm;
+}
+
 @media print {
-  body {
+  html, body, #root, main {
     background-color: #ffffff !important;
     background-image: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  .no-print {
+  aside, nav, .no-print, [role="dialog"] {
     display: none !important;
   }
 
-  /* Force the container to take full width and hide shadows */
+  /* Force the container to take full printable width without screen shadows */
   .printable-newspaper {
     box-shadow: none !important;
-    border: none !important;
-    background-color: #f1e4cb !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     width: 100% !important;
     max-width: 100% !important;
-    margin: 0 !important;
-    padding: 20px !important;
+    margin: 0 auto !important;
+    padding: 16px !important;
+    page-break-inside: auto;
+  }
+
+  /* If parchment texture is active, keep background tone */
+  .parchment-bg {
+    background-color: #f1e4cb !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 

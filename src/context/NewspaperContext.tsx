@@ -7,7 +7,7 @@ import {
 import { INITIAL_NEWSPAPER_DATA, REPUBLICAN_NEWSPAPER_DATA } from "../defaultData";
 
 
-function sanitizeNewspaperData(data: NewspaperData): NewspaperData {
+export function sanitizeNewspaperData(data: NewspaperData): NewspaperData {
   if (!data || !Array.isArray(data.rows)) return INITIAL_NEWSPAPER_DATA;
   
   const seenBlockIds = new Set<string>();
@@ -271,21 +271,49 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     if (!file || !selectedBlockId) return;
     const reader = new FileReader();
     reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      updateBlock(selectedBlockId, b => ({
-        ...b,
-        type: "image",
-        src: base64,
-        isClipart: false,
-        clipartId: undefined
-      }) as ImageBlock);
+      const srcUrl = event.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 1600;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressed = file.type === "image/png" ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", 0.88);
+          updateBlock(selectedBlockId, b => ({
+            ...b,
+            type: "image",
+            src: compressed,
+            isClipart: false,
+            clipartId: undefined
+          }) as ImageBlock);
+        }
+      };
+      img.src = srcUrl;
     };
     reader.readAsDataURL(file);
     e.target.value = "";
   };
 
   useEffect(() => {
-    localStorage.setItem("medieval_newspaper_data", JSON.stringify(newspaperData));
+    try {
+      localStorage.setItem("medieval_newspaper_data", JSON.stringify(newspaperData));
+    } catch (e) {
+      console.warn("localStorage quota exceeded when saving newspaper data", e);
+    }
   }, [newspaperData]);
 
   useEffect(() => {

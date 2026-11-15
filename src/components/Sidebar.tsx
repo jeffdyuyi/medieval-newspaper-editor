@@ -81,9 +81,28 @@ export default function Sidebar() {
       setIsExporting(true);
       const width = element.offsetWidth;
       const height = element.offsetHeight;
-      const serializedHtml = new XMLSerializer().serializeToString(element);
+
+      // Clone node to strip editing controls and handles cleanly
+      const clone = element.cloneNode(true) as HTMLElement;
+      clone.querySelectorAll(".no-print").forEach((el) => el.remove());
+      // Strip active selection rings and outlines
+      clone.querySelectorAll("*").forEach((el) => {
+        el.classList.remove(
+          "ring-2",
+          "ring-[#8b4513]/80",
+          "ring-[#8b4513]",
+          "bg-[#2b221a]/4",
+          "bg-[#2b221a]/5",
+          "shadow-md",
+          "cursor-pointer",
+          "cursor-text"
+        );
+      });
+
+      const serializedHtml = new XMLSerializer().serializeToString(clone);
       const fontStyles = `
         @import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@300;400;700&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=LXGW+WenKai&family=Grenze+Gotisch:wght@400;700&family=Cinzel:wght@400;700&display=swap');
+        .no-print { display: none !important; }
         .font-serif { font-family: 'Noto Serif SC', 'SimSun', 'Songti SC', serif !important; }
         .font-sans { font-family: 'Inter', 'Microsoft YaHei', 'SimHei', sans-serif !important; }
         .font-kai { font-family: 'LXGW WenKai', 'KaiTi', 'STKaiti', serif !important; }
@@ -109,34 +128,41 @@ export default function Sidebar() {
       const blobUrl = window.URL.createObjectURL(blob);
       const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = width * 2;
-        canvas.height = height * 2;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          const defaultBg = theme === "republican" 
-            ? (paperTone === "aged" ? "#eae6db" : paperTone === "antique" ? "#e0dacb" : paperTone === "bright" ? "#faf9f5" : "#f4f3ef")
-            : (paperTone === "aged" ? "#e8d7b7" : paperTone === "antique" ? "#dcc49c" : paperTone === "bright" ? "#fbf5e6" : "#f1e4cb");
-          ctx.fillStyle = defaultBg;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, width * 2, height * 2);
-          const pngUrl = canvas.toDataURL("image/png");
-          const downloadLink = document.createElement("a");
-          downloadLink.href = pngUrl;
-          downloadLink.download = `${newspaperData.header.title || "medieval-newspaper"}.png`;
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-          document.body.removeChild(downloadLink);
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = width * 2;
+          canvas.height = height * 2;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            const defaultBg = theme === "republican" 
+              ? (paperTone === "aged" ? "#eae6db" : paperTone === "antique" ? "#e0dacb" : paperTone === "bright" ? "#faf9f5" : "#f4f3ef")
+              : (paperTone === "aged" ? "#e8d7b7" : paperTone === "antique" ? "#dcc49c" : paperTone === "bright" ? "#fbf5e6" : "#f1e4cb");
+            ctx.fillStyle = defaultBg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, width * 2, height * 2);
+            const pngUrl = canvas.toDataURL("image/png");
+            const downloadLink = document.createElement("a");
+            downloadLink.href = pngUrl;
+            downloadLink.download = `${newspaperData.header.title || "medieval-newspaper"}.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+          }
+        } finally {
+          window.URL.revokeObjectURL(blobUrl);
+          setIsExporting(false);
         }
+      };
+      img.onerror = () => {
         window.URL.revokeObjectURL(blobUrl);
         setIsExporting(false);
+        alert("由于预览沙箱的安全限制或跨域资源，部分内容在导出为PNG时遇到阻碍。\n\n强烈推荐点击左下角【打印 / 导出高分辨率PDF】按钮，可无损保存为矢量文件！");
       };
-      img.onerror = () => { throw new Error("Render load error"); };
       img.src = blobUrl;
     } catch (err) {
-      console.error("PNG export failure, falling back:", err);
+      console.error("PNG export failure:", err);
       setIsExporting(false);
-      alert("由于预览沙箱的安全限制，部分外链字体或大尺寸图片在导出为PNG时可能受到限制。\n\n强烈推荐点击左下角的【打印与高分辨率PDF】按钮！");
+      alert("导出图片时发生意外，建议点击左下角【打印 / 导出高分辨率PDF】！");
     }
   };
 
