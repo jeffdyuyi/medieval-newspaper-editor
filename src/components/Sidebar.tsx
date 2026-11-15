@@ -33,8 +33,9 @@ export default function Sidebar() {
     findSelectedBlock, updateBlock, updateHeader,
     addBlockToColumn, deleteBlock, moveBlock, handleResetData,
     undo, redo, canUndo, canRedo, setShowSaveManager,
-    theme, switchTheme, triggerImageUpload,
-    geminiApiKey, setGeminiApiKey
+    theme, triggerImageUpload,
+    geminiApiKey, setGeminiApiKey,
+    navigateToHome, autoSaveStatus
   } = useNewspaper();
 
   const [aiTopic, setAiTopic] = useState("");
@@ -216,19 +217,28 @@ export default function Sidebar() {
         <div className="px-3 py-2 bg-[#dcd0b8] border-b border-[#8b4513] flex items-center justify-between shrink-0">
           <button
             type="button"
-            onClick={() => setShowAboutModal(true)}
+            onClick={navigateToHome}
             className="flex items-center gap-2 hover:opacity-85 transition-opacity text-left cursor-pointer group"
-            title="点击查看作者信息、俱乐部及排版指南"
+            title="点击回到首页（内容已自动保存）"
           >
             <div className="w-7 h-7 rounded bg-[#2c221a] border border-[#8b4513] p-1 shadow flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <img src={logoUrl} alt="不咕鸟" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h1 className="text-xs font-bold font-serif tracking-wider uppercase text-[#2c241e] leading-tight">
-                不咕鸟小报编辑器
-              </h1>
-              <p className="text-[9px] text-[#8b4513] opacity-80 leading-none mt-0.5">
-                {theme === "republican" ? "民国报刊排版 · 点击关于" : "中世纪奇幻报刊 · 点击关于"}
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-xs font-bold font-serif tracking-wider uppercase text-[#2c241e] leading-tight">
+                  不咕鸟小报编辑器
+                </h1>
+                <span className={`text-[8.5px] font-sans px-1 py-0.2 rounded transition-colors ${
+                  autoSaveStatus === "saving" 
+                    ? "bg-amber-100 text-amber-800" 
+                    : "bg-emerald-100/80 text-emerald-800"
+                }`}>
+                  {autoSaveStatus === "saving" ? "保存中" : "已自动保存"}
+                </span>
+              </div>
+              <p className="text-[9.5px] text-[#8b4513] opacity-80 leading-none mt-0.5 select-text font-mono">
+                不咕鸟创想俱乐部群：261751459
               </p>
             </div>
           </button>
@@ -1084,44 +1094,10 @@ export default function Sidebar() {
                       </button>
                     </div>
 
-                    {/* Section 1: Newspaper Theme */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-1.5 pb-1 border-b border-[#8b4513]/30">
-                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">一、 报刊主题风格</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          type="button"
-                          onClick={() => switchTheme("fantasy")}
-                          className={`py-2 px-2 rounded-sm text-xs font-bold border transition-all cursor-pointer ${
-                            theme === "fantasy"
-                              ? "bg-[#8b4513] text-[#f5deb3] border-[#5a2d0c] shadow-inner"
-                              : "bg-[#e8dcc4] text-[#4a3728] border-[#8b4513]/40 hover:bg-[#d9ccb0]"
-                          }`}
-                        >
-                          ⚔ 中世纪奇幻
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => switchTheme("republican")}
-                          className={`py-2 px-2 rounded-sm text-xs font-bold border transition-all cursor-pointer ${
-                            theme === "republican"
-                              ? "bg-[#1a1a1a] text-[#f4f3ef] border-[#000] shadow-inner"
-                              : "bg-[#e8dcc4] text-[#4a3728] border-[#8b4513]/40 hover:bg-[#d9ccb0]"
-                          }`}
-                        >
-                          ■ 民国报刊
-                        </button>
-                      </div>
-                      <p className="text-[10px] text-[#4a3728]/70 font-serif leading-relaxed">
-                        切换主题时文字内容将被完整保留，样式自动适配对应时代装帧。
-                      </p>
-                    </div>
-
-                    {/* Section 2: Header Ornaments & Typography */}
+                    {/* Section 1: Header Ornaments & Typography */}
                     <div className="space-y-3 font-serif">
                       <div className="flex items-center gap-1.5 pb-1 border-b border-[#8b4513]/30">
-                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">二、 报头装帧与大名字体</span>
+                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">一、 报头装帧与大名字体</span>
                       </div>
 
                       <div className="space-y-1">
@@ -1170,11 +1146,11 @@ export default function Sidebar() {
                       )}
                     </div>
 
-                    {/* Section 3: Paper Tone & Texture */}
+                    {/* Section 2: Paper Tone & Texture */}
                     <div className="space-y-3 font-serif">
                       <div className="flex items-center gap-1.5 pb-1 border-b border-[#8b4513]/30">
                         <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">
-                          三、 {theme === "republican" ? "纸张油墨与做旧" : "羊皮纸做旧与古物仿真"}
+                          二、 {theme === "republican" ? "纸张油墨与做旧" : "羊皮纸做旧与古物仿真"}
                         </span>
                       </div>
 
@@ -1226,10 +1202,10 @@ export default function Sidebar() {
                       </label>
                     </div>
 
-                    {/* Section 4: Typography Scale & Spacing */}
+                    {/* Section 3: Typography Scale & Spacing */}
                     <div className="space-y-3 font-serif">
                       <div className="flex items-center gap-1.5 pb-1 border-b border-[#8b4513]/30">
-                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">四、 全局文字大小与栏距</span>
+                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">三、 全局文字大小与栏距</span>
                       </div>
 
                       <div className="space-y-1">
@@ -1281,10 +1257,10 @@ export default function Sidebar() {
                       </div>
                     </div>
 
-                    {/* Section 5: AI Configuration */}
+                    {/* Section 4: AI Configuration */}
                     <div className="space-y-2 font-serif">
                       <div className="flex items-center justify-between pb-1 border-b border-[#8b4513]/30">
-                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">五、 AI 智能撰稿配置</span>
+                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">四、 AI 智能撰稿配置</span>
                         <span className="text-[10px] text-[#8b4513]/70 font-normal">纯前端/本地离线</span>
                       </div>
 

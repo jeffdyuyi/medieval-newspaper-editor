@@ -19,8 +19,8 @@ import Sidebar from "./components/Sidebar";
 import NewspaperPreview from "./components/NewspaperPreview";
 import SaveManager from "./components/SaveManager";
 import MobileNav from "./components/MobileNav";
-import WelcomeModal from "./components/WelcomeModal";
 import AboutModal from "./components/AboutModal";
+import HomePage from "./components/HomePage";
 import { Block, BlockType, ArticleBlock, HeadlineBlock, ImageBlock } from "./types";
 
 export default function App() {
@@ -29,6 +29,8 @@ export default function App() {
     setNewspaperData,
     addBlockToColumn,
     theme,
+    currentView,
+    openEditor,
     activeAddBlockColId,
     setActiveAddBlockColId,
     showPrintHelp,
@@ -264,6 +266,18 @@ export default function App() {
     return closestCorners(args);
   };
 
+  if (currentView === "home") {
+    return (
+      <>
+        <HomePage 
+          onSelectTheme={openEditor} 
+          onOpenAbout={() => setShowAboutModal(true)} 
+        />
+        <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />
+      </>
+    );
+  }
+
   return (
     <DndContext
       sensors={sensors}
@@ -273,8 +287,6 @@ export default function App() {
       onDragEnd={handleDragEnd}
     >
       <div className="min-h-screen bg-[#2c241e] text-[#4a3728] flex flex-col md:flex-row font-serif overflow-x-hidden select-none selection:bg-[#8b4513] selection:text-[#f5deb3]">
-        <WelcomeModal />
-
         {/* Click-outside backdrop overlay */}
         {activeAddBlockColId !== null && (
           <div

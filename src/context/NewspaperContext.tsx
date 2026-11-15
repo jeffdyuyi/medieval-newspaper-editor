@@ -102,6 +102,12 @@ interface NewspaperContextType {
   setActiveAddBlockColId: React.Dispatch<React.SetStateAction<string | null>>;
   showWelcomeModal: boolean;
   setShowWelcomeModal: React.Dispatch<React.SetStateAction<boolean>>;
+  currentView: "home" | "editor";
+  setCurrentView: React.Dispatch<React.SetStateAction<"home" | "editor">>;
+  autoSaveStatus: "saved" | "saving";
+  openEditor: (theme: NewspaperTheme) => void;
+  navigateToHome: () => void;
+  convertThemeContent: (data: NewspaperData, targetTheme: NewspaperTheme) => NewspaperData;
   theme: NewspaperTheme;
   switchTheme: (newTheme: NewspaperTheme, skipConfirm?: boolean) => void;
   updateRowHeight: (rowId: string, height: number) => void;
@@ -132,24 +138,89 @@ interface NewspaperContextType {
 
 const NewspaperContext = createContext<NewspaperContextType | undefined>(undefined);
 
-export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [history, setHistory] = useState<{ past: NewspaperData[], present: NewspaperData, future: NewspaperData[] }>(() => {
-    const saved = localStorage.getItem("medieval_newspaper_data");
-    let initial = sanitizeNewspaperData(INITIAL_NEWSPAPER_DATA);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        initial = sanitizeNewspaperData(parsed);
-      } catch (e) {
-        // ignore
-      }
+export const loadThemeDraft = (targetTheme: NewspaperTheme): NewspaperData => {
+  const specificKey = `newspaper_draft_${targetTheme}`;
+  const saved = localStorage.getItem(specificKey);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      return sanitizeNewspaperData(parsed);
+    } catch (e) {
+      // ignore
     }
-    return { past: [], present: initial, future: [] };
+  }
+  const oldLegacy = localStorage.getItem("medieval_newspaper_data");
+  if (oldLegacy) {
+    try {
+      const parsed = JSON.parse(oldLegacy);
+      if (parsed.theme === targetTheme) {
+        return sanitizeNewspaperData(parsed);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+  return sanitizeNewspaperData(targetTheme === "republican" ? REPUBLICAN_NEWSPAPER_DATA : INITIAL_NEWSPAPER_DATA);
+};
+
+export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [currentView, setCurrentView] = useState<"home" | "editor">(() => {
+    const savedView = sessionStorage.getItem("current_view");
+    return savedView === "editor" ? "editor" : "home";
+  });
+
+  const [activeTheme, setActiveTheme] = useState<NewspaperTheme>(() => {
+    const saved = localStorage.getItem("active_newspaper_theme");
+    return saved === "republican" ? "republican" : "fantasy";
+  });
+
+  const [history, setHistory] = useState<{ past: NewspaperData[], present: NewspaperData, future: NewspaperData[] }>(() => {
+    const initialTheme = (localStorage.getItem("active_newspaper_theme") as NewspaperTheme) || "fantasy";
+    const initialData = loadThemeDraft(initialTheme);
+    return { past: [], present: initialData, future: [] };
   });
 
   const newspaperData = history.present;
+  const theme = newspaperData.theme;
   const canUndo = history.past.length > 0;
   const canRedo = history.future.length > 0;
+
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving">("saved");
+
+  useEffect(() => {
+    if (currentView !== "editor") return;
+    setAutoSaveStatus("saving");
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(`newspaper_draft_${newspaperData.theme}`, JSON.stringify(newspaperData));
+        setAutoSaveStatus("saved");
+      } catch (e) {
+        console.error("Auto save failed", e);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [newspaperData, currentView]);
+
+  const openEditor = (targetTheme: NewspaperTheme) => {
+    setActiveTheme(targetTheme);
+    localStorage.setItem("active_newspaper_theme", targetTheme);
+    const draft = loadThemeDraft(targetTheme);
+    setHistory({ past: [], present: draft, future: [] });
+    setCurrentView("editor");
+    sessionStorage.setItem("current_view", "editor");
+    setSelectedBlockId(targetTheme === "republican" ? "rep_block_art_1" : "block_art_1");
+    setSelectedRowId(targetTheme === "republican" ? "rep_row_1" : "row_1");
+    setSelectedColumnId(targetTheme === "republican" ? "rep_col_1_1" : "col_1_2");
+  };
+
+  const navigateToHome = () => {
+    if (newspaperData) {
+      localStorage.setItem(`newspaper_draft_${newspaperData.theme}`, JSON.stringify(newspaperData));
+    }
+    setCurrentView("home");
+    sessionStorage.setItem("current_view", "home");
+  };
 
   const setNewspaperData = React.useCallback((action: React.SetStateAction<NewspaperData>) => {
     setHistory(current => {
@@ -733,9 +804,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     setSelectedColumnId(toCol.id);
   };
 
-  const theme: NewspaperTheme = (newspaperData.theme as NewspaperTheme) || "fantasy";
-
-  const convertBlocksForTheme = (data: NewspaperData, targetTheme: NewspaperTheme): NewspaperData => {
+  const convertThemeContent = (data: NewspaperData, targetTheme: NewspaperTheme): NewspaperData => {
     const convertedRows = data.rows.map(row => ({
       ...row,
       height: targetTheme === "republican" ? (row.height || 480) : undefined,
@@ -808,7 +877,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
       setSelectedRowId(newTheme === "republican" ? "rep_row_1" : "row_1");
       setSelectedColumnId(newTheme === "republican" ? "rep_col_1_1" : "col_1_2");
     } else {
-      const converted = convertBlocksForTheme(newspaperData, newTheme);
+      const converted = convertThemeContent(newspaperData, newTheme);
       setNewspaperData(converted);
       setSelectedBlockId(null);
       setSelectedRowId(null);
@@ -861,6 +930,11 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     isExporting, setIsExporting,
     activeAddBlockColId, setActiveAddBlockColId,
     showWelcomeModal, setShowWelcomeModal,
+    currentView, setCurrentView,
+    autoSaveStatus,
+    openEditor,
+    navigateToHome,
+    convertThemeContent,
     theme, switchTheme, updateRowHeight, updateRowColumnFractions,
     findSelectedBlock, selectBlockAndContext, updateBlock, updateHeader,
     updateRowSplit, splitColumn, deleteColumn, insertRowBelow, addNewRow, deleteRow, moveRow,

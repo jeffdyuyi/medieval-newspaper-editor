@@ -33,6 +33,8 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
     setEnableParchmentTexture,
     enableCoffeeStains,
     setEnableCoffeeStains,
+    theme,
+    convertThemeContent,
   } = useNewspaper();
 
   const [saves, setSaves] = useState<SaveSlot[]>([]);
@@ -148,12 +150,22 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
         }
 
         if (rawData) {
-          const sanitized = sanitizeNewspaperData(rawData);
+          let finalData = rawData;
+          if (rawData.theme && rawData.theme !== theme) {
+            const fromName = rawData.theme === "republican" ? "民国报刊" : "中世纪奇幻";
+            const toName = theme === "republican" ? "民国报刊" : "中世纪奇幻";
+            const ok = confirm(
+              `检测到该存档文件源自【${fromName}】环境。\n\n是否允许将其中的标题、副标、文章正文、作者、图片与告示等内容，自动转换并适配至当前【${toName}】编辑器？`
+            );
+            if (!ok) return;
+            finalData = convertThemeContent(rawData, theme);
+          }
+          const sanitized = sanitizeNewspaperData(finalData);
           setNewspaperData(sanitized);
           setSelectedBlockId(null);
           setSelectedRowId(null);
           setSelectedColumnId(null);
-          alert("存档与排版设定已成功导入！");
+          alert("存档与排版内容已成功导入！");
           onClose();
         } else {
           alert("文件格式不正确，未检测到合法的报纸版面数据。");

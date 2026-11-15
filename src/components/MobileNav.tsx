@@ -29,7 +29,8 @@ export default function MobileNav() {
     findSelectedBlock, updateBlock, updateHeader,
     addBlockToColumn, deleteBlock,
     undo, redo, canUndo, canRedo,
-    theme, switchTheme,
+    theme,
+    navigateToHome,
   } = useNewspaper();
 
   const [drawerOpen, setDrawerOpen] = useState<"tabs" | "block" | null>(null);
@@ -102,9 +103,9 @@ export default function MobileNav() {
       <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#dcd0b8] border-b border-[#8b4513] px-3 py-2 flex items-center justify-between no-print">
         <button
           type="button"
-          onClick={() => setShowAboutModal(true)}
+          onClick={navigateToHome}
           className="flex items-center gap-2 cursor-pointer"
-          title="点击查看关于"
+          title="点击回到首页（内容已自动保存）"
         >
           <div className="w-6 h-6 rounded bg-[#2c221a] border border-[#8b4513] p-0.5 flex items-center justify-center shrink-0">
             <img src={logoUrl} alt="不咕鸟" className="w-full h-full object-contain" />
@@ -670,27 +671,6 @@ export default function MobileNav() {
               </div>
             ) : (
               <div className="space-y-4 font-serif">
-                {/* Theme switcher */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[#8b4513] block">报刊风格</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => switchTheme("fantasy")}
-                      className={`py-2 px-2 rounded-sm text-xs font-bold border cursor-pointer ${theme === "fantasy" ? "bg-[#8b4513] text-[#f5deb3]" : "bg-[#dcd0b8] text-[#4a3728]"}`}
-                    >
-                      ⚔ 中世纪奇幻
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => switchTheme("republican")}
-                      className={`py-2 px-2 rounded-sm text-xs font-bold border cursor-pointer ${theme === "republican" ? "bg-[#1a1a1a] text-[#f4f3ef]" : "bg-[#dcd0b8] text-[#4a3728]"}`}
-                    >
-                      ■ 民国报刊
-                    </button>
-                  </div>
-                </div>
-
                 {/* Paper Tone */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-[#4a3728] block">纸张色调</label>
