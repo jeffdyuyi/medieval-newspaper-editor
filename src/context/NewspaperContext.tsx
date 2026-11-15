@@ -417,22 +417,39 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const addBlockToColumn = (colId: string, type: BlockType, afterBlockId?: string) => {
     const newBlockId = `block_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const isRep = (newspaperData.theme as NewspaperTheme) === "republican";
     let newBlock: Block;
 
     if (type === "headline") {
-      newBlock = { id: newBlockId, type: "headline", text: "新栏目大标题", subtitle: "在此输入吸引人眼球的副标题", font: "font-xiaowei", size: "normal" };
+      newBlock = isRep
+        ? { id: newBlockId, type: "headline", text: "本埠時事要聞", subtitle: "特派通訊員自前方發來電訊", font: "font-xiaowei", size: "normal", titleMarker: "square" }
+        : { id: newBlockId, type: "headline", text: "新栏目大标题", subtitle: "在此输入吸引人眼球的副标题", font: "font-xiaowei", size: "normal" };
     } else if (type === "article") {
-      newBlock = {
-        id: newBlockId, type: "article", title: "新记事文章标题", subtitle: "皇家学者关于此事件的简短叙述",
-        author: "帝国记录官", paragraphs: ["在遥远的行省，风雨交加的夜里，一件奇妙的逸闻悄然发生。据当地守卫描述，那是个不可思议的开端...", "学者们在羊皮纸上写下了这段记录，供王都的臣民们阅览。"],
-        dropCap: true, fontSize: "sm", font: "font-serif", align: "justify"
-      };
+      newBlock = isRep
+        ? {
+            id: newBlockId, type: "article", title: "滬申各界春季公祭紀實", subtitle: "昨午各界代表齊聚會堂場面極為隆重",
+            author: "本報特派記者", publishOffice: "時事新報社印",
+            paragraphs: ["昨日午後，各界代表假座大禮堂舉行公祭典禮。到會人士數百人，秩序井然，備極莊嚴...", "典禮於二時開始，首由主席登壇宣告開會，奏樂行禮如儀，詞旨深沉，在座者莫不肅然。"],
+            dropCap: true, fontSize: "sm", font: "font-serif", align: "justify", titleMarker: "square"
+          }
+        : {
+            id: newBlockId, type: "article", title: "新记事文章标题", subtitle: "皇家学者关于此事件的简短叙述",
+            author: "帝国记录官", publishOffice: "圣塞西尔记录署印",
+            paragraphs: ["在遥远的行省，风雨交加的夜里，一件奇妙的逸闻悄然发生。据当地守卫描述，那是个不可思议的开端...", "学者们在羊皮纸上写下了这段记录，供王都的臣民们阅览。"],
+            dropCap: true, fontSize: "sm", font: "font-serif", align: "justify"
+          };
     } else if (type === "image") {
-      newBlock = { id: newBlockId, type: "image", src: "", filter: "woodblock", caption: "古老手抄本插图摹印", isClipart: true, clipartId: "castle", scale: 75 };
+      newBlock = isRep
+        ? { id: newBlockId, type: "image", src: "", filter: "sepia", caption: "街市人力黃包車實景", isClipart: true, clipartId: "rickshaw", scale: 80 }
+        : { id: newBlockId, type: "image", src: "", filter: "woodblock", caption: "古老手抄本插图摹印", isClipart: true, clipartId: "castle", scale: 75 };
     } else if (type === "divider") {
-      newBlock = { id: newBlockId, type: "divider", style: "ornament", ornamentType: "fleur-de-lis" };
+      newBlock = isRep
+        ? { id: newBlockId, type: "divider", style: "wenwu" }
+        : { id: newBlockId, type: "divider", style: "ornament", ornamentType: "fleur-de-lis" };
     } else {
-      newBlock = { id: newBlockId, type: "ad", title: "大炼金商行告示", content: "出售上等秘银盾牌、精制魔法卷轴。保证正品，拒绝赝品！", price: "售价：面议", merchant: "北街红狮子铁匠铺", borderStyle: "dashed" };
+      newBlock = isRep
+        ? { id: newBlockId, type: "ad", title: "先施公司新貨告白", content: "本公司由英美各國採辦應時綢緞呢絨、時裝西服，照公道定價發售，歡迎各界賜顧！", price: "定價：童叟無欺", merchant: "南京路大東門英租界", borderStyle: "wenwu" }
+        : { id: newBlockId, type: "ad", title: "大炼金商行告示", content: "出售上等秘银盾牌、精制魔法卷轴。保证正品，拒绝赝品！", price: "售价：面议", merchant: "北街红狮子铁匠铺", borderStyle: "dashed" };
     }
 
     setNewspaperData(prev => ({

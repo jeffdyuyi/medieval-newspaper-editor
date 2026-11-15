@@ -15,6 +15,7 @@ interface DroppableColumnProps {
   isRepublican: boolean;
   isSelected: boolean;
   columnGap: number;
+  flexRatio?: number;
   onClick: (e: React.MouseEvent) => void;
   children: React.ReactNode;
 }
@@ -27,6 +28,7 @@ export default function DroppableColumn({
   isRepublican,
   isSelected,
   columnGap,
+  flexRatio,
   onClick,
   children,
 }: DroppableColumnProps) {
@@ -55,7 +57,9 @@ export default function DroppableColumn({
         ${isOver ? "ring-2 ring-dashed ring-[#8b4513] bg-[#8b4513]/10" : ""}
       `}
       style={
-        !isRepublican && colIdx > 0
+        isRepublican
+          ? { flex: flexRatio !== undefined ? `${flexRatio} 1 0%` : "1 1 0%" }
+          : !isRepublican && colIdx > 0
           ? {
               borderLeft: "1px solid rgba(43, 34, 26, 0.25)",
               paddingLeft: `${columnGap * 2}px`,
@@ -65,8 +69,16 @@ export default function DroppableColumn({
     >
       {/* Visual drop indicator overlay when hovering a palette item */}
       {isOver && (
-        <div className="no-print absolute inset-1 bg-[#8b4513]/10 border-2 border-dashed border-[#8b4513] rounded flex items-center justify-center z-30 pointer-events-none animate-pulse">
-          <span className="text-xs font-serif font-bold text-[#8b4513] px-2 py-1 bg-[#f5deb3] rounded shadow border border-[#8b4513]/50">
+        <div className={`no-print absolute inset-1 rounded flex items-center justify-center z-30 pointer-events-none animate-pulse border-2 border-dashed ${
+          isRepublican
+            ? "bg-[#1a1a1a]/10 border-[#1a1a1a]"
+            : "bg-[#8b4513]/10 border-[#8b4513]"
+        }`}>
+          <span className={`text-xs font-bold px-2.5 py-1 rounded shadow border ${
+            isRepublican
+              ? "font-sans text-[#0d0d0d] bg-[#f4f3ef] border-[#1a1a1a]"
+              : "font-serif text-[#8b4513] bg-[#f5deb3] border-[#8b4513]/50"
+          }`}>
             ⤓ 释放以在此栏创建模块
           </span>
         </div>

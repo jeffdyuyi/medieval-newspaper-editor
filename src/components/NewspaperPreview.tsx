@@ -65,7 +65,7 @@ export default function NewspaperPreview() {
     activeAddBlockColId, setActiveAddBlockColId,
     selectBlockAndContext,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally,
-    theme, switchTheme, updateRowHeight, updateRowColumnFractions, triggerImageUpload
+    theme, switchTheme, updateRowHeight, updateRowColumnFractions, updateHeader, triggerImageUpload
   } = useNewspaper();
 
   const [inlineEditTarget, setInlineEditTarget] = React.useState<InlineEditTarget | null>(null);
@@ -166,11 +166,10 @@ export default function NewspaperPreview() {
                     style={{ fontSize: `calc(3rem * ${globalHeadingScale / 100})` }}
                     className="font-bold text-center leading-tight text-[#0d0d0d] font-serif tracking-[0.2em] py-1 cursor-text"
                     title="双击直接就地编辑报头大标题"
-                    onDoubleClick={(e) => {
+                    onDoubleClick={() => {
                       const newTitle = prompt("修改报刊标题：", newspaperData.header.title);
                       if (newTitle !== null && newTitle.trim()) {
-                        // Header title edit
-                        newspaperData.header.title = newTitle.trim();
+                        updateHeader(h => ({ ...h, title: newTitle.trim() }));
                       }
                     }}
                   >
@@ -178,14 +177,30 @@ export default function NewspaperPreview() {
                   </h1>
                   <div className="flex justify-between text-[9px] font-serif border-t border-[#1a1a1a]/50 pt-0.5 mt-1 px-1 text-[#1a1a1a]/70">
                     <span>{newspaperData.header.publisherEn || "THE CHINA TIMES"}</span>
-                    <span>{newspaperData.header.subtitle}</span>
+                    <span
+                      className="cursor-text hover:underline"
+                      title="双击直接修改副标题"
+                      onDoubleClick={() => {
+                        const val = prompt("修改副标题/标语：", newspaperData.header.subtitle);
+                        if (val !== null) updateHeader(h => ({ ...h, subtitle: val.trim() }));
+                      }}
+                    >
+                      {newspaperData.header.subtitle}
+                    </span>
                     <span>{newspaperData.header.price}</span>
                   </div>
                 </header>
               ) : (
                 /* Vertical box masthead (default republican) */
                 <header className="mb-3">
-                  <div className="text-[9px] font-serif text-center border-b border-[#1a1a1a]/40 pb-0.5 mb-1 tracking-widest text-[#1a1a1a]/60">
+                  <div 
+                    className="text-[9px] font-serif text-center border-b border-[#1a1a1a]/40 pb-0.5 mb-1 tracking-widest text-[#1a1a1a]/60 cursor-text hover:underline"
+                    title="双击直接修改报刊标语"
+                    onDoubleClick={() => {
+                      const val = prompt("修改报刊标语：", newspaperData.header.subtitle);
+                      if (val !== null) updateHeader(h => ({ ...h, subtitle: val.trim() }));
+                    }}
+                  >
                     {newspaperData.header.subtitle}
                   </div>
                   <div className="rep-masthead-vertical">
@@ -198,7 +213,7 @@ export default function NewspaperPreview() {
                         onDoubleClick={() => {
                           const newTitle = prompt("修改报刊标题：", newspaperData.header.title);
                           if (newTitle !== null && newTitle.trim()) {
-                            newspaperData.header.title = newTitle.trim();
+                            updateHeader(h => ({ ...h, title: newTitle.trim() }));
                           }
                         }}
                       >
@@ -228,7 +243,16 @@ export default function NewspaperPreview() {
               <header className="border-b-[4px] border-[#2b221a] pb-2 mb-4 text-center">
                 {/* Motto or Top Issue Headline */}
                 <div className="text-[10px] md:text-xs font-mono font-medium border-b border-[#2b221a]/60 pb-1 mb-2 tracking-widest uppercase flex items-center justify-between px-2 text-[#2b221a]/80">
-                  <span>{newspaperData.header.subtitle}</span>
+                  <span
+                    className="cursor-text hover:underline"
+                    title="双击直接修改报刊标语"
+                    onDoubleClick={() => {
+                      const val = prompt("修改报刊标语：", newspaperData.header.subtitle);
+                      if (val !== null) updateHeader(h => ({ ...h, subtitle: val.trim() }));
+                    }}
+                  >
+                    {newspaperData.header.subtitle}
+                  </span>
                 </div>
 
                 {/* Big Title Name */}
@@ -239,7 +263,7 @@ export default function NewspaperPreview() {
                   onDoubleClick={() => {
                     const newTitle = prompt("修改报刊大标题：", newspaperData.header.title);
                     if (newTitle !== null && newTitle.trim()) {
-                      newspaperData.header.title = newTitle.trim();
+                      updateHeader(h => ({ ...h, title: newTitle.trim() }));
                     }
                   }}
                 >
@@ -321,6 +345,7 @@ export default function NewspaperPreview() {
                         isRepublican={isRepublican}
                         isSelected={selectedColumnId === col.id}
                         columnGap={columnGap}
+                        flexRatio={fractions[colIdx]}
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedRowId(row.id);

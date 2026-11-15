@@ -96,7 +96,7 @@ const MULTILINE_FIELDS: Array<InlineEditTarget["field"]> = [
 
 // ── Component ─────────────────────────────────────────────────────────
 export default function InlineEditor({ target, anchorRect, onClose }: InlineEditorProps) {
-  const { findSelectedBlock, updateBlock, theme } = useNewspaper();
+  const { newspaperData, updateBlock, theme } = useNewspaper();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
@@ -105,24 +105,43 @@ export default function InlineEditor({ target, anchorRect, onClose }: InlineEdit
   const isRep = theme === "republican";
   const isMultiline = target ? MULTILINE_FIELDS.includes(target.field) : false;
 
-  // Load initial value when target changes
+  // Load initial value directly using target.blockId to avoid stale selectedBlockId
   useEffect(() => {
     if (!target) return;
-    const block = findSelectedBlock();
+    let block: Block | null = null;
+    for (const r of newspaperData.rows) {
+      for (const c of r.columns) {
+        const found = c.blocks.find(b => b.id === target.blockId);
+        if (found) {
+          block = found;
+          break;
+        }
+      }
+      if (block) break;
+    }
     if (!block) return;
     setValue(getInitialValue(block, target));
-  }, [target]);
+  }, [target, newspaperData]);
 
-  // Position the editor near the anchor element
+  // Position the editor near the anchor element with boundary protection
   useEffect(() => {
     if (!anchorRect) return;
     const viewportW = window.innerWidth;
-    const editorW = Math.min(Math.max(anchorRect.width, 260), 420);
+    const viewportH = window.innerHeight;
+    const editorW = Math.min(Math.max(anchorRect.width, 280), 460);
     let left = anchorRect.left;
     if (left + editorW > viewportW - 16) left = viewportW - editorW - 16;
     if (left < 8) left = 8;
-    setPosition({ top: anchorRect.top, left, width: editorW });
-  }, [anchorRect]);
+
+    let top = anchorRect.top;
+    // Estimated popup height: 180px for multiline, 90px for singleline
+    const estimatedH = isMultiline ? 200 : 100;
+    if (top + estimatedH > viewportH - 16) {
+      top = Math.max(16, viewportH - estimatedH - 16);
+    }
+
+    setPosition({ top, left, width: editorW });
+  }, [anchorRect, isMultiline]);
 
   // Auto-focus
   useEffect(() => {
