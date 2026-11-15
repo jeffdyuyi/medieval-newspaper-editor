@@ -11,7 +11,6 @@ import { ALL_CLIPART } from "../clipart";
 import { FONT_OPTIONS } from "../constants";
 import { generateArticleAI } from "../utils/aiGenerator";
 import BlockPalette from "./BlockPalette";
-import MarkdownToolbar from "./MarkdownToolbar";
 
 export default function Sidebar() {
   const {
@@ -41,8 +40,6 @@ export default function Sidebar() {
   const [aiTopic, setAiTopic] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
-  const articleTextareaRef = React.useRef<HTMLTextAreaElement>(null);
-  const adTextareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const handleAiGenerate = async () => {
     if (!aiTopic.trim() || !selectedBlockId) return;
@@ -517,14 +514,13 @@ export default function Sidebar() {
                           </p>
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-[#8b4513]">文章大标题</label>
-                          <input 
-                            type="text" 
-                            value={(selectedBlock as ArticleBlock).title}
-                            onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, title: e.target.value } as ArticleBlock))}
-                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                          />
+                        {/* 所见即所得原地打字提示 */}
+                        <div className="bg-[#8b4513]/10 border border-[#8b4513]/30 rounded p-2.5 text-xs text-[#4a3728] flex items-start gap-2 leading-relaxed">
+                          <span className="text-base select-none shrink-0">✍</span>
+                          <div>
+                            <span className="font-bold block text-[#2b221a]">所见即所得原生排版</span>
+                            <span className="text-[11px] text-[#4a3728]/80">标题、副标、署名与正文已全面支持在右侧报纸上单击直接打字；敲回车自动分段，选中文本直接浮出格式条。</span>
+                          </div>
                         </div>
 
                         {/* 大标题排版配置 */}
@@ -578,16 +574,6 @@ export default function Sidebar() {
                           </div>
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-[#8b4513]">副标题</label>
-                          <input 
-                            type="text" 
-                            value={(selectedBlock as ArticleBlock).subtitle}
-                            onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, subtitle: e.target.value } as ArticleBlock))}
-                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                          />
-                        </div>
-
                         {/* 副标题排版配置 */}
                         <div className="p-2 border border-[#8b4513]/20 bg-[#8b4513]/5 rounded space-y-1.5 animate-fadeIn">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-[#8b4513] block">副标题排版</span>
@@ -638,31 +624,9 @@ export default function Sidebar() {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <label className="text-xs font-bold text-[#8b4513]">作者/官职</label>
-                            <input 
-                              type="text" 
-                              value={(selectedBlock as ArticleBlock).author}
-                              onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, author: e.target.value } as ArticleBlock))}
-                              className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-xs font-bold text-[#8b4513]">署名单位/记录署印</label>
-                            <input 
-                              type="text" 
-                              value={(selectedBlock as ArticleBlock).publishOffice ?? ""}
-                              placeholder="聖塞西爾記錄署印"
-                              onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, publishOffice: e.target.value } as ArticleBlock))}
-                              className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                            />
-                          </div>
-                        </div>
-
+                        {/* 正文全局版式 */}
                         <div className="space-y-1">
-                          <label className="text-xs font-bold text-[#8b4513]">复古中文字体</label>
+                          <label className="text-xs font-bold text-[#8b4513]">正文字体基准</label>
                           <select 
                             value={(selectedBlock as ArticleBlock).font}
                             onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, font: e.target.value } as ArticleBlock))}
@@ -747,49 +711,19 @@ export default function Sidebar() {
                             首字下沉 (开启此项可在首段显示精美雕花大写字母)
                           </label>
                         </div>
-
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-[#8b4513] flex justify-between items-center">
-                            <span>文章正文 (换行自动分割段落)</span>
-                            <span className="text-[10px] text-[#8b4513] opacity-70">段落数: {(selectedBlock as ArticleBlock).paragraphs.length}</span>
-                          </label>
-
-                          {/* 聚合美观的 Markdown 富文本格式工具栏 */}
-                          <MarkdownToolbar
-                            textareaRef={articleTextareaRef}
-                            value={(selectedBlock as ArticleBlock).paragraphs.join("\n\n")}
-                            onChange={(val) => {
-                              const paras = val.split(/\n+/).filter(p => p.trim() !== "");
-                              updateBlock(selectedBlock.id, b => ({ ...b, paragraphs: paras } as ArticleBlock));
-                            }}
-                          />
-
-                          <textarea 
-                            ref={articleTextareaRef}
-                            rows={8}
-                            value={(selectedBlock as ArticleBlock).paragraphs.join("\n\n")}
-                            onChange={(e) => {
-                              const paras = e.target.value.split(/\n+/).filter(p => p.trim() !== "");
-                              updateBlock(selectedBlock.id, b => ({ ...b, paragraphs: paras } as ArticleBlock));
-                            }}
-                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded-b px-3 py-2 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] font-serif text-xs leading-relaxed -mt-1"
-                            placeholder="在此输入正文，支持使用上方工具栏快捷格式化加粗、红字、引用、列表等..."
-                          />
-                        </div>
                       </div>
                     )}
 
                     {/* HEADLINE BLOCK EDIT CONTROLS */}
                     {selectedBlock.type === "headline" && (
                       <div className="space-y-4 animate-fadeIn">
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-[#8b4513]">标题文字</label>
-                          <input 
-                            type="text" 
-                            value={(selectedBlock as HeadlineBlock).text}
-                            onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, text: e.target.value } as HeadlineBlock))}
-                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                          />
+                        {/* 所见即所得原地打字提示 */}
+                        <div className="bg-[#8b4513]/10 border border-[#8b4513]/30 rounded p-2.5 text-xs text-[#4a3728] flex items-start gap-2 leading-relaxed">
+                          <span className="text-base select-none shrink-0">✍</span>
+                          <div>
+                            <span className="font-bold block text-[#2b221a]">画布直接编辑</span>
+                            <span className="text-[11px] text-[#4a3728]/80">大字主标题及副标题已全面支持在右侧报纸上单击直接打字修改；此处专注调整大字规格、字体与对齐。</span>
+                          </div>
                         </div>
 
                         {/* 标题文字排版 */}
@@ -839,16 +773,6 @@ export default function Sidebar() {
                               </select>
                             </div>
                           </div>
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-[#8b4513]">辅助副标题</label>
-                          <input 
-                            type="text" 
-                            value={(selectedBlock as HeadlineBlock).subtitle}
-                            onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, subtitle: e.target.value } as HeadlineBlock))}
-                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                          />
                         </div>
 
                         {/* 副标题排版 */}
@@ -1111,14 +1035,13 @@ export default function Sidebar() {
                     {/* ADVERTISEMENT BLOCK EDIT CONTROLS */}
                     {selectedBlock.type === "ad" && (
                       <div className="space-y-4">
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-[#8b4513]">商号告示主题</label>
-                          <input 
-                            type="text" 
-                            value={(selectedBlock as AdBlock).title}
-                            onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, title: e.target.value } as AdBlock))}
-                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                          />
+                        {/* 所见即所得原地打字提示 */}
+                        <div className="bg-[#8b4513]/10 border border-[#8b4513]/30 rounded p-2.5 text-xs text-[#4a3728] flex items-start gap-2 leading-relaxed">
+                          <span className="text-base select-none shrink-0">✍</span>
+                          <div>
+                            <span className="font-bold block text-[#2b221a]">画布直接编辑</span>
+                            <span className="text-[11px] text-[#4a3728]/80">告示主题、宣传内容、商号发布人与标价均已支持在右侧报纸上单击打字；此处专注配置古风边框与字形排版。</span>
+                          </div>
                         </div>
 
                         {/* 告示主题排版 */}
@@ -1171,26 +1094,6 @@ export default function Sidebar() {
                           </div>
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-[#8b4513]">告示宣传内容</label>
-
-                          {/* 聚合美观的 Markdown 富文本格式工具栏 */}
-                          <MarkdownToolbar
-                            textareaRef={adTextareaRef}
-                            value={(selectedBlock as AdBlock).content}
-                            onChange={(val) => updateBlock(selectedBlock.id, b => ({ ...b, content: val } as AdBlock))}
-                          />
-
-                          <textarea 
-                            ref={adTextareaRef}
-                            rows={4}
-                            value={(selectedBlock as AdBlock).content}
-                            onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, content: e.target.value } as AdBlock))}
-                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded-b px-3 py-2 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs leading-relaxed font-serif -mt-1"
-                            placeholder="写入大酒馆、铁匠铺、魔法行会的招募或促销告示，支持使用上方格式工具栏..."
-                          />
-                        </div>
-
                         {/* 宣传内容排版 */}
                         <div className="p-2 border border-[#8b4513]/20 bg-[#8b4513]/5 rounded space-y-1.5 animate-fadeIn">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-[#8b4513] block">内容排版</span>
@@ -1238,28 +1141,6 @@ export default function Sidebar() {
                                 <option value="justify">两端</option>
                               </select>
                             </div>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <label className="text-xs font-bold text-[#8b4513]">标价/酬金</label>
-                            <input 
-                              type="text" 
-                              value={(selectedBlock as AdBlock).price}
-                              onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, price: e.target.value } as AdBlock))}
-                              className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-xs font-bold text-[#8b4513]">商号店址/发布人</label>
-                            <input 
-                              type="text" 
-                              value={(selectedBlock as AdBlock).merchant}
-                              onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, merchant: e.target.value } as AdBlock))}
-                              className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                            />
                           </div>
                         </div>
 

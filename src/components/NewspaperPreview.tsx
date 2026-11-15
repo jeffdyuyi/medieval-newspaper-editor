@@ -5,7 +5,8 @@ import { SortableBlock } from "./SortableBlock";
 import { useNewspaper } from "../context/NewspaperContext";
 import { ALL_CLIPART } from "../clipart";
 import { ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock } from "../types";
-import InlineEditor, { InlineEditTarget } from "./InlineEditor";
+import EditableText from "./EditableText";
+import SelectionToolbar from "./SelectionToolbar";
 import ColumnResizeHandle from "./ColumnResizeHandle";
 import RowResizeHandle from "./RowResizeHandle";
 import DroppableColumn from "./DroppableColumn";
@@ -64,21 +65,10 @@ export default function NewspaperPreview() {
     paperTone,
     activeAddBlockColId, setActiveAddBlockColId,
     selectBlockAndContext,
-    addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally,
+    addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, updateBlock,
     theme, switchTheme, updateRowHeight, updateRowColumnFractions, updateHeader, triggerImageUpload,
     splitColumn, deleteColumn, insertRowBelow, moveRow, deleteRow
   } = useNewspaper();
-
-  const [inlineEditTarget, setInlineEditTarget] = React.useState<InlineEditTarget | null>(null);
-  const [inlineAnchorRect, setInlineAnchorRect] = React.useState<DOMRect | null>(null);
-
-  const handleStartInlineEdit = (e: React.MouseEvent, target: InlineEditTarget) => {
-    e.stopPropagation();
-    e.preventDefault();
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    setInlineAnchorRect(rect);
-    setInlineEditTarget(target);
-  };
 
   return (
     <>
@@ -159,129 +149,136 @@ export default function NewspaperPreview() {
                 /* Horizontal RTL banner style */
                 <header className="mb-3 border-t-[3px] border-b border-[#1a1a1a]">
                   <div className="text-[9px] font-serif border-b border-[#1a1a1a]/50 pb-0.5 mb-1 tracking-widest flex justify-between px-1 text-[#1a1a1a]/70 select-text">
-                    <span
-                      className="cursor-text hover:underline"
-                      title="双击直接就地修改期号"
-                      onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "issueNo" })}
-                    >
-                      {newspaperData.header.issueNo}
-                    </span>
-                    <span
-                      className="cursor-text hover:underline"
-                      title="双击直接就地修改出版日期"
-                      onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "date" })}
-                    >
-                      {newspaperData.header.date}
-                    </span>
-                    <span
-                      className="cursor-text hover:underline"
-                      title="双击直接就地修改发行地点"
-                      onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "location" })}
-                    >
-                      {newspaperData.header.location}
-                    </span>
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.issueNo}
+                      onChange={(val) => updateHeader(h => ({ ...h, issueNo: val }))}
+                      placeholder="期号"
+                      title="点击直接修改期号"
+                    />
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.date}
+                      onChange={(val) => updateHeader(h => ({ ...h, date: val }))}
+                      placeholder="出版日期"
+                      title="点击直接修改出版日期"
+                    />
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.location}
+                      onChange={(val) => updateHeader(h => ({ ...h, location: val }))}
+                      placeholder="发行地点"
+                      title="点击直接修改发行地点"
+                    />
                   </div>
-                  <h1
+                  <EditableText
+                    tagName="h1"
+                    value={newspaperData.header.title.split("").reverse().join("")}
+                    onChange={(val) => updateHeader(h => ({ ...h, title: val.split("").reverse().join("") }))}
                     style={{ fontSize: `calc(3rem * ${globalHeadingScale / 100})` }}
-                    className="font-bold text-center leading-tight text-[#0d0d0d] font-serif tracking-[0.2em] py-1 cursor-text select-text"
-                    title="双击直接就地编辑报头大标题"
-                    onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "title" })}
-                  >
-                    {newspaperData.header.title.split("").reverse().join("")}
-                  </h1>
+                    className="font-bold text-center leading-tight text-[#0d0d0d] font-serif tracking-[0.2em] py-1 block w-full"
+                    placeholder="报头大标题"
+                    title="点击直接原位编辑报头大标题"
+                  />
                   <div className="flex justify-between text-[9px] font-serif border-t border-[#1a1a1a]/50 pt-0.5 mt-1 px-1 text-[#1a1a1a]/70 select-text">
-                    <span
-                      className="cursor-text hover:underline"
-                      title="双击直接修改外文报头"
-                      onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "publisherEn" })}
-                    >
-                      {newspaperData.header.publisherEn || "THE CHINA TIMES"}
-                    </span>
-                    <span
-                      className="cursor-text hover:underline"
-                      title="双击直接就地修改副标题/标语"
-                      onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "subtitle" })}
-                    >
-                      {newspaperData.header.subtitle}
-                    </span>
-                    <span
-                      className="cursor-text hover:underline"
-                      title="双击直接就地修改售价"
-                      onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "price" })}
-                    >
-                      {newspaperData.header.price}
-                    </span>
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.publisherEn || "THE CHINA TIMES"}
+                      onChange={(val) => updateHeader(h => ({ ...h, publisherEn: val }))}
+                      placeholder="外文报头"
+                      title="点击直接修改外文报头"
+                    />
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.subtitle}
+                      onChange={(val) => updateHeader(h => ({ ...h, subtitle: val }))}
+                      placeholder="副标题/标语"
+                      title="点击直接修改副标题/标语"
+                    />
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.price}
+                      onChange={(val) => updateHeader(h => ({ ...h, price: val }))}
+                      placeholder="报刊售价"
+                      title="点击直接修改售价"
+                    />
                   </div>
                 </header>
               ) : (
                 /* Vertical box masthead (default republican) */
                 <header className="mb-3">
-                  <div 
-                    className="text-[9px] font-serif text-center border-b border-[#1a1a1a]/40 pb-0.5 mb-1 tracking-widest text-[#1a1a1a]/60 cursor-text select-text hover:underline"
-                    title="双击直接就地修改报刊标语"
-                    onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "subtitle" })}
-                  >
-                    {newspaperData.header.subtitle}
+                  <div className="text-[9px] font-serif text-center border-b border-[#1a1a1a]/40 pb-0.5 mb-1 tracking-widest text-[#1a1a1a]/60 select-text">
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.subtitle}
+                      onChange={(val) => updateHeader(h => ({ ...h, subtitle: val }))}
+                      placeholder="报刊标语"
+                      title="点击直接修改报刊标语"
+                    />
                   </div>
                   <div className="rep-masthead-vertical">
                     {/* Right side: Large title box */}
                     <div className="rep-masthead-title-box min-w-[80px]">
-                      <h1
+                      <EditableText
+                        tagName="h1"
+                        value={newspaperData.header.title}
+                        onChange={(val) => updateHeader(h => ({ ...h, title: val }))}
                         style={{ fontSize: `calc(2.8rem * ${globalHeadingScale / 100})` }}
-                        className="font-bold text-[#0d0d0d] font-serif leading-none tracking-wider cursor-text select-text"
-                        title="双击直接就地编辑报头大标题"
-                        onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "title" })}
-                      >
-                        {newspaperData.header.title}
-                      </h1>
-                      <span
-                        className="text-[8px] font-sans tracking-widest text-[#1a1a1a]/60 border-t border-[#1a1a1a]/30 pt-1 mt-1 cursor-text select-text hover:underline"
-                        title="双击直接就地修改外文报名"
-                        onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "publisherEn" })}
-                      >
-                        {newspaperData.header.publisherEn || "THE CHINA TIMES"}
-                      </span>
+                        className="font-bold text-[#0d0d0d] font-serif leading-none tracking-wider block"
+                        placeholder="报头大标题"
+                        title="点击直接原位编辑报头大标题"
+                      />
+                      <EditableText
+                        tagName="span"
+                        value={newspaperData.header.publisherEn || "THE CHINA TIMES"}
+                        onChange={(val) => updateHeader(h => ({ ...h, publisherEn: val }))}
+                        className="text-[8px] font-sans tracking-widest text-[#1a1a1a]/60 border-t border-[#1a1a1a]/30 pt-1 mt-1 block"
+                        placeholder="外文报头"
+                        title="点击直接修改外文报头"
+                      />
                     </div>
                     {/* Left side: Issue info columns */}
                     <div className="rep-masthead-info-box select-text">
                       <div className="flex flex-col gap-0.5">
-                        <span
-                          className="font-bold text-[11px] cursor-text hover:underline"
-                          title="双击就地修改期号"
-                          onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "issueNo" })}
-                        >
-                          {newspaperData.header.issueNo}
-                        </span>
-                        <span
-                          className="cursor-text hover:underline"
-                          title="双击就地修改日期"
-                          onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "date" })}
-                        >
-                          {newspaperData.header.date}
-                        </span>
-                        <span
-                          className="cursor-text hover:underline"
-                          title="双击就地修改地点"
-                          onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "location" })}
-                        >
-                          {newspaperData.header.location}
-                        </span>
+                        <EditableText
+                          tagName="span"
+                          value={newspaperData.header.issueNo}
+                          onChange={(val) => updateHeader(h => ({ ...h, issueNo: val }))}
+                          className="font-bold text-[11px]"
+                          placeholder="期号"
+                          title="点击直接修改期号"
+                        />
+                        <EditableText
+                          tagName="span"
+                          value={newspaperData.header.date}
+                          onChange={(val) => updateHeader(h => ({ ...h, date: val }))}
+                          placeholder="出版日期"
+                          title="点击直接修改出版日期"
+                        />
+                        <EditableText
+                          tagName="span"
+                          value={newspaperData.header.location}
+                          onChange={(val) => updateHeader(h => ({ ...h, location: val }))}
+                          placeholder="发行地点"
+                          title="点击直接修改发行地点"
+                        />
                       </div>
                       <div className="flex flex-col gap-0.5 border-r border-[#1a1a1a]/30 pr-2 mr-1">
-                        <span
-                          className="cursor-text hover:underline"
-                          title="双击就地修改售价"
-                          onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "price" })}
-                        >
-                          {newspaperData.header.price}
-                        </span>
-                        <span
-                          className="text-[9px] text-[#1a1a1a]/60 cursor-text hover:underline"
-                          title="双击就地修改印刷处"
-                          onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "publisherOffice" })}
-                        >
-                          {newspaperData.header.publisherOffice || ""}
-                        </span>
+                        <EditableText
+                          tagName="span"
+                          value={newspaperData.header.price}
+                          onChange={(val) => updateHeader(h => ({ ...h, price: val }))}
+                          placeholder="售价"
+                          title="点击直接修改售价"
+                        />
+                        <EditableText
+                          tagName="span"
+                          value={newspaperData.header.publisherOffice || ""}
+                          onChange={(val) => updateHeader(h => ({ ...h, publisherOffice: val }))}
+                          className="text-[9px] text-[#1a1a1a]/60"
+                          placeholder="印务处"
+                          title="点击直接修改印务处"
+                        />
                       </div>
                     </div>
                   </div>
@@ -292,37 +289,40 @@ export default function NewspaperPreview() {
               <header className="border-b-[4px] border-[#2b221a] pb-2 mb-4 text-center select-text">
                 {/* Motto or Top Issue Headline */}
                 <div className="text-[10px] md:text-xs font-mono font-medium border-b border-[#2b221a]/60 pb-1 mb-2 tracking-widest uppercase flex items-center justify-between px-2 text-[#2b221a]/80">
-                  <span
-                    className="cursor-text hover:underline"
-                    title="双击直接就地修改报刊标语"
-                    onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "subtitle" })}
-                  >
-                    {newspaperData.header.subtitle}
-                  </span>
+                  <EditableText
+                    tagName="span"
+                    value={newspaperData.header.subtitle}
+                    onChange={(val) => updateHeader(h => ({ ...h, subtitle: val }))}
+                    className="w-full text-center"
+                    placeholder="报刊标语 / 箴言"
+                    title="点击直接修改报刊标语"
+                  />
                 </div>
 
                 {/* Big Title Name */}
-                <h1
+                <EditableText
+                  tagName="h1"
+                  value={newspaperData.header.title}
+                  onChange={(val) => updateHeader(h => ({ ...h, title: val }))}
                   style={{ fontSize: `calc(3.5rem * ${globalHeadingScale / 100})` }}
-                  className={`font-semibold text-center leading-tight transition-all duration-200 text-[#1c1510] ${newspaperData.header.titleFont} cursor-text`}
-                  title="双击直接就地编辑报头大标题"
-                  onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "title" })}
-                >
-                  {newspaperData.header.title}
-                </h1>
+                  className={`font-semibold text-center leading-tight transition-all duration-200 text-[#1c1510] ${newspaperData.header.titleFont} block w-full`}
+                  placeholder="报头大标题"
+                  title="点击直接原位编辑报头大标题"
+                />
 
                 {/* Sub-header Royal Double Emblem Ornament */}
                 {newspaperData.header.headerStyle === "royal" && (
                   <div className="flex items-center justify-center gap-6 text-[#2b221a]/80 py-1.5 select-text">
                     <span className="text-sm">⚜</span>
                     <span className="w-16 h-[1px] bg-[#2b221a]/30" />
-                    <span
-                      className="text-xs font-serif uppercase tracking-widest cursor-text hover:underline"
-                      title="双击就地修改皇家双徽题注"
-                      onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "royalTitle" })}
-                    >
-                      {newspaperData.header.royalTitle || "圣 塞 西 尔 皇 家 御 览"}
-                    </span>
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.royalTitle || "圣 塞 西 尔 皇 家 御 览"}
+                      onChange={(val) => updateHeader(h => ({ ...h, royalTitle: val }))}
+                      className="text-xs font-serif uppercase tracking-widest"
+                      placeholder="皇家双徽题注"
+                      title="点击直接修改皇家题注"
+                    />
                     <span className="w-16 h-[1px] bg-[#2b221a]/30" />
                     <span className="text-sm">⚜</span>
                   </div>
@@ -331,39 +331,39 @@ export default function NewspaperPreview() {
                 {/* Metadata Columns Under Double Lines */}
                 <div className="border-t-[3px] border-b border-[#2b221a] py-1 mt-2 grid grid-cols-4 text-[10px] md:text-xs font-medium font-serif tracking-tight text-[#2b221a]/90 select-text">
                   <div className="text-left pl-1">
-                    <span
-                      className="cursor-text hover:underline"
-                      title="双击就地修改期号"
-                      onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "issueNo" })}
-                    >
-                      {newspaperData.header.issueNo}
-                    </span>
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.issueNo}
+                      onChange={(val) => updateHeader(h => ({ ...h, issueNo: val }))}
+                      placeholder="期号"
+                      title="点击直接修改期号"
+                    />
                   </div>
                   <div className="text-center col-span-2 flex justify-center gap-2">
-                    <span
-                      className="cursor-text hover:underline"
-                      title="双击就地修改地点"
-                      onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "location" })}
-                    >
-                      {newspaperData.header.location}
-                    </span>
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.location}
+                      onChange={(val) => updateHeader(h => ({ ...h, location: val }))}
+                      placeholder="出版地点"
+                      title="点击直接修改出版地点"
+                    />
                     <span>•</span>
-                    <span
-                      className="cursor-text hover:underline"
-                      title="双击就地修改日期"
-                      onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "date" })}
-                    >
-                      {newspaperData.header.date}
-                    </span>
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.date}
+                      onChange={(val) => updateHeader(h => ({ ...h, date: val }))}
+                      placeholder="发行日期"
+                      title="点击直接修改发行日期"
+                    />
                   </div>
                   <div className="text-right pr-1">
-                    <span
-                      className="cursor-text hover:underline"
-                      title="双击就地修改售价"
-                      onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "price" })}
-                    >
-                      {newspaperData.header.price}
-                    </span>
+                    <EditableText
+                      tagName="span"
+                      value={newspaperData.header.price}
+                      onChange={(val) => updateHeader(h => ({ ...h, price: val }))}
+                      placeholder="售价"
+                      title="点击直接修改售价"
+                    />
                   </div>
                 </div>
               </header>
@@ -529,54 +529,63 @@ export default function NewspaperPreview() {
                                       <article className="space-y-2">
                                         {/* Article Header info */}
                                         <div className="space-y-1">
-                                          <h2 
-                                            style={{ 
-                                              fontSize: `calc(${(block as ArticleBlock).titleFontSize === "sm" ? "1.05rem" : (block as ArticleBlock).titleFontSize === "md" ? "1.2rem" : (block as ArticleBlock).titleFontSize === "lg" ? "1.35rem" : (block as ArticleBlock).titleFontSize === "xl" ? "1.5rem" : (block as ArticleBlock).titleFontSize === "2xl" ? "1.8rem" : "1.35rem"} * ${globalHeadingScale / 100})` 
-                                            }}
-                                            className={`font-bold text-[#1c1510] leading-snug tracking-tight ${(block as ArticleBlock).titleFont || "font-serif"} ${(block as ArticleBlock).titleAlign === "center" ? "text-center" : (block as ArticleBlock).titleAlign === "right" ? "text-right" : (block as ArticleBlock).titleAlign === "justify" ? "text-justify" : "text-left"} flex items-center gap-1 cursor-text select-text`}
-                                            title="双击就地编辑文章标题"
-                                            onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "article.title" })}
-                                          >
+                                          <div className={`flex items-center gap-1 ${(block as ArticleBlock).titleAlign === "center" ? "justify-center text-center" : (block as ArticleBlock).titleAlign === "right" ? "justify-end text-right" : (block as ArticleBlock).titleAlign === "justify" ? "justify-between text-justify" : "justify-start text-left"}`}>
                                             {(block as ArticleBlock).titleMarker && (block as ArticleBlock).titleMarker !== "none" && (
-                                              <span className="text-[0.7em] select-none opacity-80">
+                                              <span className="text-[0.7em] select-none opacity-80 shrink-0">
                                                 {(block as ArticleBlock).titleMarker === "square" && "■"}
                                                 {(block as ArticleBlock).titleMarker === "triangle" && "▲"}
                                                 {(block as ArticleBlock).titleMarker === "circle" && "●"}
                                               </span>
                                             )}
-                                            <span>{(block as ArticleBlock).title}</span>
-                                          </h2>
-                                          
-                                          {(block as ArticleBlock).subtitle && (
-                                            <p 
-                                              className={`font-semibold italic text-[#2b221a]/80 leading-normal border-b border-[#2b221a]/20 pb-1 ${(block as ArticleBlock).subtitleFont || "font-serif"} ${(block as ArticleBlock).subtitleAlign === "center" ? "text-center" : (block as ArticleBlock).subtitleAlign === "right" ? "text-right" : (block as ArticleBlock).subtitleAlign === "justify" ? "text-justify" : "text-left"} cursor-text select-text`}
-                                              style={{
-                                                fontSize: (block as ArticleBlock).subtitleFontSize === "xs" ? "11px" : (block as ArticleBlock).subtitleFontSize === "sm" ? "12px" : (block as ArticleBlock).subtitleFontSize === "md" ? "14px" : (block as ArticleBlock).subtitleFontSize === "lg" ? "16px" : "12px"
+                                            <EditableText
+                                              tagName="h2"
+                                              value={(block as ArticleBlock).title}
+                                              onChange={(val) => updateBlock(block.id, b => ({ ...b, title: val } as ArticleBlock))}
+                                              style={{ 
+                                                fontSize: `calc(${(block as ArticleBlock).titleFontSize === "sm" ? "1.05rem" : (block as ArticleBlock).titleFontSize === "md" ? "1.2rem" : (block as ArticleBlock).titleFontSize === "lg" ? "1.35rem" : (block as ArticleBlock).titleFontSize === "xl" ? "1.5rem" : (block as ArticleBlock).titleFontSize === "2xl" ? "1.8rem" : "1.35rem"} * ${globalHeadingScale / 100})` 
                                               }}
-                                              title="双击就地编辑文章副标题"
-                                              onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "article.subtitle" })}
-                                            >
-                                              {(block as ArticleBlock).subtitle}
-                                            </p>
+                                              className={`font-bold text-[#1c1510] leading-snug tracking-tight ${(block as ArticleBlock).titleFont || "font-serif"} block w-full`}
+                                              placeholder="文章大标题"
+                                              title="点击直接原位修改文章标题"
+                                            />
+                                          </div>
+                                          
+                                          {((block as ArticleBlock).subtitle || selectedBlockId === block.id) && (
+                                            <div className="border-b border-[#2b221a]/20 pb-1">
+                                              <EditableText
+                                                tagName="p"
+                                                value={(block as ArticleBlock).subtitle || ""}
+                                                onChange={(val) => updateBlock(block.id, b => ({ ...b, subtitle: val } as ArticleBlock))}
+                                                style={{
+                                                  fontSize: (block as ArticleBlock).subtitleFontSize === "xs" ? "11px" : (block as ArticleBlock).subtitleFontSize === "sm" ? "12px" : (block as ArticleBlock).subtitleFontSize === "md" ? "14px" : (block as ArticleBlock).subtitleFontSize === "lg" ? "16px" : "12px"
+                                                }}
+                                                className={`font-semibold italic text-[#2b221a]/80 leading-normal ${(block as ArticleBlock).subtitleFont || "font-serif"} ${(block as ArticleBlock).subtitleAlign === "center" ? "text-center" : (block as ArticleBlock).subtitleAlign === "right" ? "text-right" : (block as ArticleBlock).subtitleAlign === "justify" ? "text-justify" : "text-left"} block w-full`}
+                                                placeholder="在此输入文章副标题..."
+                                                title="点击直接修改文章副标题"
+                                              />
+                                            </div>
                                           )}
                                         </div>
 
                                         {/* Author stamp line */}
                                         <div className="flex items-center gap-1.5 text-[10px] text-stone-600 font-serif italic justify-between select-text">
-                                          <span 
-                                            className="cursor-text select-text hover:underline"
-                                            title="双击就地编辑作者"
-                                            onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "article.author" })}
-                                          >
-                                            作者：{(block as ArticleBlock).author || "佚名学者"}
-                                          </span>
-                                          <span
-                                            className="cursor-text select-text hover:underline"
-                                            title="双击就地编辑印务署"
-                                            onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "article.publishOffice" })}
-                                          >
-                                            {(block as ArticleBlock).publishOffice || "圣塞西尔记录署印"}
-                                          </span>
+                                          <div className="flex items-center gap-1">
+                                            <span>作者：</span>
+                                            <EditableText
+                                              tagName="span"
+                                              value={(block as ArticleBlock).author || ""}
+                                              onChange={(val) => updateBlock(block.id, b => ({ ...b, author: val } as ArticleBlock))}
+                                              placeholder="佚名学者"
+                                              title="点击直接修改作者署名"
+                                            />
+                                          </div>
+                                          <EditableText
+                                            tagName="span"
+                                            value={(block as ArticleBlock).publishOffice || ""}
+                                            onChange={(val) => updateBlock(block.id, b => ({ ...b, publishOffice: val } as ArticleBlock))}
+                                            placeholder="记录印务署"
+                                            title="点击直接修改记录署印"
+                                          />
                                         </div>
 
                                         {/* Article paragraphs */}
@@ -600,15 +609,32 @@ export default function NewspaperPreview() {
                                             } * ${globalBodyScale / 100})`
                                           }}
                                         >
-                                          {(block as ArticleBlock).paragraphs.map((p, pIdx) => (
-                                            <p 
-                                              key={pIdx} 
-                                              className={`${pIdx === 0 && (block as ArticleBlock).dropCap ? (theme === "republican" ? "char-drop-large" : "drop-cap") : ""} cursor-text select-text hover:bg-black/2 rounded px-0.5`}
-                                              title="双击直接就地编辑此段正文"
-                                              onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "article.paragraphs", paragraphIndex: pIdx })}
-                                            >
-                                              {renderMarkdown(p)}
-                                            </p>
+                                          {((block as ArticleBlock).paragraphs.length > 0 ? (block as ArticleBlock).paragraphs : [""]).map((p, pIdx) => (
+                                            <EditableText
+                                              key={pIdx}
+                                              tagName="p"
+                                              multiline
+                                              value={p}
+                                              onChange={(val) => {
+                                                const nextParas = [...(block as ArticleBlock).paragraphs];
+                                                nextParas[pIdx] = val;
+                                                updateBlock(block.id, b => ({ ...b, paragraphs: nextParas } as ArticleBlock));
+                                              }}
+                                              onEnter={() => {
+                                                const nextParas = [...(block as ArticleBlock).paragraphs];
+                                                nextParas.splice(pIdx + 1, 0, "");
+                                                updateBlock(block.id, b => ({ ...b, paragraphs: nextParas } as ArticleBlock));
+                                              }}
+                                              onBackspaceEmpty={() => {
+                                                if ((block as ArticleBlock).paragraphs.length > 1) {
+                                                  const nextParas = (block as ArticleBlock).paragraphs.filter((_, idx) => idx !== pIdx);
+                                                  updateBlock(block.id, b => ({ ...b, paragraphs: nextParas } as ArticleBlock));
+                                                }
+                                              }}
+                                              className={`${pIdx === 0 && (block as ArticleBlock).dropCap ? (theme === "republican" ? "char-drop-large" : "drop-cap") : ""} block w-full leading-relaxed`}
+                                              placeholder="输入文章正文（按回车分割新段落）..."
+                                              title="点击直接在报纸上打字（回车自然分段）"
+                                            />
                                           ))}
                                         </div>
                                       </article>
@@ -617,37 +643,41 @@ export default function NewspaperPreview() {
                                     {/* BLOCK RENDERING: HEADLINE */}
                                     {block.type === "headline" && (
                                       <div className="py-2 space-y-1">
-                                        <h2 
-                                          style={{ fontSize: `calc(${
-                                            (block as HeadlineBlock).size === "normal" ? "1.5rem" :
-                                            (block as HeadlineBlock).size === "large" ? "2.2rem" : "3rem"
-                                          } * ${globalHeadingScale / 100})` }}
-                                          className={`font-bold leading-tight tracking-normal text-[#1c1510] border-t-2 border-b-2 ${
-                                            theme === "republican" ? "border-[#1a1a1a]" : "border-[#2b221a]"
-                                          } py-1.5 ${(block as HeadlineBlock).font} ${(block as HeadlineBlock).align === "left" ? "text-left justify-start" : (block as HeadlineBlock).align === "right" ? "text-right justify-end" : (block as HeadlineBlock).align === "justify" ? "text-justify justify-between" : "text-center justify-center"} flex items-center gap-1.5 cursor-text select-text`}
-                                          title="双击直接就地编辑大字标题"
-                                          onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "headline.text" })}
-                                        >
+                                        <div className={`border-t-2 border-b-2 ${
+                                          theme === "republican" ? "border-[#1a1a1a]" : "border-[#2b221a]"
+                                        } py-1.5 flex items-center gap-1.5 ${(block as HeadlineBlock).align === "left" ? "text-left justify-start" : (block as HeadlineBlock).align === "right" ? "text-right justify-end" : (block as HeadlineBlock).align === "justify" ? "text-justify justify-between" : "text-center justify-center"}`}>
                                           {(block as HeadlineBlock).titleMarker && (block as HeadlineBlock).titleMarker !== "none" && (
-                                            <span className="text-[0.7em] select-none opacity-80">
+                                            <span className="text-[0.7em] select-none opacity-80 shrink-0">
                                               {(block as HeadlineBlock).titleMarker === "square" && "■"}
                                               {(block as HeadlineBlock).titleMarker === "triangle" && "▲"}
                                               {(block as HeadlineBlock).titleMarker === "circle" && "●"}
                                             </span>
                                           )}
-                                          <span>{(block as HeadlineBlock).text}</span>
-                                        </h2>
-                                        {(block as HeadlineBlock).subtitle && (
-                                          <p 
-                                            className={`tracking-widest ${(block as HeadlineBlock).subtitleFont || "font-serif"} text-[#2b221a]/80 italic ${(block as HeadlineBlock).subtitleAlign === "left" ? "text-left" : (block as HeadlineBlock).subtitleAlign === "right" ? "text-right" : (block as HeadlineBlock).subtitleAlign === "justify" ? "text-justify" : "text-center"} cursor-text select-text`}
+                                          <EditableText
+                                            tagName="h2"
+                                            value={(block as HeadlineBlock).text}
+                                            onChange={(val) => updateBlock(block.id, b => ({ ...b, text: val } as HeadlineBlock))}
+                                            style={{ fontSize: `calc(${
+                                              (block as HeadlineBlock).size === "normal" ? "1.5rem" :
+                                              (block as HeadlineBlock).size === "large" ? "2.2rem" : "3rem"
+                                            } * ${globalHeadingScale / 100})` }}
+                                            className={`font-bold leading-tight tracking-normal text-[#1c1510] ${(block as HeadlineBlock).font} block w-full`}
+                                            placeholder="大字标题"
+                                            title="点击直接修改大字标题"
+                                          />
+                                        </div>
+                                        {((block as HeadlineBlock).subtitle || selectedBlockId === block.id) && (
+                                          <EditableText
+                                            tagName="p"
+                                            value={(block as HeadlineBlock).subtitle || ""}
+                                            onChange={(val) => updateBlock(block.id, b => ({ ...b, subtitle: val } as HeadlineBlock))}
                                             style={{
                                               fontSize: (block as HeadlineBlock).subtitleFontSize === "xs" ? "9px" : (block as HeadlineBlock).subtitleFontSize === "sm" ? "11px" : (block as HeadlineBlock).subtitleFontSize === "md" ? "13px" : (block as HeadlineBlock).subtitleFontSize === "lg" ? "15px" : "10px"
                                             }}
-                                            title="双击直接就地编辑副标题"
-                                            onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "headline.subtitle" })}
-                                          >
-                                            {(block as HeadlineBlock).subtitle}
-                                          </p>
+                                            className={`tracking-widest ${(block as HeadlineBlock).subtitleFont || "font-serif"} text-[#2b221a]/80 italic ${(block as HeadlineBlock).subtitleAlign === "left" ? "text-left" : (block as HeadlineBlock).subtitleAlign === "right" ? "text-right" : (block as HeadlineBlock).subtitleAlign === "justify" ? "text-justify" : "text-center"} block w-full`}
+                                            placeholder="大字副标题..."
+                                            title="点击直接修改副标题"
+                                          />
                                         )}
                                       </div>
                                     )}
@@ -713,15 +743,14 @@ export default function NewspaperPreview() {
                                         </div>
 
                                         {/* Caption below image */}
-                                        {(block as ImageBlock).caption && (
-                                          <p 
-                                            className="text-[10px] md:text-xs font-serif text-stone-600 italic tracking-wide max-w-[80%] mx-auto leading-normal cursor-text select-text hover:underline"
-                                            title="双击直接就地编辑图片说明"
-                                            onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "image.caption" })}
-                                          >
-                                            {(block as ImageBlock).caption}
-                                          </p>
-                                        )}
+                                        <EditableText
+                                          tagName="p"
+                                          value={(block as ImageBlock).caption || ""}
+                                          onChange={(val) => updateBlock(block.id, b => ({ ...b, caption: val } as ImageBlock))}
+                                          className="text-[10px] md:text-xs font-serif text-stone-600 italic tracking-wide max-w-[80%] mx-auto leading-normal text-center block"
+                                          placeholder="点击输入图片说明/注解..."
+                                          title="点击直接修改图片注解"
+                                        />
                                       </div>
                                     )}
 
@@ -779,37 +808,45 @@ export default function NewspaperPreview() {
                                           "border-4 border-double border-[#2b221a]/80 p-2.5"
                                         }`}
                                       >
-                                        <h4 
-                                          style={{ fontSize: (block as AdBlock).titleFontSize === "xs" ? "10px" : (block as AdBlock).titleFontSize === "sm" ? "11px" : (block as AdBlock).titleFontSize === "md" ? "12px" : (block as AdBlock).titleFontSize === "lg" ? "14px" : "12px" }}
-                                          className={`font-bold uppercase tracking-widest text-[#1c1510] border-b border-[#2b221a]/20 pb-0.5 mb-1 ${(block as AdBlock).titleFont || "font-serif"} ${(block as AdBlock).titleAlign === "left" ? "text-left" : (block as AdBlock).titleAlign === "right" ? "text-right" : (block as AdBlock).titleAlign === "justify" ? "text-justify" : "text-center"} cursor-text select-text`}
-                                          title="双击直接就地编辑告示标题"
-                                          onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "ad.title" })}
-                                        >
-                                          ✥ {(block as AdBlock).title} ✥
-                                        </h4>
-                                        <p 
+                                        <div className="border-b border-[#2b221a]/20 pb-0.5 mb-1 flex items-center justify-center gap-1">
+                                          <span className="text-[10px] select-none opacity-70">✥</span>
+                                          <EditableText
+                                            tagName="h4"
+                                            value={(block as AdBlock).title}
+                                            onChange={(val) => updateBlock(block.id, b => ({ ...b, title: val } as AdBlock))}
+                                            style={{ fontSize: (block as AdBlock).titleFontSize === "xs" ? "10px" : (block as AdBlock).titleFontSize === "sm" ? "11px" : (block as AdBlock).titleFontSize === "md" ? "12px" : (block as AdBlock).titleFontSize === "lg" ? "14px" : "12px" }}
+                                            className={`font-bold uppercase tracking-widest text-[#1c1510] ${(block as AdBlock).titleFont || "font-serif"} ${(block as AdBlock).titleAlign === "left" ? "text-left" : (block as AdBlock).titleAlign === "right" ? "text-right" : (block as AdBlock).titleAlign === "justify" ? "text-justify" : "text-center"} block w-full`}
+                                            placeholder="告示商号主题"
+                                            title="点击直接修改商号主题"
+                                          />
+                                          <span className="text-[10px] select-none opacity-70">✥</span>
+                                        </div>
+                                        <EditableText
+                                          tagName="p"
+                                          multiline
+                                          value={(block as AdBlock).content}
+                                          onChange={(val) => updateBlock(block.id, b => ({ ...b, content: val } as AdBlock))}
                                           style={{ fontSize: (block as AdBlock).contentFontSize === "xs" ? "10px" : (block as AdBlock).contentFontSize === "sm" ? "11px" : (block as AdBlock).contentFontSize === "md" ? "12px" : (block as AdBlock).contentFontSize === "lg" ? "14px" : "11px" }}
-                                          className={`text-[#2b221a]/90 leading-normal ${(block as AdBlock).contentFont || "font-kai"} ${(block as AdBlock).contentAlign === "left" ? "text-left" : (block as AdBlock).contentAlign === "right" ? "text-right" : (block as AdBlock).contentAlign === "justify" ? "text-justify" : "text-center"} cursor-text select-text`}
-                                          title="双击直接就地编辑告示内容"
-                                          onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "ad.content" })}
-                                        >
-                                          {(block as AdBlock).content}
-                                        </p>
+                                          className={`text-[#2b221a]/90 leading-normal ${(block as AdBlock).contentFont || "font-kai"} ${(block as AdBlock).contentAlign === "left" ? "text-left" : (block as AdBlock).contentAlign === "right" ? "text-right" : (block as AdBlock).contentAlign === "justify" ? "text-justify" : "text-center"} block w-full`}
+                                          placeholder="告示宣传正文内容..."
+                                          title="点击直接修改告示内容"
+                                        />
                                         <div className="flex justify-between items-center text-[9px] pt-1 border-t border-[#2b221a]/10 text-stone-600 font-serif select-text">
-                                          <span
-                                            className="cursor-text hover:underline"
-                                            title="双击就地编辑商号发布人"
-                                            onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "ad.merchant" })}
-                                          >
-                                            {(block as AdBlock).merchant}
-                                          </span>
-                                          <span
-                                            className="font-semibold text-[#1c1510] cursor-text hover:underline"
-                                            title="双击就地编辑标价"
-                                            onDoubleClick={(e) => handleStartInlineEdit(e, { type: "block", blockId: block.id, field: "ad.price" })}
-                                          >
-                                            {(block as AdBlock).price}
-                                          </span>
+                                          <EditableText
+                                            tagName="span"
+                                            value={(block as AdBlock).merchant}
+                                            onChange={(val) => updateBlock(block.id, b => ({ ...b, merchant: val } as AdBlock))}
+                                            placeholder="商号店址"
+                                            title="点击修改商号店址"
+                                          />
+                                          <EditableText
+                                            tagName="span"
+                                            value={(block as AdBlock).price}
+                                            onChange={(val) => updateBlock(block.id, b => ({ ...b, price: val } as AdBlock))}
+                                            className="font-semibold text-[#1c1510]"
+                                            placeholder="标价/酬金"
+                                            title="点击修改标价"
+                                          />
                                         </div>
                                       </div>
                                     )}
@@ -886,20 +923,20 @@ export default function NewspaperPreview() {
 
             {/* Bottom footer mark — theme-aware */}
             <div className={`mt-6 pt-2 text-center text-[10px] font-serif tracking-widest flex justify-between px-1 select-text ${theme === "republican" ? "border-t-[3px] border-[#1a1a1a] text-[#1a1a1a]/60 uppercase" : "border-t-2 border-[#2b221a] text-stone-600 uppercase"}`}>
-              <span
-                className="cursor-text hover:underline"
-                title="双击直接快速就地修改左侧发行印务文案"
-                onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "footerLeft" })}
-              >
-                {newspaperData.header.footerLeft || (theme === "republican" ? "時事新報社印刷部承印" : "星辉帝国皇家印刷署特许印制局发行")}
-              </span>
-              <span
-                className="cursor-text hover:underline"
-                title="双击直接快速就地修改右侧版权年份文案"
-                onDoubleClick={(e) => handleStartInlineEdit(e, { type: "header", field: "footerRight" })}
-              >
-                {newspaperData.header.footerRight || (theme === "republican" ? "版權所有 民國十二年" : "帝国时报印刷馆特许发行 © 圣历742年")}
-              </span>
+              <EditableText
+                tagName="span"
+                value={newspaperData.header.footerLeft || (theme === "republican" ? "時事新報社印刷部承印" : "星辉帝国皇家印刷署特许印制局发行")}
+                onChange={(val) => updateHeader(h => ({ ...h, footerLeft: val }))}
+                placeholder="左侧印务文案"
+                title="点击直接修改左侧发行印务文案"
+              />
+              <EditableText
+                tagName="span"
+                value={newspaperData.header.footerRight || (theme === "republican" ? "版權所有 民國十二年" : "帝国时报印刷馆特许发行 © 圣历742年")}
+                onChange={(val) => updateHeader(h => ({ ...h, footerRight: val }))}
+                placeholder="右侧版权年份"
+                title="点击直接修改右侧版权年份文案"
+              />
             </div>
 
           </div>
@@ -908,15 +945,8 @@ export default function NewspaperPreview() {
 
       </main>
 
-      {/* Inline Editor Overlay (when a block field is double-clicked) */}
-      <InlineEditor
-        target={inlineEditTarget}
-        anchorRect={inlineAnchorRect}
-        onClose={() => {
-          setInlineEditTarget(null);
-          setInlineAnchorRect(null);
-        }}
-      />
+      {/* Bubble Menu: Selection Floating Formatting Toolbar */}
+      <SelectionToolbar />
     </>
   );
 }
