@@ -65,7 +65,8 @@ export default function NewspaperPreview() {
     activeAddBlockColId, setActiveAddBlockColId,
     selectBlockAndContext,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally,
-    theme, switchTheme, updateRowHeight, updateRowColumnFractions, updateHeader, triggerImageUpload
+    theme, switchTheme, updateRowHeight, updateRowColumnFractions, updateHeader, triggerImageUpload,
+    splitColumn, deleteColumn, insertRowBelow, moveRow, deleteRow
   } = useNewspaper();
 
   const [inlineEditTarget, setInlineEditTarget] = React.useState<InlineEditTarget | null>(null);
@@ -303,7 +304,7 @@ export default function NewspaperPreview() {
 
             {/* NEWSPAPER CONTENT GRID (ROWS & COLUMNS) */}
             <div className="space-y-4">
-              {newspaperData.rows.map((row) => {
+              {newspaperData.rows.map((row, rowIdx) => {
                 const isRepublican = theme === "republican";
                 const rowHeight = row.height || (isRepublican ? 480 : 360);
 
@@ -335,6 +336,46 @@ export default function NewspaperPreview() {
                       <div className={`absolute -inset-2 border border-dashed rounded pointer-events-none no-print ${isRepublican ? "border-[#1a1a1a]/40" : "border-[#8b4513]/50"}`} />
                     )}
 
+                    {/* In-place Row Action Toolbar (Floating pill for in-situ row manipulation) */}
+                    <div className="no-print absolute -top-3.5 right-2 opacity-0 group-hover/row:opacity-100 hover:opacity-100 transition-opacity duration-200 z-30 flex items-center gap-1 bg-[#231d18]/95 hover:bg-[#1a1511] text-[#e0a96d] px-2 py-0.5 rounded-full border border-[#8b4513] shadow-md text-[11px] select-none backdrop-blur-sm">
+                      <span className="text-[10px] text-stone-400 font-mono pr-1 border-r border-[#5a4b3d]">板块 #{rowIdx + 1}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); insertRowBelow(row.id); }}
+                        className="hover:text-amber-200 flex items-center gap-0.5 px-1 py-0.5 cursor-pointer"
+                        title="在此行下方插入全新板块行"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>增行</span>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={rowIdx === 0}
+                        onClick={(e) => { e.stopPropagation(); moveRow(row.id, "up"); }}
+                        className="hover:text-amber-200 p-0.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        title="上移此行板块"
+                      >
+                        <ArrowUp className="w-3 h-3" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={rowIdx === newspaperData.rows.length - 1}
+                        onClick={(e) => { e.stopPropagation(); moveRow(row.id, "down"); }}
+                        className="hover:text-amber-200 p-0.5 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        title="下移此行板块"
+                      >
+                        <ArrowDown className="w-3 h-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); deleteRow(row.id); }}
+                        className="hover:text-red-400 p-0.5 cursor-pointer ml-0.5 border-l border-[#5a4b3d] pl-1"
+                        title="删除此行板块"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+
                     {row.columns.map((col, colIdx) => (
                       <DroppableColumn
                         key={col.id}
@@ -351,6 +392,8 @@ export default function NewspaperPreview() {
                           setSelectedRowId(row.id);
                           setSelectedColumnId(col.id);
                         }}
+                        onSplit={() => splitColumn(row.id, col.id)}
+                        onDelete={() => deleteColumn(row.id, col.id)}
                       >
                         {(() => {
                           const colContent = (
@@ -740,6 +783,19 @@ export default function NewspaperPreview() {
                   </div>
                 );
               })}
+
+              {/* Add New Row at bottom */}
+              <div className="no-print pt-3 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => insertRowBelow()}
+                  className="px-4 py-1.5 border-2 border-dashed border-[#8b4513]/40 hover:border-[#8b4513] text-[#8b4513] hover:bg-[#8b4513]/10 rounded-sm text-xs font-serif font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm group/addrow"
+                  title="在报纸最底部增添一个全新板块行"
+                >
+                  <Plus className="w-4 h-4 transition-transform group-hover/addrow:scale-125" />
+                  <span>在此增添新版面行 (Row)</span>
+                </button>
+              </div>
             </div>
 
             {/* Bottom footer mark — theme-aware */}

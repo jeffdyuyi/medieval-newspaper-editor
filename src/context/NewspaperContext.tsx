@@ -110,6 +110,9 @@ interface NewspaperContextType {
   updateBlock: (blockId: string, updater: (block: Block) => Block) => void;
   updateHeader: (updater: (header: NewspaperHeader) => NewspaperHeader) => void;
   updateRowSplit: (rowId: string, newSplit: ColumnSplit) => void;
+  splitColumn: (rowId: string, colId: string) => void;
+  deleteColumn: (rowId: string, colId: string) => void;
+  insertRowBelow: (afterRowId?: string) => void;
   addNewRow: () => void;
   deleteRow: (rowId: string) => void;
   moveRow: (rowId: string, direction: "up" | "down") => void;
@@ -400,17 +403,150 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     }));
   };
 
-  const addNewRow = () => {
+  const splitColumn = (rowId: string, colId: string) => {
+    setNewspaperData((prev) => ({
+      ...prev,
+      rows: prev.rows.map((row) => {
+        if (row.id !== rowId) return row;
+        const colIdx = row.columns.findIndex((c) => c.id === colId);
+        if (colIdx === -1) return row;
+
+        if (row.columns.length >= 4) {
+          alert("单行最多支持拆分为 4 个栏目，以保证排版美感与文字可读性。");
+          return row;
+        }
+
+        const newColId = `col_${rowId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const newCol: Column = {
+          id: newColId,
+          blocks: [],
+        };
+
+        const newColumns = [...row.columns];
+        newColumns.splice(colIdx + 1, 0, newCol);
+
+        const currentFractions =
+          row.columnFractions && row.columnFractions.length === row.columns.length
+            ? [...row.columnFractions]
+            : new Array(row.columns.length).fill(1);
+
+        const currentFr = currentFractions[colIdx] || 1;
+        const halfFr = Math.max(0.2, Number((currentFr / 2).toFixed(2)));
+        currentFractions.splice(colIdx, 1, halfFr, halfFr);
+
+        const newSplit: ColumnSplit =
+          newColumns.length === 2
+            ? "1-1"
+            : newColumns.length === 3
+            ? "1-1-1"
+            : "1-1-1";
+
+        return {
+          ...row,
+          split: newSplit,
+          columns: newColumns,
+          columnFractions: currentFractions,
+        };
+      }),
+    }));
+  };
+
+  const deleteColumn = (rowId: string, colId: string) => {
+    const row = newspaperData.rows.find((r) => r.id === rowId);
+    if (!row) return;
+
+    if (row.columns.length <= 1) {
+      if (confirm("该板块目前只有这一个栏目，删除栏目将直接删除整行板块。确定要删除整行吗？")) {
+        deleteRow(rowId);
+      }
+      return;
+    }
+
+    const colIdx = row.columns.findIndex((c) => c.id === colId);
+    if (colIdx === -1) return;
+    const targetCol = row.columns[colIdx];
+
+    const mergeTargetIdx = colIdx === 0 ? 1 : colIdx - 1;
+    if (targetCol.blocks.length > 0) {
+      const confirmMerge = confirm(
+        `此栏目内包含 ${targetCol.blocks.length} 个内容区块。\n\n删除后，这些内容将被自动合并到相邻栏目中，避免内容丢失。确定继续吗？`
+      );
+      if (!confirmMerge) return;
+    }
+
+    setNewspaperData((prev) => ({
+      ...prev,
+      rows: prev.rows.map((r) => {
+        if (r.id !== rowId) return r;
+
+        const newColumns = r.columns
+          .map((col, idx) => {
+            if (idx === mergeTargetIdx) {
+              return {
+                ...col,
+                blocks: [...col.blocks, ...targetCol.blocks],
+              };
+            }
+            return col;
+          })
+          .filter((_, idx) => idx !== colIdx);
+
+        let newFractions: number[] | undefined = undefined;
+        if (r.columnFractions && r.columnFractions.length === r.columns.length) {
+          newFractions = r.columnFractions.filter((_, idx) => idx !== colIdx);
+        }
+
+        const newSplit: ColumnSplit =
+          newColumns.length === 1
+            ? "1"
+            : newColumns.length === 2
+            ? "1-1"
+            : "1-1-1";
+
+        return {
+          ...r,
+          split: newSplit,
+          columns: newColumns,
+          columnFractions: newFractions,
+        };
+      }),
+    }));
+
+    if (selectedColumnId === colId) {
+      setSelectedColumnId(null);
+      setSelectedBlockId(null);
+    }
+  };
+
+  const insertRowBelow = (afterRowId?: string) => {
     const newRowId = `row_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newRow: Row = {
       id: newRowId,
       split: "1",
-      columns: [{ id: `col_${newRowId}_0`, blocks: [] }]
+      columns: [{ id: `col_${newRowId}_0`, blocks: [] }],
+      height: theme === "republican" ? 480 : undefined,
     };
-    setNewspaperData(prev => ({ ...prev, rows: [...prev.rows, newRow] }));
+
+    setNewspaperData((prev) => {
+      if (!afterRowId) {
+        return { ...prev, rows: [...prev.rows, newRow] };
+      }
+      const idx = prev.rows.findIndex((r) => r.id === afterRowId);
+      if (idx === -1) {
+        return { ...prev, rows: [...prev.rows, newRow] };
+      }
+      const newRows = [...prev.rows];
+      newRows.splice(idx + 1, 0, newRow);
+      return { ...prev, rows: newRows };
+    });
+
     setSelectedRowId(newRowId);
     setSelectedColumnId(`col_${newRowId}_0`);
     setSelectedBlockId(null);
+  };
+
+  const addNewRow = () => {
+    insertRowBelow();
   };
 
   const deleteRow = (rowId: string) => {
@@ -709,7 +845,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     showWelcomeModal, setShowWelcomeModal,
     theme, switchTheme, updateRowHeight, updateRowColumnFractions,
     findSelectedBlock, selectBlockAndContext, updateBlock, updateHeader,
-    updateRowSplit, addNewRow, deleteRow, moveRow,
+    updateRowSplit, splitColumn, deleteColumn, insertRowBelow, addNewRow, deleteRow, moveRow,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, handleResetData,
     triggerImageUpload,
     undo, redo, canUndo, canRedo

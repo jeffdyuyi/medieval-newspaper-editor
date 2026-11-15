@@ -5,6 +5,7 @@
  */
 import React from "react";
 import { useDroppable } from "@dnd-kit/core";
+import { Columns, Trash2 } from "lucide-react";
 
 interface DroppableColumnProps {
   key?: React.Key;
@@ -16,6 +17,8 @@ interface DroppableColumnProps {
   isSelected: boolean;
   columnGap: number;
   flexRatio?: number;
+  onSplit?: () => void;
+  onDelete?: () => void;
   onClick: (e: React.MouseEvent) => void;
   children: React.ReactNode;
 }
@@ -29,6 +32,8 @@ export default function DroppableColumn({
   isSelected,
   columnGap,
   flexRatio,
+  onSplit,
+  onDelete,
   onClick,
   children,
 }: DroppableColumnProps) {
@@ -45,7 +50,7 @@ export default function DroppableColumn({
     <div
       ref={setNodeRef}
       onClick={onClick}
-      className={`
+      className={`group/col
         ${isRepublican
           ? `rep-col-container relative ${
               isSelected ? "bg-[#1a1a1a]/5 outline outline-1 outline-dashed outline-[#1a1a1a]/30" : ""
@@ -67,6 +72,42 @@ export default function DroppableColumn({
           : {}
       }
     >
+      {/* Column Action Toolbar (WYSIWYG Split & Merge/Delete) */}
+      <div className="no-print absolute top-1 right-1 opacity-0 group-hover/col:opacity-100 transition-opacity flex items-center gap-1 z-20 pointer-events-auto">
+        {totalCols < 4 && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSplit?.();
+            }}
+            title="拆分此栏（在此栏右侧拆分出新栏目）"
+            className={`p-1 rounded-sm shadow-md transition-colors flex items-center gap-0.5 text-[9px] font-sans font-bold cursor-pointer ${
+              isRepublican
+                ? "bg-[#f4f3ef] text-[#1a1a1a] border border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-[#f4f3ef]"
+                : "bg-[#e8dcc4] text-[#8b4513] border border-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3]"
+            }`}
+          >
+            <Columns className="w-3 h-3" />
+            <span>拆分栏</span>
+          </button>
+        )}
+        {totalCols > 1 && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.();
+            }}
+            title="合并/删除此栏（内容将自动合并至相邻栏）"
+            className="p-1 rounded-sm shadow-md transition-colors flex items-center gap-0.5 text-[9px] font-sans font-bold cursor-pointer bg-[#e8dcc4] text-[#8b4513] border border-[#8b4513] hover:bg-red-700 hover:text-white hover:border-red-800"
+          >
+            <Trash2 className="w-3 h-3" />
+            <span>合并删除</span>
+          </button>
+        )}
+      </div>
+
       {/* Visual drop indicator overlay when hovering a palette item */}
       {isOver && (
         <div className={`no-print absolute inset-1 rounded flex items-center justify-center z-30 pointer-events-none animate-pulse border-2 border-dashed ${
