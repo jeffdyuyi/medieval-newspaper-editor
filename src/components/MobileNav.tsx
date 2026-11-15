@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import {
   Scissors, Type as FontIcon, Layout, Settings, X, ChevronUp,
-  Feather, Save, Undo2, Redo2, Printer, FileText, Image as ImageIcon, Plus, BookOpen
+  Feather, Save, Undo2, Redo2, Printer, FileText, Image as ImageIcon, Plus, BookOpen,
+  Coins as CoinsIcon
 } from "lucide-react";
 import { useNewspaper } from "../context/NewspaperContext";
 import { ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock } from "../types";
-import { CoinsIcon } from "./Sidebar";
-import { FANTASY_CLIPART } from "../clipart";
+import { ALL_CLIPART } from "../clipart";
 
 export default function MobileNav() {
   const {
@@ -21,12 +21,13 @@ export default function MobileNav() {
     columnGap, setColumnGap,
     enableParchmentTexture, setEnableParchmentTexture,
     enableCoffeeStains, setEnableCoffeeStains,
-    showPrintHelp, setShowPrintHelp,
+    setShowPrintHelp,
     showSaveManager, setShowSaveManager,
-    isExporting, setIsExporting,
+    setIsExporting,
     findSelectedBlock, updateBlock, updateHeader,
     addBlockToColumn, deleteBlock,
     undo, redo, canUndo, canRedo,
+    theme,
   } = useNewspaper();
 
   const [drawerOpen, setDrawerOpen] = useState<"tabs" | "block" | null>(null);
@@ -432,7 +433,7 @@ export default function MobileNav() {
                   <div>
                     <label className="text-xs font-bold text-[#8b4513] block mb-1">选择印记图样</label>
                     <div className="grid grid-cols-4 gap-1.5 bg-[#dcd0b8] p-1.5 rounded border border-[#8b4513]/40">
-                      {FANTASY_CLIPART.map(item => (
+                      {ALL_CLIPART.filter(item => theme === "republican" ? item.themeGroup === "republican" : item.themeGroup !== "republican").map(item => (
                         <button
                           key={item.id}
                           onClick={() => updateBlock(selectedBlock.id, b => ({ ...b, clipartId: item.id, isClipart: true } as ImageBlock))}
@@ -518,7 +519,7 @@ export default function MobileNav() {
                     ...b,
                     src: "",
                     isClipart: true,
-                    clipartId: FANTASY_CLIPART[0].id
+                    clipartId: (theme === "republican" ? ALL_CLIPART.find(c => c.themeGroup === "republican") : ALL_CLIPART.find(c => c.themeGroup !== "republican"))?.id || ALL_CLIPART[0].id
                   } as ImageBlock))}
                   className="w-full py-1.5 mt-1 border border-red-800/30 text-red-800 bg-transparent rounded text-xs font-bold"
                 >

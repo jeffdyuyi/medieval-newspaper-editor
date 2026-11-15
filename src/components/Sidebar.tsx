@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { 
   Feather, RefreshCw, HelpCircle, Scissors, Type as FontIcon, 
   Layout, Settings, FileText, Image as ImageIcon, Plus, 
@@ -6,15 +6,11 @@ import {
   Coins as CoinsIcon, Sparkles
 } from "lucide-react";
 import { useNewspaper } from "../context/NewspaperContext";
-import { BlockType, ColumnSplit, ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock, PaperTone } from "../types";
+import { ColumnSplit, ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock, PaperTone } from "../types";
 import { ALL_CLIPART } from "../clipart";
 import { FONT_OPTIONS } from "../constants";
 import { generateArticleAI } from "../utils/aiGenerator";
 import BlockPalette from "./BlockPalette";
-
-export { CoinsIcon };
-
-
 
 export default function Sidebar() {
   const {
@@ -30,13 +26,12 @@ export default function Sidebar() {
     enableParchmentTexture, setEnableParchmentTexture,
     enableCoffeeStains, setEnableCoffeeStains,
     paperTone, setPaperTone,
-    showPrintHelp, setShowPrintHelp,
+    setShowPrintHelp,
     isExporting, setIsExporting,
-    activeAddBlockColId, setActiveAddBlockColId,
     activeSidebarColId, setActiveSidebarColId,
-    findSelectedBlock, selectBlockAndContext, updateBlock, updateHeader,
+    findSelectedBlock, updateBlock, updateHeader,
     updateRowSplit, addNewRow, deleteRow, moveRow,
-    addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, handleResetData,
+    addBlockToColumn, deleteBlock, moveBlock, handleResetData,
     undo, redo, canUndo, canRedo, setShowSaveManager,
     theme, switchTheme, updateRowHeight, triggerImageUpload,
     geminiApiKey, setGeminiApiKey
