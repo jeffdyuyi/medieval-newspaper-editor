@@ -103,6 +103,7 @@ interface NewspaperContextType {
   theme: NewspaperTheme;
   switchTheme: (newTheme: NewspaperTheme, skipConfirm?: boolean) => void;
   updateRowHeight: (rowId: string, height: number) => void;
+  updateRowColumnFractions: (rowId: string, fractions: number[]) => void;
   
   findSelectedBlock: () => Block | null;
   selectBlockAndContext: (blockId: string, colId: string, rowId: string) => void;
@@ -623,6 +624,13 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     }));
   };
 
+  const updateRowColumnFractions = (rowId: string, fractions: number[]) => {
+    setNewspaperData(prev => ({
+      ...prev,
+      rows: prev.rows.map(row => row.id === rowId ? { ...row, columnFractions: fractions } : row)
+    }));
+  };
+
   const handleResetData = () => {
     const isRepublican = theme === "republican";
     const themeName = isRepublican ? "「时事新报」民国样板" : "「星辉帝国要闻报」";
@@ -654,7 +662,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     activeAddBlockColId, setActiveAddBlockColId,
     activeSidebarColId, setActiveSidebarColId,
     showWelcomeModal, setShowWelcomeModal,
-    theme, switchTheme, updateRowHeight,
+    theme, switchTheme, updateRowHeight, updateRowColumnFractions,
     findSelectedBlock, selectBlockAndContext, updateBlock, updateHeader,
     updateRowSplit, addNewRow, deleteRow, moveRow,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, handleResetData,

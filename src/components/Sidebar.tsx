@@ -10,6 +10,7 @@ import { BlockType, ColumnSplit, ArticleBlock, HeadlineBlock, ImageBlock, Divide
 import { ALL_CLIPART } from "../clipart";
 import { FONT_OPTIONS } from "../constants";
 import { generateArticleAI } from "../utils/aiGenerator";
+import BlockPalette from "./BlockPalette";
 
 export { CoinsIcon };
 
@@ -257,9 +258,13 @@ export default function Sidebar() {
               <div className="space-y-4">
                 {/* Visual guideline box to teach users about the selection flow */}
                 {!selectedBlock && (
-                  <div className="p-3 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded-sm space-y-1 text-xs text-[#8b4513] leading-relaxed font-serif animate-pulse">
-                    <span className="font-extrabold block">💡 创作提示：</span>
-                    <span>您可在右侧报纸内直接<strong>点击选中任意区块</strong>，即可在此处实时编辑其内容、字号与字体！下方则为您展示了向选定位置插入全新内容区块的工具。</span>
+                  <div className="p-3 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded-sm space-y-1.5 text-xs text-[#8b4513] leading-relaxed font-serif">
+                    <span className="font-extrabold block">✨ 所见即所得编辑指引：</span>
+                    <ul className="space-y-1 text-[11px] list-disc pl-4 text-[#4a3728]">
+                      <li><strong>从素材库拖拽</strong>：直接将下方模板拖到报纸各栏中放置。</li>
+                      <li><strong>双击原地编辑</strong>：在右侧报纸上<strong>双击文字/标题</strong>即可就地修改！</li>
+                      <li><strong>拖拉边框调尺寸</strong>：悬停在两列之间拉动分割条调列宽，拉动行底部调高度。</li>
+                    </ul>
                   </div>
                 )}
 
@@ -286,8 +291,11 @@ export default function Sidebar() {
                 {/* If we are in create mode or no block is selected, show classified creation view */}
                 {(blockTabMode === "create" || !selectedBlock) ? (
                   <div className="space-y-4 animate-fadeIn">
+                    {/* Modern WYSIWYG Drag Palette */}
+                    <BlockPalette theme={theme} />
+
                     <div className="p-3 bg-[#dcd0b8]/40 border border-[#8b4513]/40 rounded-sm space-y-1.5">
-                      <label className="text-xs font-bold text-[#8b4513] block">📥 选择新区块插入位置</label>
+                      <label className="text-xs font-bold text-[#8b4513] block">📥 或点击按钮快速添加至指定位置</label>
                       <select
                         value={activeTargetColId}
                         onChange={(e) => {
@@ -306,7 +314,7 @@ export default function Sidebar() {
                           <option key={opt.id} value={opt.id}>{opt.label}</option>
                         ))}
                       </select>
-                      <p className="text-[10px] text-[#8b4513]/70">提示：新区块将被追加到所选栏位的末尾，您也可以在右侧面板内自由拖拽或调整排序。</p>
+                      <p className="text-[10px] text-[#8b4513]/70">提示：除了上方拖拽，点击下方按钮也可一键追加至此栏目末尾。</p>
                     </div>
 
                     <div className="space-y-4 font-serif">

@@ -1,12 +1,14 @@
 import React from 'react';
 import { Eye, Plus, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Trash2, Image as ImageIcon } from "lucide-react";
-import { DndContext, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
-import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SortableBlock } from "./SortableBlock";
 import { useNewspaper } from "../context/NewspaperContext";
 import { ALL_CLIPART } from "../clipart";
-import { CoinsIcon } from "./Sidebar";
 import { ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock } from "../types";
+import InlineEditor, { InlineEditTarget } from "./InlineEditor";
+import ColumnResizeHandle from "./ColumnResizeHandle";
+import RowResizeHandle from "./RowResizeHandle";
+import DroppableColumn from "./DroppableColumn";
 
 const renderMarkdown = (text: string) => {
   if (!text) return null;
@@ -50,123 +52,31 @@ const renderMarkdown = (text: string) => {
 
 export default function NewspaperPreview() {
   const {
-    newspaperData, setNewspaperData,
-    selectedBlockId, setSelectedBlockId,
+    newspaperData,
+    selectedBlockId,
     selectedRowId, setSelectedRowId,
     selectedColumnId, setSelectedColumnId,
-    globalHeadingScale, setGlobalHeadingScale,
-    globalBodyScale, setGlobalBodyScale,
-    columnGap, setColumnGap,
-    enableParchmentTexture, setEnableParchmentTexture,
-    enableCoffeeStains, setEnableCoffeeStains,
+    globalHeadingScale,
+    globalBodyScale,
+    columnGap,
+    enableParchmentTexture,
+    enableCoffeeStains,
     paperTone,
     activeAddBlockColId, setActiveAddBlockColId,
-    selectBlockAndContext, updateBlock,
+    selectBlockAndContext,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally,
-    theme, switchTheme, updateRowHeight, triggerImageUpload
+    theme, switchTheme, updateRowHeight, updateRowColumnFractions, triggerImageUpload
   } = useNewspaper();
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
+  const [inlineEditTarget, setInlineEditTarget] = React.useState<InlineEditTarget | null>(null);
+  const [inlineAnchorRect, setInlineAnchorRect] = React.useState<DOMRect | null>(null);
 
-  const [activeId, setActiveId] = React.useState<string | null>(null);
-
-  const activeBlock = React.useMemo(() => {
-    if (!activeId) return null;
-    for (const row of newspaperData.rows) {
-      for (const col of row.columns) {
-        const b = col.blocks.find(b => b.id === activeId);
-        if (b) return b;
-      }
-    }
-    return null;
-  }, [activeId, newspaperData]);
-
-  const findContainer = (id: string) => {
-    for (const row of newspaperData.rows) {
-      for (const col of row.columns) {
-        if (col.id === id) return col.id;
-        if (col.blocks.find(b => b.id === id)) return col.id;
-      }
-    }
-    return null;
-  };
-
-  const handleDragStart = (event: any) => {
-    setActiveId(event.active.id);
-  };
-
-  const handleDragOver = (event: any) => {
-    const { active, over } = event;
-    if (!over) return;
-
-    const activeContainer = findContainer(active.id);
-    const overContainer = findContainer(over.id);
-
-    if (!activeContainer || !overContainer || activeContainer === overContainer) {
-      return;
-    }
-
-    setNewspaperData((prev: any) => {
-      const newRows = [...prev.rows];
-      let activeItem: any;
-      
-      newRows.forEach(row => {
-        row.columns.forEach(col => {
-          if (col.id === activeContainer) {
-            const idx = col.blocks.findIndex((b: any) => b.id === active.id);
-            if (idx !== -1) {
-              activeItem = { ...col.blocks[idx] };
-              col.blocks.splice(idx, 1);
-            }
-          }
-        });
-      });
-
-      newRows.forEach(row => {
-        row.columns.forEach(col => {
-          if (col.id === overContainer) {
-            const overIndex = col.blocks.findIndex((b: any) => b.id === over.id);
-            const insertIndex = overIndex >= 0 ? overIndex : col.blocks.length;
-            col.blocks.splice(insertIndex, 0, activeItem);
-          }
-        });
-      });
-
-      return { ...prev, rows: newRows };
-    });
-  };
-
-  const handleDragEnd = (event: any) => {
-    setActiveId(null);
-    const { active, over } = event;
-    if (!over) return;
-
-    const activeContainer = findContainer(active.id);
-    const overContainer = findContainer(over.id);
-
-    if (!activeContainer || !overContainer || activeContainer !== overContainer) {
-      return;
-    }
-
-    if (active.id !== over.id) {
-      setNewspaperData((prev: any) => {
-        const newRows = [...prev.rows];
-        newRows.forEach(row => {
-          row.columns.forEach(col => {
-            if (col.id === activeContainer) {
-              const oldIndex = col.blocks.findIndex((b: any) => b.id === active.id);
-              const newIndex = col.blocks.findIndex((b: any) => b.id === over.id);
-              const [movedItem] = col.blocks.splice(oldIndex, 1);
-              col.blocks.splice(newIndex, 0, movedItem);
-            }
-          });
-        });
-        return { ...prev, rows: newRows };
-      });
-    }
+  const handleStartInlineEdit = (e: React.MouseEvent, target: InlineEditTarget) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setInlineAnchorRect(rect);
+    setInlineEditTarget(target);
   };
 
   return (
@@ -241,7 +151,6 @@ export default function NewspaperPreview() {
             {theme === "republican" && enableCoffeeStains && <div className="ink-smudge-1" />}
             {theme === "republican" && enableCoffeeStains && <div className="ink-smudge-2" />}
 
-
             {/* NEWSPAPER MAIN HEADER — theme-aware */}
             {theme === "republican" ? (
               /* REPUBLICAN MASTHEAD */
@@ -255,8 +164,15 @@ export default function NewspaperPreview() {
                   </div>
                   <h1
                     style={{ fontSize: `calc(3rem * ${globalHeadingScale / 100})` }}
-                    className="font-bold text-center leading-tight text-[#0d0d0d] font-serif tracking-[0.2em] py-1"
-                    title="传统自右向左排印"
+                    className="font-bold text-center leading-tight text-[#0d0d0d] font-serif tracking-[0.2em] py-1 cursor-text"
+                    title="双击直接就地编辑报头大标题"
+                    onDoubleClick={(e) => {
+                      const newTitle = prompt("修改报刊标题：", newspaperData.header.title);
+                      if (newTitle !== null && newTitle.trim()) {
+                        // Header title edit
+                        newspaperData.header.title = newTitle.trim();
+                      }
+                    }}
                   >
                     {newspaperData.header.title.split("").reverse().join("")}
                   </h1>
@@ -277,7 +193,14 @@ export default function NewspaperPreview() {
                     <div className="rep-masthead-title-box min-w-[80px]">
                       <h1
                         style={{ fontSize: `calc(2.8rem * ${globalHeadingScale / 100})` }}
-                        className="font-bold text-[#0d0d0d] font-serif leading-none tracking-wider"
+                        className="font-bold text-[#0d0d0d] font-serif leading-none tracking-wider cursor-text"
+                        title="双击直接就地编辑报头大标题"
+                        onDoubleClick={() => {
+                          const newTitle = prompt("修改报刊标题：", newspaperData.header.title);
+                          if (newTitle !== null && newTitle.trim()) {
+                            newspaperData.header.title = newTitle.trim();
+                          }
+                        }}
                       >
                         {newspaperData.header.title}
                       </h1>
@@ -311,7 +234,14 @@ export default function NewspaperPreview() {
                 {/* Big Title Name */}
                 <h1
                   style={{ fontSize: `calc(3.5rem * ${globalHeadingScale / 100})` }}
-                  className={`font-semibold text-center leading-tight transition-all duration-200 text-[#1c1510] ${newspaperData.header.titleFont}`}
+                  className={`font-semibold text-center leading-tight transition-all duration-200 text-[#1c1510] ${newspaperData.header.titleFont} cursor-text`}
+                  title="双击直接就地编辑报头大标题"
+                  onDoubleClick={() => {
+                    const newTitle = prompt("修改报刊大标题：", newspaperData.header.title);
+                    if (newTitle !== null && newTitle.trim()) {
+                      newspaperData.header.title = newTitle.trim();
+                    }
+                  }}
                 >
                   {newspaperData.header.title}
                 </h1>
@@ -347,48 +277,57 @@ export default function NewspaperPreview() {
             )}
 
 
-             {/* NEWSPAPER CONTENT GRID (ROWS & COLUMNS) */}
-             <DndContext
-               sensors={sensors}
-               collisionDetection={closestCorners}
-               onDragStart={handleDragStart}
-               onDragOver={handleDragOver}
-               onDragEnd={handleDragEnd}
-             >
-               <div className="space-y-4">
-                 {newspaperData.rows.map((row) => {
-                 const isRepublican = theme === "republican";
-                 // Determine column grid template depending on split (fantasy only)
-                 let gridClass = "grid-cols-1";
-                 if (row.split === "1-1") gridClass = "split-1-1";
-                 if (row.split === "1-2") gridClass = "split-1-2";
-                 if (row.split === "2-1") gridClass = "split-2-1";
-                 if (row.split === "1-1-1") gridClass = "split-1-1-1";
-                 const rowHeight = row.height || 480;
+            {/* NEWSPAPER CONTENT GRID (ROWS & COLUMNS) */}
+            <div className="space-y-4">
+              {newspaperData.rows.map((row) => {
+                const isRepublican = theme === "republican";
+                const rowHeight = row.height || (isRepublican ? 480 : 360);
 
-                 return (
-                   <div
-                     key={row.id}
-                     className={`${isRepublican ? "rep-row-container border-b border-[#1a1a1a]/30 last:border-b-0" : `grid ${gridClass} border-b border-[#2b221a]/30 pb-6 last:border-b-0 last:pb-0`} relative group/row`}
-                     style={isRepublican ? { height: `${rowHeight}px`, columnGap: 0 } : { columnGap: `${columnGap * 4}px` }}
-                   >
-                     {/* Visual Row Highlight when editing in layout mode */}
-                     {selectedRowId === row.id && (
-                       <div className={`absolute -inset-2 border border-dashed rounded pointer-events-none no-print ${isRepublican ? "border-[#1a1a1a]/40" : "border-[#8b4513]/50"}`} />
-                     )}
+                // Compute continuous fractions for columns
+                const fractions = (row.columnFractions && row.columnFractions.length === row.columns.length)
+                  ? row.columnFractions
+                  : (row.split === "1-1" ? [1, 1] :
+                     row.split === "1-2" ? [1, 2] :
+                     row.split === "2-1" ? [2, 1] :
+                     row.split === "1-1-1" ? [1, 1, 1] :
+                     new Array(row.columns.length).fill(1));
 
-                     {row.columns.map((col, colIdx) => (
-                       <div
-                         key={col.id}
-                         onClick={(e) => {
-                           e.stopPropagation();
-                           setSelectedRowId(row.id);
-                           setSelectedColumnId(col.id);
-                         }}
-                         className={`${isRepublican ? `rep-col-container ${selectedColumnId === col.id ? "bg-[#1a1a1a]/5 outline outline-1 outline-dashed outline-[#1a1a1a]/30" : ""}` : `space-y-4 relative min-h-[50px] p-1 rounded-sm transition ${selectedColumnId === col.id ? "bg-[#2b221a]/5 border border-dashed border-[#8b4513]/30" : ""}`}`}
-                         style={!isRepublican && colIdx > 0 ? { borderLeft: '1px solid rgba(43, 34, 26, 0.25)', paddingLeft: `${columnGap * 2}px` } : {}}
-                       >
-                       {(() => {
+                return (
+                  <div
+                    key={row.id}
+                    data-resize-row="true"
+                    className={`${isRepublican ? "rep-row-container border-b border-[#1a1a1a]/30 last:border-b-0" : `grid border-b border-[#2b221a]/30 pb-6 last:border-b-0 last:pb-0`} relative group/row`}
+                    style={
+                      isRepublican
+                        ? { height: `${rowHeight}px`, columnGap: 0 }
+                        : {
+                            gridTemplateColumns: fractions.map(f => `${f}fr`).join(" "),
+                            columnGap: `${columnGap * 4}px`
+                          }
+                    }
+                  >
+                    {/* Visual Row Highlight when editing in layout mode */}
+                    {selectedRowId === row.id && (
+                      <div className={`absolute -inset-2 border border-dashed rounded pointer-events-none no-print ${isRepublican ? "border-[#1a1a1a]/40" : "border-[#8b4513]/50"}`} />
+                    )}
+
+                    {row.columns.map((col, colIdx) => (
+                      <DroppableColumn
+                        key={col.id}
+                        id={col.id}
+                        rowId={row.id}
+                        colIdx={colIdx}
+                        totalCols={row.columns.length}
+                        isRepublican={isRepublican}
+                        isSelected={selectedColumnId === col.id}
+                        columnGap={columnGap}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedRowId(row.id);
+                          setSelectedColumnId(col.id);
+                        }}
+                      >
+                        {(() => {
                           const colContent = (
                             <SortableContext items={col.blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
                               {col.blocks.map((block) => {
@@ -458,7 +397,9 @@ export default function NewspaperPreview() {
                                             style={{ 
                                               fontSize: `calc(${(block as ArticleBlock).titleFontSize === "sm" ? "1.05rem" : (block as ArticleBlock).titleFontSize === "md" ? "1.2rem" : (block as ArticleBlock).titleFontSize === "lg" ? "1.35rem" : (block as ArticleBlock).titleFontSize === "xl" ? "1.5rem" : (block as ArticleBlock).titleFontSize === "2xl" ? "1.8rem" : "1.35rem"} * ${globalHeadingScale / 100})` 
                                             }}
-                                            className={`font-bold text-[#1c1510] leading-snug tracking-tight ${(block as ArticleBlock).titleFont || "font-serif"} ${(block as ArticleBlock).titleAlign === "center" ? "text-center" : (block as ArticleBlock).titleAlign === "right" ? "text-right" : (block as ArticleBlock).titleAlign === "justify" ? "text-justify" : "text-left"} flex items-center gap-1`}
+                                            className={`font-bold text-[#1c1510] leading-snug tracking-tight ${(block as ArticleBlock).titleFont || "font-serif"} ${(block as ArticleBlock).titleAlign === "center" ? "text-center" : (block as ArticleBlock).titleAlign === "right" ? "text-right" : (block as ArticleBlock).titleAlign === "justify" ? "text-justify" : "text-left"} flex items-center gap-1 cursor-text select-text`}
+                                            title="双击就地编辑文章标题"
+                                            onDoubleClick={(e) => handleStartInlineEdit(e, { blockId: block.id, field: "article.title" })}
                                           >
                                             {(block as ArticleBlock).titleMarker && (block as ArticleBlock).titleMarker !== "none" && (
                                               <span className="text-[0.7em] select-none opacity-80">
@@ -472,10 +413,12 @@ export default function NewspaperPreview() {
                                           
                                           {(block as ArticleBlock).subtitle && (
                                             <p 
-                                              className={`font-semibold italic text-[#2b221a]/80 leading-normal border-b border-[#2b221a]/20 pb-1 ${(block as ArticleBlock).subtitleFont || "font-serif"} ${(block as ArticleBlock).subtitleAlign === "center" ? "text-center" : (block as ArticleBlock).subtitleAlign === "right" ? "text-right" : (block as ArticleBlock).subtitleAlign === "justify" ? "text-justify" : "text-left"}`}
+                                              className={`font-semibold italic text-[#2b221a]/80 leading-normal border-b border-[#2b221a]/20 pb-1 ${(block as ArticleBlock).subtitleFont || "font-serif"} ${(block as ArticleBlock).subtitleAlign === "center" ? "text-center" : (block as ArticleBlock).subtitleAlign === "right" ? "text-right" : (block as ArticleBlock).subtitleAlign === "justify" ? "text-justify" : "text-left"} cursor-text select-text`}
                                               style={{
                                                 fontSize: (block as ArticleBlock).subtitleFontSize === "xs" ? "11px" : (block as ArticleBlock).subtitleFontSize === "sm" ? "12px" : (block as ArticleBlock).subtitleFontSize === "md" ? "14px" : (block as ArticleBlock).subtitleFontSize === "lg" ? "16px" : "12px"
                                               }}
+                                              title="双击就地编辑文章副标题"
+                                              onDoubleClick={(e) => handleStartInlineEdit(e, { blockId: block.id, field: "article.subtitle" })}
                                             >
                                               {(block as ArticleBlock).subtitle}
                                             </p>
@@ -484,7 +427,13 @@ export default function NewspaperPreview() {
 
                                         {/* Author stamp line */}
                                         <div className="flex items-center gap-1.5 text-[10px] text-stone-600 font-serif italic justify-between">
-                                          <span>作者：{(block as ArticleBlock).author || "佚名学者"}</span>
+                                          <span 
+                                            className="cursor-text select-text hover:underline"
+                                            title="双击就地编辑作者"
+                                            onDoubleClick={(e) => handleStartInlineEdit(e, { blockId: block.id, field: "article.author" })}
+                                          >
+                                            作者：{(block as ArticleBlock).author || "佚名学者"}
+                                          </span>
                                           <span>{(block as ArticleBlock).publishOffice || "圣塞西尔记录署印"}</span>
                                         </div>
 
@@ -512,7 +461,9 @@ export default function NewspaperPreview() {
                                           {(block as ArticleBlock).paragraphs.map((p, pIdx) => (
                                             <p 
                                               key={pIdx} 
-                                              className={pIdx === 0 && (block as ArticleBlock).dropCap ? (theme === "republican" ? "char-drop-large" : "drop-cap") : ""}
+                                              className={`${pIdx === 0 && (block as ArticleBlock).dropCap ? (theme === "republican" ? "char-drop-large" : "drop-cap") : ""} cursor-text select-text hover:bg-black/2 rounded px-0.5`}
+                                              title="双击直接就地编辑此段正文"
+                                              onDoubleClick={(e) => handleStartInlineEdit(e, { blockId: block.id, field: "article.paragraphs", paragraphIndex: pIdx })}
                                             >
                                               {renderMarkdown(p)}
                                             </p>
@@ -531,7 +482,9 @@ export default function NewspaperPreview() {
                                           } * ${globalHeadingScale / 100})` }}
                                           className={`font-bold leading-tight tracking-normal text-[#1c1510] border-t-2 border-b-2 ${
                                             theme === "republican" ? "border-[#1a1a1a]" : "border-[#2b221a]"
-                                          } py-1.5 ${(block as HeadlineBlock).font} ${(block as HeadlineBlock).align === "left" ? "text-left justify-start" : (block as HeadlineBlock).align === "right" ? "text-right justify-end" : (block as HeadlineBlock).align === "justify" ? "text-justify justify-between" : "text-center justify-center"} flex items-center gap-1.5`}
+                                          } py-1.5 ${(block as HeadlineBlock).font} ${(block as HeadlineBlock).align === "left" ? "text-left justify-start" : (block as HeadlineBlock).align === "right" ? "text-right justify-end" : (block as HeadlineBlock).align === "justify" ? "text-justify justify-between" : "text-center justify-center"} flex items-center gap-1.5 cursor-text select-text`}
+                                          title="双击直接就地编辑大字标题"
+                                          onDoubleClick={(e) => handleStartInlineEdit(e, { blockId: block.id, field: "headline.text" })}
                                         >
                                           {(block as HeadlineBlock).titleMarker && (block as HeadlineBlock).titleMarker !== "none" && (
                                             <span className="text-[0.7em] select-none opacity-80">
@@ -544,10 +497,12 @@ export default function NewspaperPreview() {
                                         </h2>
                                         {(block as HeadlineBlock).subtitle && (
                                           <p 
-                                            className={`tracking-widest ${(block as HeadlineBlock).subtitleFont || "font-serif"} text-[#2b221a]/80 italic ${(block as HeadlineBlock).subtitleAlign === "left" ? "text-left" : (block as HeadlineBlock).subtitleAlign === "right" ? "text-right" : (block as HeadlineBlock).subtitleAlign === "justify" ? "text-justify" : "text-center"}`}
+                                            className={`tracking-widest ${(block as HeadlineBlock).subtitleFont || "font-serif"} text-[#2b221a]/80 italic ${(block as HeadlineBlock).subtitleAlign === "left" ? "text-left" : (block as HeadlineBlock).subtitleAlign === "right" ? "text-right" : (block as HeadlineBlock).subtitleAlign === "justify" ? "text-justify" : "text-center"} cursor-text select-text`}
                                             style={{
                                               fontSize: (block as HeadlineBlock).subtitleFontSize === "xs" ? "9px" : (block as HeadlineBlock).subtitleFontSize === "sm" ? "11px" : (block as HeadlineBlock).subtitleFontSize === "md" ? "13px" : (block as HeadlineBlock).subtitleFontSize === "lg" ? "15px" : "10px"
                                             }}
+                                            title="双击直接就地编辑副标题"
+                                            onDoubleClick={(e) => handleStartInlineEdit(e, { blockId: block.id, field: "headline.subtitle" })}
                                           >
                                             {(block as HeadlineBlock).subtitle}
                                           </p>
@@ -617,7 +572,11 @@ export default function NewspaperPreview() {
 
                                         {/* Caption below image */}
                                         {(block as ImageBlock).caption && (
-                                          <p className="text-[10px] md:text-xs font-serif text-stone-600 italic tracking-wide max-w-[80%] mx-auto leading-normal">
+                                          <p 
+                                            className="text-[10px] md:text-xs font-serif text-stone-600 italic tracking-wide max-w-[80%] mx-auto leading-normal cursor-text select-text"
+                                            title="双击直接就地编辑图片说明"
+                                            onDoubleClick={(e) => handleStartInlineEdit(e, { blockId: block.id, field: "image.caption" })}
+                                          >
                                             {(block as ImageBlock).caption}
                                           </p>
                                         )}
@@ -680,13 +639,17 @@ export default function NewspaperPreview() {
                                       >
                                         <h4 
                                           style={{ fontSize: (block as AdBlock).titleFontSize === "xs" ? "10px" : (block as AdBlock).titleFontSize === "sm" ? "11px" : (block as AdBlock).titleFontSize === "md" ? "12px" : (block as AdBlock).titleFontSize === "lg" ? "14px" : "12px" }}
-                                          className={`font-bold uppercase tracking-widest text-[#1c1510] border-b border-[#2b221a]/20 pb-0.5 mb-1 ${(block as AdBlock).titleFont || "font-serif"} ${(block as AdBlock).titleAlign === "left" ? "text-left" : (block as AdBlock).titleAlign === "right" ? "text-right" : (block as AdBlock).titleAlign === "justify" ? "text-justify" : "text-center"}`}
+                                          className={`font-bold uppercase tracking-widest text-[#1c1510] border-b border-[#2b221a]/20 pb-0.5 mb-1 ${(block as AdBlock).titleFont || "font-serif"} ${(block as AdBlock).titleAlign === "left" ? "text-left" : (block as AdBlock).titleAlign === "right" ? "text-right" : (block as AdBlock).titleAlign === "justify" ? "text-justify" : "text-center"} cursor-text select-text`}
+                                          title="双击直接就地编辑告示标题"
+                                          onDoubleClick={(e) => handleStartInlineEdit(e, { blockId: block.id, field: "ad.title" })}
                                         >
                                           ✥ {(block as AdBlock).title} ✥
                                         </h4>
                                         <p 
                                           style={{ fontSize: (block as AdBlock).contentFontSize === "xs" ? "10px" : (block as AdBlock).contentFontSize === "sm" ? "11px" : (block as AdBlock).contentFontSize === "md" ? "12px" : (block as AdBlock).contentFontSize === "lg" ? "14px" : "11px" }}
-                                          className={`text-[#2b221a]/90 leading-normal ${(block as AdBlock).contentFont || "font-kai"} ${(block as AdBlock).contentAlign === "left" ? "text-left" : (block as AdBlock).contentAlign === "right" ? "text-right" : (block as AdBlock).contentAlign === "justify" ? "text-justify" : "text-center"}`}
+                                          className={`text-[#2b221a]/90 leading-normal ${(block as AdBlock).contentFont || "font-kai"} ${(block as AdBlock).contentAlign === "left" ? "text-left" : (block as AdBlock).contentAlign === "right" ? "text-right" : (block as AdBlock).contentAlign === "justify" ? "text-justify" : "text-center"} cursor-text select-text`}
+                                          title="双击直接就地编辑告示内容"
+                                          onDoubleClick={(e) => handleStartInlineEdit(e, { blockId: block.id, field: "ad.content" })}
                                         >
                                           {(block as AdBlock).content}
                                         </p>
@@ -709,46 +672,50 @@ export default function NewspaperPreview() {
                           );
                         })()}
 
-                         {/* Inline column block-adder */}
-                         <div className={`no-print h-6 flex items-center justify-center transition duration-150 relative z-10 ${activeAddBlockColId === col.id ? "opacity-100" : "opacity-0 hover:opacity-100"}`}>
-                           <div className="w-full border-t border-dashed border-[#5a4b3d]/30 absolute" />
-                           <div className="relative inline-block">
-                             <button type="button" onClick={(e) => { e.stopPropagation(); setActiveAddBlockColId(activeAddBlockColId === col.id ? null : col.id); }}
-                               className="bg-[#231d18] hover:bg-[#342a20] text-[#e0a96d] border border-[#5a4b3d] rounded-full p-1 shadow-lg flex items-center gap-1 text-[10px] px-2 cursor-pointer relative z-50">
-                               <Plus className="w-3 h-3" /><span>在此增添文章或圖片</span>
-                             </button>
-                             {activeAddBlockColId === col.id && (
-                               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-36 bg-[#1a1511] border-2 border-[#e0a96d] p-1.5 rounded shadow-2xl space-y-1 text-left z-50 animate-fadeIn">
-                                 <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "article"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">✍ 书写文字文章</button>
-                                 <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "headline"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">✦ 装饰大字标题</button>
-                                 <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "image"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">🖼 绘制插图木印</button>
-                                 <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "divider"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">◇ 插入中饰隔线</button>
-                                 <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "ad"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">🪙 刊登告示商售</button>
-                               </div>
-                             )}
-                           </div>
-                         </div>
-                       </div>
+                        {/* Column width resize handle (between columns) */}
+                        {colIdx < row.columns.length - 1 && (
+                          <ColumnResizeHandle
+                            colIndex={colIdx}
+                            fractions={fractions}
+                            onFractionsChange={(newFractions) => updateRowColumnFractions(row.id, newFractions)}
+                            isRepublican={isRepublican}
+                          />
+                        )}
+
+                        {/* Inline column block-adder */}
+                        <div className={`no-print h-6 flex items-center justify-center transition duration-150 relative z-10 ${activeAddBlockColId === col.id ? "opacity-100" : "opacity-0 hover:opacity-100"}`}>
+                          <div className="w-full border-t border-dashed border-[#5a4b3d]/30 absolute" />
+                          <div className="relative inline-block">
+                            <button type="button" onClick={(e) => { e.stopPropagation(); setActiveAddBlockColId(activeAddBlockColId === col.id ? null : col.id); }}
+                              className="bg-[#231d18] hover:bg-[#342a20] text-[#e0a96d] border border-[#5a4b3d] rounded-full p-1 shadow-lg flex items-center gap-1 text-[10px] px-2 cursor-pointer relative z-50">
+                              <Plus className="w-3 h-3" /><span>在此增添文章或圖片</span>
+                            </button>
+                            {activeAddBlockColId === col.id && (
+                              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-36 bg-[#1a1511] border-2 border-[#e0a96d] p-1.5 rounded shadow-2xl space-y-1 text-left z-50 animate-fadeIn">
+                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "article"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">✍ 书写文字文章</button>
+                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "headline"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">✦ 装饰大字标题</button>
+                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "image"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">🖼 绘制插图木印</button>
+                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "divider"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">◇ 插入中饰隔线</button>
+                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "ad"); setActiveAddBlockColId(null); }} className="block w-full text-left py-1 px-2 hover:bg-[#342a20] text-stone-300 hover:text-[#e0a96d] rounded text-[10px] font-semibold">🪙 刊登告示商售</button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </DroppableColumn>
                     ))}
+
+                    {/* Row Height Resize Handle at bottom edge */}
+                    <RowResizeHandle
+                      rowId={row.id}
+                      currentHeight={rowHeight}
+                      onHeightChange={(rowId, newH) => updateRowHeight(rowId, newH)}
+                      isRepublican={isRepublican}
+                    />
 
                   </div>
                 );
               })}
             </div>
-
-            <DragOverlay>
-              {activeBlock ? (
-                <div className="p-3 bg-[#e8dcc4] border-2 border-[#8b4513] shadow-2xl rounded opacity-95 rotate-1 max-w-[280px] pointer-events-none text-xs font-serif text-[#2c241e]">
-                  <span className="font-bold text-[#8b4513] block mb-0.5">
-                    {activeBlock.type === "article" ? "✍ 文章区块" : activeBlock.type === "headline" ? "✦ 大标题区块" : activeBlock.type === "image" ? "🖼 版画插图" : activeBlock.type === "divider" ? "◇ 分隔线" : "🪙 告示商号"}
-                  </span>
-                  <p className="line-clamp-2 text-stone-700 text-[11px] leading-tight">
-                    {activeBlock.type === "article" ? (activeBlock as ArticleBlock).title : activeBlock.type === "headline" ? (activeBlock as HeadlineBlock).text : activeBlock.type === "image" ? ((activeBlock as ImageBlock).caption || "插图") : "区块移动中..."}
-                  </p>
-                </div>
-              ) : null}
-            </DragOverlay>
-          </DndContext>
 
             {/* Bottom footer mark — theme-aware */}
             <div className={`mt-6 pt-2 text-center text-[10px] font-serif tracking-widest flex justify-between px-1 ${theme === "republican" ? "border-t-[3px] border-[#1a1a1a] text-[#1a1a1a]/60 uppercase" : "border-t-2 border-[#2b221a] text-stone-600 uppercase"}`}>
@@ -761,6 +728,16 @@ export default function NewspaperPreview() {
         </div>
 
       </main>
+
+      {/* Inline Editor Overlay (when a block field is double-clicked) */}
+      <InlineEditor
+        target={inlineEditTarget}
+        anchorRect={inlineAnchorRect}
+        onClose={() => {
+          setInlineEditTarget(null);
+          setInlineAnchorRect(null);
+        }}
+      />
     </>
   );
 }

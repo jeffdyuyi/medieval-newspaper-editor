@@ -93,6 +93,10 @@ export interface Row {
   split: ColumnSplit; // '1' (full), '1-1' (even halves), '1-2' (left small, right wide), '2-1' (left wide, right small), '1-1-1' (three thirds)
   columns: Column[]; // array of columns corresponding to the split
   height?: number; // Optional row height in pixels (used for republican vertical layout)
+  /** Continuous column width fractions (e.g. [1, 2] = 1:2).
+   *  Overrides the discrete `split` ratio when present.
+   *  Length must match columns.length. */
+  columnFractions?: number[];
 }
 
 export interface NewspaperHeader {
