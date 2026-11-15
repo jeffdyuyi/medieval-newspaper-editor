@@ -86,6 +86,8 @@ interface NewspaperContextType {
   setEnableCoffeeStains: React.Dispatch<React.SetStateAction<boolean>>;
   paperTone: PaperTone;
   setPaperTone: React.Dispatch<React.SetStateAction<PaperTone>>;
+  geminiApiKey: string;
+  setGeminiApiKey: React.Dispatch<React.SetStateAction<string>>;
   showPrintHelp: boolean;
   setShowPrintHelp: React.Dispatch<React.SetStateAction<boolean>>;
   showSaveManager: boolean;
@@ -238,6 +240,17 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [enableParchmentTexture, setEnableParchmentTexture] = useState<boolean>(() => getInitialLayoutSetting("enableParchmentTexture", true));
   const [enableCoffeeStains, setEnableCoffeeStains] = useState<boolean>(() => getInitialLayoutSetting("enableCoffeeStains", true));
   const [paperTone, setPaperTone] = useState<PaperTone>(() => getInitialLayoutSetting("paperTone", "default"));
+  const [geminiApiKey, setGeminiApiKey] = useState<string>(() => {
+    return localStorage.getItem("newspaper_gemini_api_key") || "";
+  });
+
+  useEffect(() => {
+    if (geminiApiKey) {
+      localStorage.setItem("newspaper_gemini_api_key", geminiApiKey);
+    } else {
+      localStorage.removeItem("newspaper_gemini_api_key");
+    }
+  }, [geminiApiKey]);
 
   const [showPrintHelp, setShowPrintHelp] = useState<boolean>(false);
   const [showSaveManager, setShowSaveManager] = useState<boolean>(false);
@@ -634,6 +647,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     enableParchmentTexture, setEnableParchmentTexture,
     enableCoffeeStains, setEnableCoffeeStains,
     paperTone, setPaperTone,
+    geminiApiKey, setGeminiApiKey,
     showPrintHelp, setShowPrintHelp,
     showSaveManager, setShowSaveManager,
     isExporting, setIsExporting,

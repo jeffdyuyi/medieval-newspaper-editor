@@ -9,6 +9,7 @@ import { useNewspaper } from "../context/NewspaperContext";
 import { BlockType, ColumnSplit, ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock, PaperTone } from "../types";
 import { ALL_CLIPART } from "../clipart";
 import { FONT_OPTIONS } from "../constants";
+import { generateArticleAI } from "../utils/aiGenerator";
 
 export { CoinsIcon };
 
@@ -36,22 +37,23 @@ export default function Sidebar() {
     updateRowSplit, addNewRow, deleteRow, moveRow,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, handleResetData,
     undo, redo, canUndo, canRedo, setShowSaveManager,
-    theme, switchTheme, updateRowHeight, triggerImageUpload
+    theme, switchTheme, updateRowHeight, triggerImageUpload,
+    geminiApiKey, setGeminiApiKey
   } = useNewspaper();
 
   const [aiTopic, setAiTopic] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
 
   const handleAiGenerate = async () => {
     if (!aiTopic.trim() || !selectedBlockId) return;
     setIsGenerating(true);
     try {
-      const res = await fetch("/api/gemini/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: aiTopic, theme })
+      const data = await generateArticleAI({
+        prompt: aiTopic,
+        theme,
+        apiKey: geminiApiKey
       });
-      const data = await res.json();
       if (data && data.title && data.paragraphs) {
         updateBlock(selectedBlockId, b => ({
           ...b,
@@ -65,7 +67,7 @@ export default function Sidebar() {
       }
     } catch (err) {
       console.error("AI Generation error:", err);
-      alert("AI 生成遇到网络或接口问题，请稍后重试。");
+      alert("AI 生成遇到网络或接口问题，已为您自动切换到纯本地离线写作生成。");
     } finally {
       setIsGenerating(false);
     }
@@ -1663,6 +1665,35 @@ export default function Sidebar() {
                     ? "提示：如在洁白新闻纸上直接打印，可取消勾选油墨污斑，打印背景将为纯白，更贴合实物纸张效果。"
                     : "提示：如果您打算在真正的泛黄复古美术纸上直接进行打印，可以取消勾选这两项背景仿真效果，这样打印出来的背景会是纯白的，能更完美地贴合实物艺术纸的自带纹理！"
                   }
+                </p>
+              </div>
+
+              {/* AI Gemini API Key Configuration (Pure Frontend Support) */}
+              <h3 className="text-xs font-bold text-[#8b4513] uppercase tracking-widest pt-3 pb-1 border-b border-[#8b4513]/30 flex items-center justify-between">
+                <span>AI 智能撰稿配置</span>
+                <span className="text-[10px] text-[#8b4513]/70 font-normal">纯前端/本地离线</span>
+              </h3>
+
+              <div className="space-y-2 p-2.5 bg-[#dcd0b8]/50 border border-[#8b4513]/30 rounded">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-[#4a3728]">Gemini API Key (可选)</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKeyInput(!showApiKeyInput)}
+                    className="text-[10px] text-[#8b4513] hover:underline"
+                  >
+                    {showApiKeyInput ? "隐藏" : "显示明文"}
+                  </button>
+                </div>
+                <input
+                  type={showApiKeyInput ? "text" : "password"}
+                  value={geminiApiKey}
+                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  placeholder="在此输入您的 API Key（以 AIzaSy 开头）"
+                  className="w-full bg-[#e8dcc4] border border-[#8b4513] rounded px-2.5 py-1 text-xs text-[#2c241e] font-mono focus:outline-none focus:ring-1 focus:ring-[#8b4513]"
+                />
+                <p className="text-[10px] text-[#4a3728]/70 leading-relaxed font-serif">
+                  <strong>💡 纯前端运行说明</strong>：此密钥仅保存在您本地浏览器的 localStorage 中，不经过任何第三方服务器。配置后，纯前端单文件亦可直接呼叫官方 AI 模型；若未配置或处于离线断网状态，系统将<strong>自动无缝切换至内置的古典离线撰稿语料库</strong>，确保随时可用。
                 </p>
               </div>
             </div>
