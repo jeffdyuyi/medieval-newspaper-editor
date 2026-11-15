@@ -3,7 +3,7 @@ import {
   Feather, RefreshCw, HelpCircle, Scissors, Type as FontIcon, 
   Layout, Settings, FileText, Image as ImageIcon, Plus, 
   ArrowUp, ArrowDown, Trash2, Printer, Download, Undo2, Redo2, BookOpen, Save,
-  Coins as CoinsIcon, Sparkles
+  Coins as CoinsIcon, Sparkles, Boxes, SlidersHorizontal
 } from "lucide-react";
 import { useNewspaper } from "../context/NewspaperContext";
 import { ColumnSplit, ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock, PaperTone } from "../types";
@@ -225,96 +225,80 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* Tab Selection Row */}
-        <div className="grid grid-cols-4 text-center bg-[#dcd0b8] border-b border-[#8b4513] text-xs">
+        {/* Tab Selection Row (Plan A: Two Core Modes) */}
+        <div className="grid grid-cols-2 text-center bg-[#dcd0b8] border-b border-[#8b4513] text-xs font-serif">
           <button 
+            type="button"
             onClick={() => setActiveTab("blocks")}
-            className={`py-3 flex flex-col items-center gap-1 transition-colors ${activeTab === "blocks" ? "bg-[#e8dcc4] text-[#2c241e] font-bold border-b-2 border-[#8b4513]" : "text-[#8b4513]/75 hover:text-[#2c241e] hover:bg-[#e8dcc4]/50"}`}
+            className={`py-3 flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+              activeTab === "blocks" 
+                ? "bg-[#e8dcc4] text-[#2c241e] font-bold border-b-2 border-[#8b4513] shadow-sm" 
+                : "text-[#8b4513]/75 hover:text-[#2c241e] hover:bg-[#e8dcc4]/50"
+            }`}
           >
-            <Scissors className="w-4 h-4" />
-            <span>正文</span>
+            <Boxes className="w-4 h-4" />
+            <span className="text-xs font-bold tracking-wider">📦 版式素材库</span>
           </button>
           <button 
-            onClick={() => setActiveTab("header")}
-            className={`py-3 flex flex-col items-center gap-1 transition-colors ${activeTab === "header" ? "bg-[#e8dcc4] text-[#2c241e] font-bold border-b-2 border-[#8b4513]" : "text-[#8b4513]/75 hover:text-[#2c241e] hover:bg-[#e8dcc4]/50"}`}
+            type="button"
+            onClick={() => setActiveTab("inspector")}
+            className={`py-3 flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+              activeTab !== "blocks" 
+                ? "bg-[#e8dcc4] text-[#2c241e] font-bold border-b-2 border-[#8b4513] shadow-sm" 
+                : "text-[#8b4513]/75 hover:text-[#2c241e] hover:bg-[#e8dcc4]/50"
+            }`}
           >
-            <FontIcon className="w-4 h-4" />
-            <span>报头</span>
-          </button>
-          <button 
-            onClick={() => setActiveTab("layout")}
-            className={`py-3 flex flex-col items-center gap-1 transition-colors ${activeTab === "layout" ? "bg-[#e8dcc4] text-[#2c241e] font-bold border-b-2 border-[#8b4513]" : "text-[#8b4513]/75 hover:text-[#2c241e] hover:bg-[#e8dcc4]/50"}`}
-          >
-            <Layout className="w-4 h-4" />
-            <span>版面</span>
-          </button>
-          <button 
-            onClick={() => setActiveTab("settings")}
-            className={`py-3 flex flex-col items-center gap-1 transition-colors ${activeTab === "settings" ? "bg-[#e8dcc4] text-[#2c241e] font-bold border-b-2 border-[#8b4513]" : "text-[#8b4513]/75 hover:text-[#2c241e] hover:bg-[#e8dcc4]/50"}`}
-          >
-            <Settings className="w-4 h-4" />
-            <span>印刷</span>
+            <SlidersHorizontal className="w-4 h-4" />
+            <span className="text-xs font-bold tracking-wider">
+              {selectedBlock ? "🎨 区块排版" : "🗞️ 整版属性"}
+            </span>
           </button>
         </div>
 
         {/* Tab Contents Scroll */}
         <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#e8dcc4] text-sm scrollbar-thin">
           
-          {/* TAB 1: EDIT BLOCKS (CONTEXT AWARE) */}
+          {/* MODE 1: COMPONENT & BLOCK PALETTE */}
           {activeTab === "blocks" && (
-            <div className="space-y-4">
+            <div className="space-y-4 animate-fadeIn">
               {/* Visual guideline box to teach users about the selection flow */}
-              {!selectedBlock && (
-                <div className="p-3 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded-sm space-y-1.5 text-xs text-[#8b4513] leading-relaxed font-serif">
-                  <span className="font-extrabold block">✨ 原位打字与排版指引：</span>
-                  <ul className="space-y-1 text-[11px] list-disc pl-4 text-[#4a3728]">
-                    <li><strong>点击直接打字</strong>：在右侧报纸上<strong>直接点击文本</strong>即可原地输入，敲回车自然分段。</li>
-                    <li><strong>划选文本工具栏</strong>：选中文本立即浮出粗体、斜体、下划线与朱砂标红。</li>
-                    <li><strong>版式模板添加</strong>：从下方元件库拖拽至指定栏目，或直接点击【+添加】。</li>
-                    <li><strong>悬停区块高级排版</strong>：悬停在区块上方可点击齿轮⚙️打开详细字体样式。</li>
-                  </ul>
-                </div>
-              )}
+              <div className="p-3 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded-sm space-y-1.5 text-xs text-[#8b4513] leading-relaxed font-serif">
+                <span className="font-extrabold block">✨ 所见即所得排版指引：</span>
+                <ul className="space-y-1 text-[11px] list-disc pl-4 text-[#4a3728]">
+                  <li><strong>点击直接打字</strong>：在右侧报纸上<strong>直接点击文本</strong>即可原地输入，敲回车自然分段。</li>
+                  <li><strong>划选文本工具栏</strong>：选中文本立即浮出粗体、斜体、下划线与朱砂标红。</li>
+                  <li><strong>版式模板添加</strong>：从下方元件库拖拽至指定栏目，或直接点击【+ 添加】。</li>
+                  <li><strong>区块高级样式</strong>：悬停在区块上方可点击齿轮 ⚙️ 打开字体与装帧设置。</li>
+                </ul>
+              </div>
 
-              {/* Sub-tab switcher if a block is selected */}
+              {/* Modern WYSIWYG Drag Palette with Quick Add */}
+              <BlockPalette theme={theme} />
+
               {selectedBlock && (
-                <div className="flex border-b border-[#8b4513] mb-4 text-xs bg-[#dcd0b8]/40 rounded p-0.5 no-print">
-                  <button
+                <div className="p-2.5 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded text-xs text-[#8b4513] flex items-center justify-between no-print mt-2">
+                  <span className="truncate">当前画布已选中区块</span>
+                  <button 
                     type="button"
-                    onClick={() => setBlockTabMode("edit")}
-                    className={`flex-1 py-1.5 font-bold rounded-sm transition-colors text-center cursor-pointer ${blockTabMode === "edit" ? "bg-[#8b4513] text-[#f5deb3]" : "text-[#8b4513] hover:bg-[#8b4513]/10"}`}
+                    onClick={() => setActiveTab("inspector")} 
+                    className="font-bold underline hover:text-[#2c241e] cursor-pointer shrink-0 ml-2"
                   >
-                    ✍️ 编辑选中区块
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBlockTabMode("create")}
-                    className={`flex-1 py-1.5 font-bold rounded-sm transition-colors text-center cursor-pointer ${blockTabMode === "create" ? "bg-[#8b4513] text-[#f5deb3]" : "text-[#8b4513] hover:bg-[#8b4513]/10"}`}
-                  >
-                    ➕ 版式元件库
+                    配置该区块详细排版 →
                   </button>
                 </div>
               )}
+            </div>
+          )}
 
-              {/* If we are in create mode or no block is selected, show classified creation view */}
-              {(blockTabMode === "create" || !selectedBlock) ? (
-                <div className="space-y-3 animate-fadeIn">
-                  {/* Modern WYSIWYG Drag Palette with Quick Add */}
-                  <BlockPalette theme={theme} />
-
-                  {selectedBlock && (
-                    <div className="p-2.5 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded text-xs text-[#8b4513] flex items-center justify-between no-print mt-2">
-                      <span>正在浏览版式元件库</span>
-                      <button onClick={() => setBlockTabMode("edit")} className="font-bold underline hover:text-[#2c241e] cursor-pointer">
-                        返回排版当前选中区块 →
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                  <div className="space-y-4 animate-fadeIn">
-                    {/* Block Header info */}
-                    <div className="pb-3 border-b border-[#8b4513] flex items-center justify-between">
+          {/* MODE 2: CONTEXT-AWARE INSPECTOR */}
+          {activeTab !== "blocks" && (
+            <div className="space-y-4 animate-fadeIn">
+              {selectedBlock ? (
+                /* SUB-VIEW A: SELECTED BLOCK INSPECTOR */
+                <div className="space-y-4 animate-fadeIn">
+                  {/* Block Header info */}
+                  <div className="pb-3 border-b border-[#8b4513] flex items-center justify-between">
+                    <div className="flex items-center gap-2">
                       <span className="text-xs font-bold uppercase tracking-widest text-[#8b4513] flex items-center gap-1.5">
                         {selectedBlock.type === "article" && <FileText className="w-3.5 h-3.5" />}
                         {selectedBlock.type === "headline" && <FontIcon className="w-3.5 h-3.5" />}
@@ -324,13 +308,24 @@ export default function Sidebar() {
                         选中的{selectedBlock.type === "article" ? "文章" : selectedBlock.type === "headline" ? "标题" : selectedBlock.type === "image" ? "插图" : selectedBlock.type === "divider" ? "分隔线" : "公告"}区块
                       </span>
                       <button 
-                        onClick={() => deleteBlock(selectedBlock.id)}
-                        className="text-xs text-red-800 hover:text-red-900 hover:bg-red-200/50 border border-red-700/50 flex items-center gap-1 px-2 py-1 rounded transition"
+                        type="button"
+                        onClick={() => setSelectedBlockId(null)}
+                        className="text-[10px] text-[#8b4513]/70 hover:text-[#2c241e] underline cursor-pointer"
+                        title="取消选中，查看整版全局设置"
                       >
-                        <Trash2 className="w-3 h-3" />
-                        <span>删除</span>
+                        (切至整版全局)
                       </button>
                     </div>
+
+                    <button 
+                      type="button"
+                      onClick={() => deleteBlock(selectedBlock.id)}
+                      className="text-xs text-red-800 hover:text-red-900 hover:bg-red-200/50 border border-red-700/50 flex items-center gap-1 px-2 py-1 rounded transition cursor-pointer"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>删除</span>
+                    </button>
+                  </div>
 
                     {/* ARTICLE BLOCK EDIT CONTROLS */}
                     {selectedBlock.type === "article" && (
@@ -1016,475 +1011,383 @@ export default function Sidebar() {
                         </div>
                       </div>
                     )}
+                    <div className="pt-2 border-t border-[#8b4513]/20 flex items-center justify-between text-xs text-[#8b4513]">
+                      <button 
+                        type="button"
+                        onClick={() => setSelectedBlockId(null)}
+                        className="text-[11px] underline hover:text-[#2c241e] cursor-pointer"
+                      >
+                        ← 返回整版全局属性
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setActiveTab("blocks")}
+                        className="text-[11px] underline hover:text-[#2c241e] cursor-pointer"
+                      >
+                        前往素材库添加更多区块 →
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
+                ) : (
+                  /* SUB-VIEW B: WHOLE-PAGE & GLOBAL INSPECTOR */
+                  <div className="space-y-5 animate-fadeIn">
+                    <div className="pb-2 border-b border-[#8b4513] flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-widest text-[#8b4513] flex items-center gap-1.5">
+                        <SlidersHorizontal className="w-3.5 h-3.5" />
+                        <span>整版排版与全局属性</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("blocks")}
+                        className="text-[10px] text-[#8b4513] font-bold underline hover:text-[#2c241e] cursor-pointer"
+                      >
+                        + 打开素材库
+                      </button>
+                    </div>
 
-          {/* TAB 3: NEWSPAPER HEADER SETTINGS */}
-          {activeTab === "header" && (
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#8b4513]">报纸大名 (中文字)</label>
-                <input 
-                  type="text" 
-                  value={newspaperData.header.title}
-                  onChange={(e) => updateHeader(h => ({ ...h, title: e.target.value }))}
-                  className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs font-serif"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#8b4513]">报头大名字体</label>
-                <select 
-                  value={newspaperData.header.titleFont}
-                  onChange={(e) => updateHeader(h => ({ ...h, titleFont: e.target.value }))}
-                  className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                >
-                  <option value="font-mashan">马山正体 (狂草笔墨，极力推荐)</option>
-                  <option value="font-xiaowei">站酷小薇体 (雕花碑版)</option>
-                  <option value="font-zhimang">志芒行书 (古法行流)</option>
-                  <option value="font-serif">思源宋体 (端正大气)</option>
-                  <option value="font-sans">经典黑体 (庄重醒目)</option>
-                  <option value="font-fangsong">典雅仿宋 (秀气书风)</option>
-                  <option value="font-lishu">汉仪隶书 (厚重古意)</option>
-                  <option value="font-kai">霞鹜文楷 (手抄人文)</option>
-                  <option value="font-gothic">西方中世纪黑体</option>
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#8b4513]">顶部箴言 / 标语</label>
-                <input 
-                  type="text" 
-                  value={newspaperData.header.subtitle}
-                  onChange={(e) => updateHeader(h => ({ ...h, subtitle: e.target.value }))}
-                  className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs font-serif"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#8b4513]">发行刊号</label>
-                  <input 
-                    type="text" 
-                    value={newspaperData.header.issueNo}
-                    onChange={(e) => updateHeader(h => ({ ...h, issueNo: e.target.value }))}
-                    className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#8b4513]">售价告示</label>
-                  <input 
-                    type="text" 
-                    value={newspaperData.header.price}
-                    onChange={(e) => updateHeader(h => ({ ...h, price: e.target.value }))}
-                    className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#8b4513]">印制地点 / 地区</label>
-                  <input 
-                    type="text" 
-                    value={newspaperData.header.location}
-                    onChange={(e) => updateHeader(h => ({ ...h, location: e.target.value }))}
-                    className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs font-serif"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#8b4513]">发刊日期</label>
-                  <input 
-                    type="text" 
-                    value={newspaperData.header.date}
-                    onChange={(e) => updateHeader(h => ({ ...h, date: e.target.value }))}
-                    className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs font-serif"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#8b4513]">报头设计样式</label>
-                <select 
-                  value={newspaperData.header.headerStyle}
-                  onChange={(e: any) => updateHeader(h => ({ ...h, headerStyle: e.target.value }))}
-                  className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                >
-                  <option value="classic">【经典复古】双层墨线包围</option>
-                  <option value="royal">【皇家大典】双鸢尾花印章点缀</option>
-                  <option value="minimal">【质朴无华】简洁粗体字版面</option>
-                </select>
-              </div>
-
-              {newspaperData.header.headerStyle === "royal" && (
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#8b4513]">皇家设计专属副标题</label>
-                  <input 
-                    type="text" 
-                    value={newspaperData.header.royalTitle ?? ""}
-                    placeholder="圣塞西尔皇家御览"
-                    onChange={(e) => updateHeader(h => ({ ...h, royalTitle: e.target.value }))}
-                    className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs font-serif"
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#8b4513]">页脚发行单位 (左侧)</label>
-                  <input 
-                    type="text" 
-                    value={newspaperData.header.footerLeft ?? ""}
-                    placeholder="星辉帝国皇家印刷署特许印制局发行"
-                    onChange={(e) => updateHeader(h => ({ ...h, footerLeft: e.target.value }))}
-                    className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs font-serif"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#8b4513]">页脚版权标识 (右侧)</label>
-                  <input 
-                    type="text" 
-                    value={newspaperData.header.footerRight ?? ""}
-                    placeholder="帝国要闻报印刷局 © 742年"
-                    onChange={(e) => updateHeader(h => ({ ...h, footerRight: e.target.value }))}
-                    className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 4: LAYOUT & GRID ROW MANAGER */}
-          {activeTab === "layout" && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-[#8b4513] block">版面行數與格位調配</label>
-                <button 
-                  onClick={addNewRow}
-                  className="text-xs bg-[#8b4513] border border-[#d2b48c] hover:bg-[#753a10] text-[#f5deb3] px-2 py-1 rounded-sm font-bold transition-colors flex items-center gap-1"
-                >
-                  <Plus className="w-3 h-3" />
-                  <span>添加全新版面行</span>
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                {newspaperData.rows.map((row, idx) => (
-                  <div 
-                    key={row.id}
-                    onClick={() => {
-                      setSelectedRowId(row.id);
-                      setSelectedColumnId(row.columns[0]?.id || null);
-                    }}
-                    className={`p-3 bg-[#dcd0b8]/40 border rounded-sm transition space-y-2 cursor-pointer ${
-                      selectedRowId === row.id 
-                        ? "border-[#8b4513] bg-[#dcd0b8]/80 ring-1 ring-[#8b4513]" 
-                        : "border-[#8b4513]/30 hover:border-[#8b4513]/60"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#8b4513]">版面行 #{idx + 1}</span>
-                      
-                      {/* Row management controls */}
-                      <div className="flex items-center gap-1.5 no-print">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); moveRow(row.id, "up"); }}
-                          disabled={idx === 0}
-                          title="上移此行"
-                          className="p-1 hover:bg-[#8b4513]/10 rounded-sm disabled:opacity-30 text-[#8b4513]"
+                    {/* Section 1: Newspaper Theme */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 pb-1 border-b border-[#8b4513]/30">
+                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">一、 报刊主题风格</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => switchTheme("fantasy")}
+                          className={`py-2 px-2 rounded-sm text-xs font-bold border transition-all cursor-pointer ${
+                            theme === "fantasy"
+                              ? "bg-[#8b4513] text-[#f5deb3] border-[#5a2d0c] shadow-inner"
+                              : "bg-[#e8dcc4] text-[#4a3728] border-[#8b4513]/40 hover:bg-[#d9ccb0]"
+                          }`}
                         >
-                          <ArrowUp className="w-3 h-3" />
+                          ⚔ 中世纪奇幻
                         </button>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); moveRow(row.id, "down"); }}
-                          disabled={idx === newspaperData.rows.length - 1}
-                          title="下移此行"
-                          className="p-1 hover:bg-[#8b4513]/10 rounded-sm disabled:opacity-30 text-[#8b4513]"
+                        <button
+                          type="button"
+                          onClick={() => switchTheme("republican")}
+                          className={`py-2 px-2 rounded-sm text-xs font-bold border transition-all cursor-pointer ${
+                            theme === "republican"
+                              ? "bg-[#1a1a1a] text-[#f4f3ef] border-[#000] shadow-inner"
+                              : "bg-[#e8dcc4] text-[#4a3728] border-[#8b4513]/40 hover:bg-[#d9ccb0]"
+                          }`}
                         >
-                          <ArrowDown className="w-3 h-3" />
+                          ■ 民国报刊
                         </button>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); deleteRow(row.id); }}
-                          title="删除此行"
-                          className="p-1 hover:bg-red-100 hover:text-red-700 rounded-sm text-[#8b4513] transition-colors"
+                      </div>
+                      <p className="text-[10px] text-[#4a3728]/70 font-serif leading-relaxed">
+                        切换主题时文字内容将被完整保留，样式自动适配对应时代装帧。
+                      </p>
+                    </div>
+
+                    {/* Section 2: Header Ornaments & Typography */}
+                    <div className="space-y-3 font-serif">
+                      <div className="flex items-center gap-1.5 pb-1 border-b border-[#8b4513]/30">
+                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">二、 报头装帧与大名字体</span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-[#8b4513]">报头设计样式</label>
+                        <select 
+                          value={newspaperData.header.headerStyle}
+                          onChange={(e: any) => updateHeader(h => ({ ...h, headerStyle: e.target.value }))}
+                          className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs cursor-pointer"
                         >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
+                          <option value="classic">【经典复古】双层墨线包围</option>
+                          <option value="royal">【皇家大典】双鸢尾花印章点缀</option>
+                          <option value="minimal">【质朴无华】简洁粗体字版面</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-[#8b4513]">报头大名字体风格</label>
+                        <select 
+                          value={newspaperData.header.titleFont}
+                          onChange={(e) => updateHeader(h => ({ ...h, titleFont: e.target.value }))}
+                          className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs cursor-pointer"
+                        >
+                          <option value="font-mashan">马山正体 (狂草笔墨，极力推荐)</option>
+                          <option value="font-xiaowei">站酷小薇体 (雕花碑版)</option>
+                          <option value="font-zhimang">志芒行书 (古法行流)</option>
+                          <option value="font-serif">思源宋体 (端正大气)</option>
+                          <option value="font-sans">经典黑体 (庄重醒目)</option>
+                          <option value="font-fangsong">典雅仿宋 (秀气书风)</option>
+                          <option value="font-lishu">汉仪隶书 (厚重古意)</option>
+                          <option value="font-kai">霞鹜文楷 (手抄人文)</option>
+                          <option value="font-gothic">西方中世纪黑体</option>
+                        </select>
+                      </div>
+
+                      {newspaperData.header.headerStyle === "royal" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#8b4513]">皇家大典专属顶标副题</label>
+                          <input 
+                            type="text" 
+                            value={newspaperData.header.royalTitle ?? ""}
+                            placeholder="圣塞西尔皇家御览"
+                            onChange={(e) => updateHeader(h => ({ ...h, royalTitle: e.target.value }))}
+                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs font-serif"
+                          />
+                        </div>
+                      )}
+
+                      <div className="p-2 bg-[#8b4513]/10 border border-[#8b4513]/20 rounded text-[11px] text-[#4a3728] leading-relaxed">
+                        💡 <strong>报头文字原生编辑</strong>：报纸大名、副标标语、发刊期号、发售定价、印制地点与页脚版权文案，已全部支持在右侧报纸上<strong>单击直接打字修改</strong>！
                       </div>
                     </div>
 
-                    {/* Column Split Picker */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-[#8b4513]/80">本行栏位排版分配</label>
-                      <div className="grid grid-cols-5 gap-1.5 text-center text-[10px]">
-                        {(["1", "1-1", "1-2", "2-1", "1-1-1"] as ColumnSplit[]).map(split => (
-                          <button
-                            key={split}
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              updateRowSplit(row.id, split);
+                    {/* Section 3: Paper Tone & Texture */}
+                    <div className="space-y-3 font-serif">
+                      <div className="flex items-center gap-1.5 pb-1 border-b border-[#8b4513]/30">
+                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">
+                          三、 {theme === "republican" ? "纸张油墨与做旧" : "羊皮纸做旧与古物仿真"}
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-[#4a3728] block">纸张色调微调 (泛黄做旧度)</label>
+                        <div className="grid grid-cols-4 gap-1.5 text-center text-[10px]">
+                          {[
+                            { key: "default", label: "标准" },
+                            { key: "aged", label: "微黄" },
+                            { key: "antique", label: "古卷" },
+                            { key: "bright", label: "素白" },
+                          ].map(tone => (
+                            <button
+                              key={tone.key}
+                              type="button"
+                              onClick={() => setPaperTone(tone.key as PaperTone)}
+                              className={`py-1.5 border rounded-sm font-bold transition text-xs cursor-pointer ${
+                                paperTone === tone.key
+                                  ? "bg-[#8b4513] border-[#8b4513] text-[#f5deb3] shadow-inner"
+                                  : "bg-[#dcd0b8] border-[#8b4513]/40 text-[#4a3728] hover:bg-[#8b4513]/10"
+                              }`}
+                            >
+                              {tone.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {theme === "fantasy" && (
+                        <label className="flex items-center gap-2 text-xs font-bold text-[#4a3728] cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={enableParchmentTexture}
+                            onChange={(e) => setEnableParchmentTexture(e.target.checked)}
+                            className="accent-[#8b4513]"
+                          />
+                          <span>启用羊皮纸古朴纤维质地</span>
+                        </label>
+                      )}
+
+                      <label className="flex items-center gap-2 text-xs font-bold text-[#4a3728] cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={enableCoffeeStains}
+                          onChange={(e) => setEnableCoffeeStains(e.target.checked)}
+                          className="accent-[#8b4513]"
+                        />
+                        <span>{theme === "republican" ? "启用油墨晕渍污斑效果" : "启用微黄茶渍/古物晕染污渍"}</span>
+                      </label>
+                    </div>
+
+                    {/* Section 4: Typography Scale & Spacing */}
+                    <div className="space-y-3 font-serif">
+                      <div className="flex items-center gap-1.5 pb-1 border-b border-[#8b4513]/30">
+                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">四、 全局文字大小与栏距</span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-[#4a3728]">
+                          <span>全局标题尺寸缩放</span>
+                          <span className="font-mono">{globalHeadingScale}%</span>
+                        </div>
+                        <input 
+                          type="range"
+                          min="75"
+                          max="150"
+                          step="5"
+                          value={globalHeadingScale}
+                          onChange={(e) => setGlobalHeadingScale(parseInt(e.target.value))}
+                          className="w-full accent-[#8b4513]"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-[#4a3728]">
+                          <span>全局正文文字大小缩放</span>
+                          <span className="font-mono">{globalBodyScale}%</span>
+                        </div>
+                        <input 
+                          type="range"
+                          min="80"
+                          max="140"
+                          step="5"
+                          value={globalBodyScale}
+                          onChange={(e) => setGlobalBodyScale(parseInt(e.target.value))}
+                          className="w-full accent-[#8b4513]"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-[#4a3728]">
+                          <span>双栏/多栏间隔密集度</span>
+                          <span className="font-mono">{(columnGap / 4).toFixed(1)} 比例</span>
+                        </div>
+                        <input 
+                          type="range"
+                          min="2"
+                          max="12"
+                          step="1"
+                          value={columnGap}
+                          onChange={(e) => setColumnGap(parseInt(e.target.value))}
+                          className="w-full accent-[#8b4513]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Section 5: Grid Row Manager */}
+                    <div className="space-y-3 font-serif">
+                      <div className="flex items-center justify-between pb-1 border-b border-[#8b4513]/30">
+                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">五、 版面行与分栏配比</span>
+                        <button 
+                          type="button"
+                          onClick={addNewRow}
+                          className="text-xs bg-[#8b4513] border border-[#d2b48c] hover:bg-[#753a10] text-[#f5deb3] px-2 py-0.5 rounded-sm font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>添加版面行</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-2.5">
+                        {newspaperData.rows.map((row, idx) => (
+                          <div 
+                            key={row.id}
+                            onClick={() => {
+                              setSelectedRowId(row.id);
+                              setSelectedColumnId(row.columns[0]?.id || null);
                             }}
-                            className={`py-1.5 border rounded-sm font-bold transition text-xs ${
-                              row.split === split 
-                                ? "bg-[#8b4513] border-[#8b4513] text-[#f5deb3]" 
-                                : "bg-[#e8dcc4] border-[#8b4513]/40 text-[#8b4513]/80 hover:bg-[#8b4513]/10"
+                            className={`p-2.5 bg-[#dcd0b8]/40 border rounded-sm transition space-y-2 cursor-pointer ${
+                              selectedRowId === row.id 
+                                ? "border-[#8b4513] bg-[#dcd0b8]/80 ring-1 ring-[#8b4513]" 
+                                : "border-[#8b4513]/30 hover:border-[#8b4513]/60"
                             }`}
                           >
-                            {split === "1" && "单栏"}
-                            {split === "1-1" && "1:1"}
-                            {split === "1-2" && "1:2"}
-                            {split === "2-1" && "2:1"}
-                            {split === "1-1-1" && "1:1:1"}
-                          </button>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-[#8b4513]">行 #{idx + 1} ({row.columns.length} 栏)</span>
+                              
+                              <div className="flex items-center gap-1.5 no-print">
+                                <button 
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); moveRow(row.id, "up"); }}
+                                  disabled={idx === 0}
+                                  title="上移此行"
+                                  className="p-1 hover:bg-[#8b4513]/10 rounded-sm disabled:opacity-30 text-[#8b4513] cursor-pointer"
+                                >
+                                  <ArrowUp className="w-3 h-3" />
+                                </button>
+                                <button 
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); moveRow(row.id, "down"); }}
+                                  disabled={idx === newspaperData.rows.length - 1}
+                                  title="下移此行"
+                                  className="p-1 hover:bg-[#8b4513]/10 rounded-sm disabled:opacity-30 text-[#8b4513] cursor-pointer"
+                                >
+                                  <ArrowDown className="w-3 h-3" />
+                                </button>
+                                <button 
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); deleteRow(row.id); }}
+                                  title="删除此行"
+                                  className="p-1 hover:bg-red-100 hover:text-red-700 rounded-sm text-[#8b4513] transition-colors cursor-pointer"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Column Split Picker */}
+                            <div className="space-y-1">
+                              <div className="grid grid-cols-5 gap-1 text-center text-[10px]">
+                                {(["1", "1-1", "1-2", "2-1", "1-1-1"] as ColumnSplit[]).map(split => (
+                                  <button
+                                    key={split}
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      updateRowSplit(row.id, split);
+                                    }}
+                                    className={`py-1 border rounded-sm font-bold transition text-xs cursor-pointer ${
+                                      row.split === split 
+                                        ? "bg-[#8b4513] border-[#8b4513] text-[#f5deb3]" 
+                                        : "bg-[#e8dcc4] border-[#8b4513]/40 text-[#8b4513]/80 hover:bg-[#8b4513]/10"
+                                    }`}
+                                  >
+                                    {split === "1" && "单栏"}
+                                    {split === "1-1" && "1:1"}
+                                    {split === "1-2" && "1:2"}
+                                    {split === "2-1" && "2:1"}
+                                    {split === "1-1-1" && "1:1:1"}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {theme === "republican" && (
+                              <div className="space-y-1 pt-1.5 border-t border-[#8b4513]/20">
+                                <div className="flex justify-between text-[11px] font-bold text-[#8b4513]">
+                                  <span>竖排行高</span>
+                                  <span className="font-mono">{row.height || 480}px</span>
+                                </div>
+                                <input
+                                  type="range"
+                                  min="240"
+                                  max="800"
+                                  step="20"
+                                  value={row.height || 480}
+                                  onChange={(e) => updateRowHeight(row.id, parseInt(e.target.value))}
+                                  className="w-full accent-[#1a1a1a]"
+                                />
+                              </div>
+                            )}
+                          </div>
                         ))}
                       </div>
                     </div>
 
-                    {/* Republican row height controller */}
-                    {theme === "republican" && (
-                      <div className="space-y-1 pt-1.5 border-t border-[#8b4513]/20">
-                        <div className="flex justify-between text-[11px] font-bold text-[#8b4513]">
-                          <span>民国竖排行高</span>
-                          <span className="font-mono">{row.height || 480} 像素</span>
+                    {/* Section 6: AI Configuration */}
+                    <div className="space-y-2 font-serif">
+                      <div className="flex items-center justify-between pb-1 border-b border-[#8b4513]/30">
+                        <span className="text-xs font-bold text-[#8b4513] uppercase tracking-wider">六、 AI 智能撰稿配置</span>
+                        <span className="text-[10px] text-[#8b4513]/70 font-normal">纯前端/本地离线</span>
+                      </div>
+
+                      <div className="space-y-2 p-2.5 bg-[#dcd0b8]/50 border border-[#8b4513]/30 rounded">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-[#4a3728]">Gemini API Key (可选)</label>
+                          <button
+                            type="button"
+                            onClick={() => setShowApiKeyInput(!showApiKeyInput)}
+                            className="text-[10px] text-[#8b4513] hover:underline cursor-pointer"
+                          >
+                            {showApiKeyInput ? "隐藏" : "显示明文"}
+                          </button>
                         </div>
                         <input
-                          type="range"
-                          min="240"
-                          max="800"
-                          step="20"
-                          value={row.height || 480}
-                          onChange={(e) => updateRowHeight(row.id, parseInt(e.target.value))}
-                          className="w-full accent-[#1a1a1a]"
+                          type={showApiKeyInput ? "text" : "password"}
+                          value={geminiApiKey}
+                          onChange={(e) => setGeminiApiKey(e.target.value)}
+                          placeholder="在此输入您的 API Key（以 AIzaSy 开头）"
+                          className="w-full bg-[#e8dcc4] border border-[#8b4513] rounded px-2.5 py-1 text-xs text-[#2c241e] font-mono focus:outline-none focus:ring-1 focus:ring-[#8b4513]"
                         />
+                        <p className="text-[10px] text-[#4a3728]/70 leading-relaxed">
+                          <strong>💡 纯前端运行说明</strong>：此密钥仅保存在您本地浏览器的 localStorage 中，不经过任何第三方服务器。未配置或断网时，系统将<strong>自动无缝切换至内置古典离线撰稿语料库</strong>。
+                        </p>
                       </div>
-                    )}
-
-                    {/* Show Column Blocks Count and Quick Block Insertion */}
-                    <div className="grid grid-cols-3 gap-2 pt-1 text-[11px]">
-                      {row.columns.map((col, colIdx) => (
-                        <div key={col.id} className="bg-[#e8dcc4] border border-[#8b4513]/40 p-1.5 rounded-sm text-center space-y-1">
-                          <p className="font-serif text-[#8b4513] font-bold">栏 {colIdx + 1}</p>
-                          <p className="text-[#2c241e] font-bold">{col.blocks.length} 个区块</p>
-                          
-                          {/* Add Block button */}
-                          <div className="relative inline-block">
-                            <button 
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveSidebarColId(activeSidebarColId === col.id ? null : col.id);
-                              }}
-                              className="text-[10px] text-[#8b4513] font-bold hover:underline flex items-center gap-0.5 mx-auto mt-1 cursor-pointer relative z-50"
-                            >
-                              <Plus className="w-2.5 h-2.5" />
-                              <span>添加区块</span>
-                            </button>
-                            {activeSidebarColId === col.id && (
-                              <div className="absolute left-1/2 -translate-x-1/2 mt-1 w-28 bg-[#e8dcc4] border-2 border-[#8b4513] p-1 rounded-sm shadow-xl z-50 text-left space-y-1 font-serif font-bold text-[#2c241e] animate-fadeIn">
-                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "article"); setActiveSidebarColId(null); }} className="block w-full text-left py-1 px-1.5 hover:bg-[#8b4513] hover:text-[#f5deb3] text-[#8b4513] rounded-sm text-[10px] transition-colors">书写文章</button>
-                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "headline"); setActiveSidebarColId(null); }} className="block w-full text-left py-1 px-1.5 hover:bg-[#8b4513] hover:text-[#f5deb3] text-[#8b4513] rounded-sm text-[10px] transition-colors">装饰大标</button>
-                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "image"); setActiveSidebarColId(null); }} className="block w-full text-left py-1 px-1.5 hover:bg-[#8b4513] hover:text-[#f5deb3] text-[#8b4513] rounded-sm text-[10px] transition-colors">绘制插图</button>
-                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "divider"); setActiveSidebarColId(null); }} className="block w-full text-left py-1 px-1.5 hover:bg-[#8b4513] hover:text-[#f5deb3] text-[#8b4513] rounded-sm text-[10px] transition-colors">添加隔线</button>
-                                <button onClick={(e) => { e.stopPropagation(); addBlockToColumn(col.id, "ad"); setActiveSidebarColId(null); }} className="block w-full text-left py-1 px-1.5 hover:bg-[#8b4513] hover:text-[#f5deb3] text-[#8b4513] rounded-sm text-[10px] transition-colors">行商布告</button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 5: PRINT & SIZE SETTINGS */}
-          {activeTab === "settings" && (
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold text-[#8b4513] uppercase tracking-widest pb-1 border-b border-[#8b4513]/30">
-                印刷大小與視覺自訂
-              </h3>
-
-              <div className="space-y-3">
-                {/* Global Heading size slider */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs font-bold text-[#4a3728]">
-                    <span>全局标题尺寸缩放</span>
-                    <span className="font-mono">{globalHeadingScale}%</span>
-                  </div>
-                  <input 
-                    type="range"
-                    min="75"
-                    max="150"
-                    step="5"
-                    value={globalHeadingScale}
-                    onChange={(e) => setGlobalHeadingScale(parseInt(e.target.value))}
-                    className="w-full accent-[#8b4513]"
-                  />
-                </div>
-
-                {/* Global Body size slider */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs font-bold text-[#4a3728]">
-                    <span>全局正文文字大小缩放</span>
-                    <span className="font-mono">{globalBodyScale}%</span>
-                  </div>
-                  <input 
-                    type="range"
-                    min="80"
-                    max="140"
-                    step="5"
-                    value={globalBodyScale}
-                    onChange={(e) => setGlobalBodyScale(parseInt(e.target.value))}
-                    className="w-full accent-[#8b4513]"
-                  />
-                </div>
-
-                {/* Column spacing */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs font-bold text-[#4a3728]">
-                    <span>双栏/三栏间隔密集度</span>
-                    <span className="font-mono">{(columnGap / 4).toFixed(1)} 比例</span>
-                  </div>
-                  <input 
-                    type="range"
-                    min="2"
-                    max="12"
-                    step="1"
-                    value={columnGap}
-                    onChange={(e) => setColumnGap(parseInt(e.target.value))}
-                    className="w-full accent-[#8b4513]"
-                  />
-                </div>
-              </div>
-
-              <h3 className="text-xs font-bold text-[#8b4513] uppercase tracking-widest pt-3 pb-1 border-b border-[#8b4513]/30">
-                报刊主题风格
-              </h3>
-
-              <div className="grid grid-cols-2 gap-2 py-2">
-                <button
-                  type="button"
-                  onClick={() => switchTheme("fantasy")}
-                  className={`py-2 px-2 rounded-sm text-xs font-bold border transition-all ${
-                    theme === "fantasy"
-                      ? "bg-[#8b4513] text-[#f5deb3] border-[#5a2d0c] shadow-inner"
-                      : "bg-[#e8dcc4] text-[#4a3728] border-[#8b4513]/40 hover:bg-[#d9ccb0]"
-                  }`}
-                >
-                  ⚔ 中世纪奇幻
-                </button>
-                <button
-                  type="button"
-                  onClick={() => switchTheme("republican")}
-                  className={`py-2 px-2 rounded-sm text-xs font-bold border transition-all ${
-                    theme === "republican"
-                      ? "bg-[#1a1a1a] text-[#f4f3ef] border-[#000] shadow-inner"
-                      : "bg-[#e8dcc4] text-[#4a3728] border-[#8b4513]/40 hover:bg-[#d9ccb0]"
-                  }`}
-                >
-                  ■ 民国报刊
-                </button>
-              </div>
-              <p className="text-[10px] text-[#4a3728]/70 font-serif leading-relaxed pb-2">
-                切换主题时文字内容将被保留，不兼容的样式会重置为目标主题的默认值。
-              </p>
-
-              <h3 className="text-xs font-bold text-[#8b4513] uppercase tracking-widest pt-3 pb-1 border-b border-[#8b4513]/30">
-                {theme === "republican" ? "纸张与油墨设定" : "古物仿真背景設定"}
-              </h3>
-
-              <div className="space-y-3">
-                {/* Paper Tone Selector */}
-                <div className="space-y-1.5 pt-1">
-                  <label className="text-xs font-bold text-[#4a3728] block">纸张色调微调 (泛黄做旧度)</label>
-                  <div className="grid grid-cols-4 gap-1.5 text-center text-[10px]">
-                    {[
-                      { key: "default", label: "标准" },
-                      { key: "aged", label: "微黄" },
-                      { key: "antique", label: "古卷" },
-                      { key: "bright", label: "素白" },
-                    ].map(tone => (
-                      <button
-                        key={tone.key}
-                        type="button"
-                        onClick={() => setPaperTone(tone.key as PaperTone)}
-                        className={`py-1.5 border rounded-sm font-bold transition text-xs cursor-pointer ${
-                          paperTone === tone.key
-                            ? "bg-[#8b4513] border-[#8b4513] text-[#f5deb3] shadow-inner"
-                            : "bg-[#dcd0b8] border-[#8b4513]/40 text-[#4a3728] hover:bg-[#8b4513]/10"
-                        }`}
-                      >
-                        {tone.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {theme === "fantasy" && (
-                  <label className="flex items-center gap-2 text-xs font-bold text-[#4a3728] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={enableParchmentTexture}
-                      onChange={(e) => setEnableParchmentTexture(e.target.checked)}
-                      className="accent-[#8b4513]"
-                    />
-                    <span>啟用羊皮紙古樸纖維質地</span>
-                  </label>
                 )}
-
-                <label className="flex items-center gap-2 text-xs font-bold text-[#4a3728] cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={enableCoffeeStains}
-                    onChange={(e) => setEnableCoffeeStains(e.target.checked)}
-                    className="accent-[#8b4513]"
-                  />
-                  <span>{theme === "republican" ? "启用油墨晕渍污斑效果" : "启用微黄茶渍/古物晕染污渍"}</span>
-                </label>
-
-                <p className="text-[11px] text-[#4a3728]/80 leading-relaxed font-serif">
-                  {theme === "republican"
-                    ? "提示：如在洁白新闻纸上直接打印，可取消勾选油墨污斑，打印背景将为纯白，更贴合实物纸张效果。"
-                    : "提示：如果您打算在真正的泛黄复古美术纸上直接进行打印，可以取消勾选这两项背景仿真效果，这样打印出来的背景会是纯白的，能更完美地贴合实物艺术纸的自带纹理！"
-                  }
-                </p>
-              </div>
-
-              {/* AI Gemini API Key Configuration (Pure Frontend Support) */}
-              <h3 className="text-xs font-bold text-[#8b4513] uppercase tracking-widest pt-3 pb-1 border-b border-[#8b4513]/30 flex items-center justify-between">
-                <span>AI 智能撰稿配置</span>
-                <span className="text-[10px] text-[#8b4513]/70 font-normal">纯前端/本地离线</span>
-              </h3>
-
-              <div className="space-y-2 p-2.5 bg-[#dcd0b8]/50 border border-[#8b4513]/30 rounded">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-[#4a3728]">Gemini API Key (可选)</label>
-                  <button
-                    type="button"
-                    onClick={() => setShowApiKeyInput(!showApiKeyInput)}
-                    className="text-[10px] text-[#8b4513] hover:underline"
-                  >
-                    {showApiKeyInput ? "隐藏" : "显示明文"}
-                  </button>
-                </div>
-                <input
-                  type={showApiKeyInput ? "text" : "password"}
-                  value={geminiApiKey}
-                  onChange={(e) => setGeminiApiKey(e.target.value)}
-                  placeholder="在此输入您的 API Key（以 AIzaSy 开头）"
-                  className="w-full bg-[#e8dcc4] border border-[#8b4513] rounded px-2.5 py-1 text-xs text-[#2c241e] font-mono focus:outline-none focus:ring-1 focus:ring-[#8b4513]"
-                />
-                <p className="text-[10px] text-[#4a3728]/70 leading-relaxed font-serif">
-                  <strong>💡 纯前端运行说明</strong>：此密钥仅保存在您本地浏览器的 localStorage 中，不经过任何第三方服务器。配置后，纯前端单文件亦可直接呼叫官方 AI 模型；若未配置或处于离线断网状态，系统将<strong>自动无缝切换至内置的古典离线撰稿语料库</strong>，确保随时可用。
-                </p>
-              </div>
             </div>
           )}
 

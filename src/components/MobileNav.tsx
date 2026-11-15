@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   Scissors, Type as FontIcon, Layout, Settings, X, ChevronUp,
   Feather, Save, Undo2, Redo2, Printer, FileText, Image as ImageIcon, Plus, BookOpen,
-  Coins as CoinsIcon
+  Coins as CoinsIcon, Boxes, SlidersHorizontal
 } from "lucide-react";
 import { useNewspaper } from "../context/NewspaperContext";
 import { ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock } from "../types";
@@ -90,10 +90,8 @@ export default function MobileNav() {
     : "公告" : "";
 
   const navTabs = [
-    { id: "blocks", icon: <Scissors className="w-5 h-5" />, label: "正文" },
-    { id: "header", icon: <FontIcon className="w-5 h-5" />, label: "报头" },
-    { id: "layout", icon: <Layout className="w-5 h-5" />, label: "版面" },
-    { id: "settings", icon: <Settings className="w-5 h-5" />, label: "印刷" },
+    { id: "blocks", icon: <Boxes className="w-4 h-4" />, label: "素材库" },
+    { id: "inspector", icon: <SlidersHorizontal className="w-4 h-4" />, label: "排版与全局" },
   ] as const;
 
   return (

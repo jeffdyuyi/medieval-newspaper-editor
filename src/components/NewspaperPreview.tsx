@@ -486,8 +486,7 @@ export default function NewspaperPreview() {
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           selectBlockAndContext(block.id, col.id, row.id);
-                                          setActiveTab("blocks");
-                                          setBlockTabMode("edit");
+                                          setActiveTab("inspector");
                                         }}
                                         title="在左侧打开此区块的高级排版配置"
                                         className="p-1 hover:bg-[#8b4513]/15 rounded-sm text-[#8b4513] hover:text-[#2c241e]"

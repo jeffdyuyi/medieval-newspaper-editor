@@ -61,11 +61,13 @@ export function sanitizeNewspaperData(data: NewspaperData): NewspaperData {
   };
 }
 
+export type SidebarTab = "blocks" | "inspector" | "header" | "layout" | "settings";
+
 interface NewspaperContextType {
   newspaperData: NewspaperData;
   setNewspaperData: React.Dispatch<React.SetStateAction<NewspaperData>>;
-  activeTab: "header" | "layout" | "blocks" | "settings";
-  setActiveTab: React.Dispatch<React.SetStateAction<"header" | "layout" | "blocks" | "settings">>;
+  activeTab: SidebarTab;
+  setActiveTab: React.Dispatch<React.SetStateAction<SidebarTab>>;
   blockTabMode: "edit" | "create";
   setBlockTabMode: React.Dispatch<React.SetStateAction<"edit" | "create">>;
   selectedBlockId: string | null;
@@ -194,7 +196,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     return !saved && !chosen;
   });
 
-  const [activeTab, setActiveTab] = useState<"header" | "layout" | "blocks" | "settings">("blocks");
+  const [activeTab, setActiveTab] = useState<SidebarTab>("blocks");
   const [blockTabMode, setBlockTabMode] = useState<"edit" | "create">("create");
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(() => {
     const saved = localStorage.getItem("medieval_newspaper_data");
