@@ -1,50 +1,89 @@
 /**
  * InlineEditor.tsx
- * 双击报纸上的 Block 时浮现的就地编辑覆盖层。
- * 支持：标题文字、文章标题 / 副标题 / 段落、图片说明、广告内容。
- * 轻量设计：直接覆盖在原区块位置上，失焦或按 Esc/Enter 关闭。
+ * 双击报纸上的任何文本元素时浮现的所见即所得轻量就地编辑覆盖层（参考图3设计）。
+ * 支持：报刊大标题、副标题标语、期号、日期、售价、出版地、页脚文案，以及所有文章/大标题/图片/告示模块。
+ * 纯粹快速修改文本内容，失焦、按 Enter（单行）或 Ctrl+Enter（多行）直接保存，Esc 取消。
  */
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { X, Check } from "lucide-react";
-import { Block, ArticleBlock, HeadlineBlock, ImageBlock, AdBlock } from "../types";
+import { Block, ArticleBlock, HeadlineBlock, ImageBlock, AdBlock, NewspaperHeader } from "../types";
 import { useNewspaper } from "../context/NewspaperContext";
 
 // ── Types ─────────────────────────────────────────────────────────────
 export type InlineEditTarget =
-  | { blockId: string; field: "headline.text" }
-  | { blockId: string; field: "headline.subtitle" }
-  | { blockId: string; field: "article.title" }
-  | { blockId: string; field: "article.subtitle" }
-  | { blockId: string; field: "article.author" }
-  | { blockId: string; field: "article.paragraphs"; paragraphIndex: number }
-  | { blockId: string; field: "image.caption" }
-  | { blockId: string; field: "ad.title" }
-  | { blockId: string; field: "ad.content" };
+  | {
+      type: "block";
+      blockId: string;
+      field:
+        | "headline.text"
+        | "headline.subtitle"
+        | "article.title"
+        | "article.subtitle"
+        | "article.author"
+        | "article.publishOffice"
+        | "article.paragraphs"
+        | "image.caption"
+        | "ad.title"
+        | "ad.content"
+        | "ad.price"
+        | "ad.merchant";
+      paragraphIndex?: number;
+    }
+  | {
+      type: "header";
+      field:
+        | "title"
+        | "subtitle"
+        | "issueNo"
+        | "date"
+        | "location"
+        | "price"
+        | "publisherEn"
+        | "publisherOffice"
+        | "royalTitle"
+        | "footerLeft"
+        | "footerRight";
+    };
 
 interface InlineEditorProps {
   target: InlineEditTarget | null;
-  anchorRect: DOMRect | null; // position of the clicked element
+  anchorRect: DOMRect | null;
   onClose: () => void;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────
-function getInitialValue(block: Block, target: InlineEditTarget): string {
+function getInitialBlockValue(block: Block, target: Extract<InlineEditTarget, { type: "block" }>): string {
   switch (target.field) {
-    case "headline.text":     return (block as HeadlineBlock).text;
-    case "headline.subtitle": return (block as HeadlineBlock).subtitle;
-    case "article.title":     return (block as ArticleBlock).title;
-    case "article.subtitle":  return (block as ArticleBlock).subtitle;
-    case "article.author":    return (block as ArticleBlock).author;
+    case "headline.text":
+      return (block as HeadlineBlock).text || "";
+    case "headline.subtitle":
+      return (block as HeadlineBlock).subtitle || "";
+    case "article.title":
+      return (block as ArticleBlock).title || "";
+    case "article.subtitle":
+      return (block as ArticleBlock).subtitle || "";
+    case "article.author":
+      return (block as ArticleBlock).author || "";
+    case "article.publishOffice":
+      return (block as ArticleBlock).publishOffice || "";
     case "article.paragraphs":
-      return (block as ArticleBlock).paragraphs[target.paragraphIndex] ?? "";
-    case "image.caption":     return (block as ImageBlock).caption;
-    case "ad.title":          return (block as AdBlock).title;
-    case "ad.content":        return (block as AdBlock).content;
-    default:                  return "";
+      return (block as ArticleBlock).paragraphs[target.paragraphIndex ?? 0] ?? "";
+    case "image.caption":
+      return (block as ImageBlock).caption || "";
+    case "ad.title":
+      return (block as AdBlock).title || "";
+    case "ad.content":
+      return (block as AdBlock).content || "";
+    case "ad.price":
+      return (block as AdBlock).price || "";
+    case "ad.merchant":
+      return (block as AdBlock).merchant || "";
+    default:
+      return "";
   }
 }
 
-function applyEdit(block: Block, target: InlineEditTarget, value: string): Block {
+function applyBlockEdit(block: Block, target: Extract<InlineEditTarget, { type: "block" }>, value: string): Block {
   switch (target.field) {
     case "headline.text":
       return { ...block, text: value } as HeadlineBlock;
@@ -56,9 +95,12 @@ function applyEdit(block: Block, target: InlineEditTarget, value: string): Block
       return { ...block, subtitle: value } as ArticleBlock;
     case "article.author":
       return { ...block, author: value } as ArticleBlock;
+    case "article.publishOffice":
+      return { ...block, publishOffice: value } as ArticleBlock;
     case "article.paragraphs": {
+      const idx = target.paragraphIndex ?? 0;
       const paras = [...(block as ArticleBlock).paragraphs];
-      paras[target.paragraphIndex] = value;
+      paras[idx] = value;
       return { ...block, paragraphs: paras } as ArticleBlock;
     }
     case "image.caption":
@@ -67,60 +109,99 @@ function applyEdit(block: Block, target: InlineEditTarget, value: string): Block
       return { ...block, title: value } as AdBlock;
     case "ad.content":
       return { ...block, content: value } as AdBlock;
+    case "ad.price":
+      return { ...block, price: value } as AdBlock;
+    case "ad.merchant":
+      return { ...block, merchant: value } as AdBlock;
     default:
       return block;
   }
 }
 
-function getFieldLabel(field: InlineEditTarget["field"]): string {
-  const labels: Record<string, string> = {
-    "headline.text": "标题文字",
-    "headline.subtitle": "副标题",
-    "article.title": "文章标题",
+function getFieldLabel(target: InlineEditTarget): string {
+  if (target.type === "header") {
+    const headerLabels: Record<string, string> = {
+      title: "报刊大标题",
+      subtitle: "报刊副标题 / 标语",
+      issueNo: "报刊期号",
+      date: "出版日期",
+      location: "发行地点",
+      price: "报刊售价",
+      publisherEn: "外文报头 / 英文名",
+      publisherOffice: "承印印务署",
+      royalTitle: "皇家双徽题注",
+      footerLeft: "页脚左侧发行文案",
+      footerRight: "页脚右侧版权文案",
+    };
+    return headerLabels[target.field] || target.field;
+  }
+
+  const blockLabels: Record<string, string> = {
+    "headline.text": "大字标题",
+    "headline.subtitle": "标题副题",
+    "article.title": "文章主标题",
     "article.subtitle": "文章副标题",
     "article.author": "作者署名",
-    "article.paragraphs": "段落正文",
-    "image.caption": "图片说明",
-    "ad.title": "广告标题",
-    "ad.content": "广告内容",
+    "article.publishOffice": "记录印务署",
+    "article.paragraphs": "正文段落",
+    "image.caption": "插图配文",
+    "ad.title": "告示商号主题",
+    "ad.content": "告示宣传内容",
+    "ad.price": "标价 / 酬金",
+    "ad.merchant": "商号发布人",
   };
-  return labels[field] ?? field;
+  return blockLabels[target.field] || target.field;
 }
 
-const MULTILINE_FIELDS: Array<InlineEditTarget["field"]> = [
-  "article.paragraphs",
-  "article.subtitle",
-  "ad.content",
-  "headline.subtitle",
-];
+function checkIsMultiline(target: InlineEditTarget | null): boolean {
+  if (!target) return false;
+  if (target.type === "header") {
+    return false;
+  }
+  return (
+    target.field === "article.paragraphs" ||
+    target.field === "article.subtitle" ||
+    target.field === "ad.content" ||
+    target.field === "headline.subtitle"
+  );
+}
 
 // ── Component ─────────────────────────────────────────────────────────
 export default function InlineEditor({ target, anchorRect, onClose }: InlineEditorProps) {
-  const { newspaperData, updateBlock, theme } = useNewspaper();
+  const { newspaperData, updateBlock, updateHeader, theme } = useNewspaper();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
   const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
 
   const isRep = theme === "republican";
-  const isMultiline = target ? MULTILINE_FIELDS.includes(target.field) : false;
+  const isMultiline = checkIsMultiline(target);
 
-  // Load initial value directly using target.blockId to avoid stale selectedBlockId
+  // Load initial value
   useEffect(() => {
     if (!target) return;
-    let block: Block | null = null;
+
+    if (target.type === "header") {
+      const headerVal = newspaperData.header[target.field] || "";
+      setValue(headerVal);
+      return;
+    }
+
+    // Target is block
+    let foundBlock: Block | null = null;
     for (const r of newspaperData.rows) {
       for (const c of r.columns) {
-        const found = c.blocks.find(b => b.id === target.blockId);
+        const found = c.blocks.find((b) => b.id === target.blockId);
         if (found) {
-          block = found;
+          foundBlock = found;
           break;
         }
       }
-      if (block) break;
+      if (foundBlock) break;
     }
-    if (!block) return;
-    setValue(getInitialValue(block, target));
+
+    if (!foundBlock) return;
+    setValue(getInitialBlockValue(foundBlock, target));
   }, [target, newspaperData]);
 
   // Position the editor near the anchor element with boundary protection
@@ -128,14 +209,13 @@ export default function InlineEditor({ target, anchorRect, onClose }: InlineEdit
     if (!anchorRect) return;
     const viewportW = window.innerWidth;
     const viewportH = window.innerHeight;
-    const editorW = Math.min(Math.max(anchorRect.width, 280), 460);
+    const editorW = Math.min(Math.max(anchorRect.width, 280), 480);
     let left = anchorRect.left;
     if (left + editorW > viewportW - 16) left = viewportW - editorW - 16;
     if (left < 8) left = 8;
 
     let top = anchorRect.top;
-    // Estimated popup height: 180px for multiline, 90px for singleline
-    const estimatedH = isMultiline ? 200 : 100;
+    const estimatedH = isMultiline ? 220 : 110;
     if (top + estimatedH > viewportH - 16) {
       top = Math.max(16, viewportH - estimatedH - 16);
     }
@@ -146,22 +226,42 @@ export default function InlineEditor({ target, anchorRect, onClose }: InlineEdit
   // Auto-focus
   useEffect(() => {
     if (!target) return;
-    setTimeout(() => {
-      (isMultiline ? textareaRef.current : inputRef.current)?.focus();
-      (isMultiline ? textareaRef.current : inputRef.current)?.select();
-    }, 50);
+    const timer = setTimeout(() => {
+      const el = isMultiline ? textareaRef.current : inputRef.current;
+      el?.focus();
+      el?.select();
+    }, 60);
+    return () => clearTimeout(timer);
   }, [target, isMultiline]);
 
   const commit = useCallback(() => {
     if (!target) return;
-    updateBlock(target.blockId, (block) => applyEdit(block, target, value));
+    if (target.type === "header") {
+      updateHeader((prev: NewspaperHeader) => ({
+        ...prev,
+        [target.field]: value,
+      }));
+    } else {
+      updateBlock(target.blockId, (block) => applyBlockEdit(block, target, value));
+    }
     onClose();
-  }, [target, value, updateBlock, onClose]);
+  }, [target, value, updateHeader, updateBlock, onClose]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") { onClose(); return; }
-    if (!isMultiline && e.key === "Enter") { e.preventDefault(); commit(); return; }
-    if (isMultiline && e.key === "Enter" && (e.ctrlKey || e.metaKey)) { commit(); return; }
+    if (e.key === "Escape") {
+      onClose();
+      return;
+    }
+    if (!isMultiline && e.key === "Enter") {
+      e.preventDefault();
+      commit();
+      return;
+    }
+    if (isMultiline && e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      commit();
+      return;
+    }
   };
 
   if (!target || !anchorRect) return null;
@@ -169,66 +269,80 @@ export default function InlineEditor({ target, anchorRect, onClose }: InlineEdit
   const bg = isRep ? "#f4f3ef" : "#fdf6e3";
   const border = isRep ? "#1a1a1a" : "#8b4513";
   const textColor = isRep ? "#0d0d0d" : "#2b221a";
-  const labelColor = isRep ? "#1a1a1a99" : "#8b451399";
+  const labelColor = isRep ? "#1a1a1a" : "#8b4513";
 
   return (
     // Full-screen transparent overlay to catch outside clicks
     <div
-      className="fixed inset-0 z-[9999]"
-      onMouseDown={(e) => { if (e.target === e.currentTarget) { commit(); } }}
+      className="fixed inset-0 z-[9999] no-print"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) {
+          commit();
+        }
+      }}
     >
-      {/* Editor popup */}
+      {/* Editor popup card styled exactly like reference image 3 */}
       <div
-        className="absolute shadow-2xl rounded"
+        className="absolute shadow-2xl rounded border-2 p-0.5 animate-fadeIn"
         style={{
           top: position.top,
           left: position.left,
           width: position.width,
-          background: bg,
-          border: `2px solid ${border}`,
+          backgroundColor: bg,
+          borderColor: border,
           fontFamily: "serif",
         }}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+        {/* Header toolbar */}
         <div
-          className="flex items-center justify-between px-2.5 py-1.5 border-b text-[11px] font-bold"
+          className="flex items-center justify-between px-3 py-1.5 border-b text-[12px] font-bold select-none"
           style={{ borderColor: `${border}33`, color: labelColor }}
         >
-          <span>✏ 编辑：{getFieldLabel(target.field)}</span>
-          <div className="flex items-center gap-1">
-            <span className="text-[9px] opacity-60">
+          <span className="flex items-center gap-1">
+            <span className="opacity-70">✏ 编辑：</span>
+            <span>{getFieldLabel(target)}</span>
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] opacity-60 font-sans font-normal">
               {isMultiline ? "Ctrl+Enter 确认" : "Enter 确认 · Esc 取消"}
             </span>
             <button
+              type="button"
               onClick={commit}
-              className="p-1 rounded hover:bg-black/5 transition"
-              title="确认编辑"
+              className="p-1 rounded hover:bg-black/10 transition cursor-pointer"
+              title="确认保存并应用修改"
             >
-              <Check className="w-3.5 h-3.5" style={{ color: border }} />
+              <Check className="w-4 h-4" style={{ color: border }} />
             </button>
             <button
+              type="button"
               onClick={onClose}
-              className="p-1 rounded hover:bg-black/5 transition"
-              title="取消"
+              className="p-1 rounded hover:bg-black/10 transition cursor-pointer"
+              title="取消本次编辑"
             >
-              <X className="w-3.5 h-3.5" style={{ color: `${textColor}60` }} />
+              <X className="w-4 h-4" style={{ color: `${textColor}99` }} />
             </button>
           </div>
         </div>
 
         {/* Input area */}
-        <div className="p-2">
+        <div className="p-2.5">
           {isMultiline ? (
             <textarea
               ref={textareaRef}
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              rows={4}
-              className="w-full text-sm leading-relaxed resize-y outline-none bg-transparent p-1"
-              style={{ color: textColor, fontFamily: "serif", minHeight: 80 }}
-              placeholder="在此输入内容…"
+              rows={5}
+              className="w-full text-sm leading-relaxed resize-y outline-none bg-transparent p-1 border rounded"
+              style={{
+                color: textColor,
+                fontFamily: "serif",
+                borderColor: `${border}33`,
+                minHeight: 90,
+              }}
+              placeholder="在此输入文本内容…"
             />
           ) : (
             <input
@@ -237,13 +351,13 @@ export default function InlineEditor({ target, anchorRect, onClose }: InlineEdit
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full text-sm outline-none bg-transparent p-1 border-b"
+              className="w-full text-sm outline-none bg-transparent p-1.5 border rounded"
               style={{
                 color: textColor,
                 fontFamily: "serif",
                 borderColor: `${border}33`,
               }}
-              placeholder="在此输入内容…"
+              placeholder="在此输入文本内容…"
             />
           )}
         </div>
@@ -251,4 +365,3 @@ export default function InlineEditor({ target, anchorRect, onClose }: InlineEdit
     </div>
   );
 }
-

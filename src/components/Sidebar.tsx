@@ -11,6 +11,7 @@ import { ALL_CLIPART } from "../clipart";
 import { FONT_OPTIONS } from "../constants";
 import { generateArticleAI } from "../utils/aiGenerator";
 import BlockPalette from "./BlockPalette";
+import MarkdownToolbar from "./MarkdownToolbar";
 
 export default function Sidebar() {
   const {
@@ -40,6 +41,8 @@ export default function Sidebar() {
   const [aiTopic, setAiTopic] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const articleTextareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const adTextareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const handleAiGenerate = async () => {
     if (!aiTopic.trim() || !selectedBlockId) return;
@@ -746,19 +749,31 @@ export default function Sidebar() {
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-xs font-bold text-[#8b4513] flex justify-between">
+                          <label className="text-xs font-bold text-[#8b4513] flex justify-between items-center">
                             <span>文章正文 (换行自动分割段落)</span>
                             <span className="text-[10px] text-[#8b4513] opacity-70">段落数: {(selectedBlock as ArticleBlock).paragraphs.length}</span>
                           </label>
+
+                          {/* 聚合美观的 Markdown 富文本格式工具栏 */}
+                          <MarkdownToolbar
+                            textareaRef={articleTextareaRef}
+                            value={(selectedBlock as ArticleBlock).paragraphs.join("\n\n")}
+                            onChange={(val) => {
+                              const paras = val.split(/\n+/).filter(p => p.trim() !== "");
+                              updateBlock(selectedBlock.id, b => ({ ...b, paragraphs: paras } as ArticleBlock));
+                            }}
+                          />
+
                           <textarea 
+                            ref={articleTextareaRef}
                             rows={8}
                             value={(selectedBlock as ArticleBlock).paragraphs.join("\n\n")}
                             onChange={(e) => {
                               const paras = e.target.value.split(/\n+/).filter(p => p.trim() !== "");
                               updateBlock(selectedBlock.id, b => ({ ...b, paragraphs: paras } as ArticleBlock));
                             }}
-                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-2 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] font-serif text-xs leading-relaxed"
-                            placeholder="在此输入正文，换行将会自动生成下一个段落..."
+                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded-b px-3 py-2 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] font-serif text-xs leading-relaxed -mt-1"
+                            placeholder="在此输入正文，支持使用上方工具栏快捷格式化加粗、红字、引用、列表等..."
                           />
                         </div>
                       </div>
@@ -1158,12 +1173,21 @@ export default function Sidebar() {
 
                         <div className="space-y-1">
                           <label className="text-xs font-bold text-[#8b4513]">告示宣传内容</label>
+
+                          {/* 聚合美观的 Markdown 富文本格式工具栏 */}
+                          <MarkdownToolbar
+                            textareaRef={adTextareaRef}
+                            value={(selectedBlock as AdBlock).content}
+                            onChange={(val) => updateBlock(selectedBlock.id, b => ({ ...b, content: val } as AdBlock))}
+                          />
+
                           <textarea 
+                            ref={adTextareaRef}
                             rows={4}
                             value={(selectedBlock as AdBlock).content}
                             onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, content: e.target.value } as AdBlock))}
-                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-2 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs leading-relaxed font-serif"
-                            placeholder="写入大酒馆、铁匠铺、魔法行会的招募或促销告示..."
+                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded-b px-3 py-2 text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513] text-xs leading-relaxed font-serif -mt-1"
+                            placeholder="写入大酒馆、铁匠铺、魔法行会的招募或促销告示，支持使用上方格式工具栏..."
                           />
                         </div>
 
