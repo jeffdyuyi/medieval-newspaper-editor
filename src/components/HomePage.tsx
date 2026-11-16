@@ -239,3 +239,4 @@ export default function HomePage({ onSelectTheme, onOpenAbout }: HomePageProps) 
     </div>
   );
 }
+
