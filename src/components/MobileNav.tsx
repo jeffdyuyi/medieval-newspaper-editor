@@ -8,6 +8,7 @@ import logoUrl from "../assets/logo";
 import { useNewspaper } from "../context/NewspaperContext";
 import { ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock } from "../types";
 import { ALL_CLIPART } from "../clipart";
+import BlockPalette from "./BlockPalette";
 
 export default function MobileNav() {
   const {
@@ -558,6 +559,16 @@ export default function MobileNav() {
               </div>
             )}
 
+            {/* RICH WYSIWYG BLOCKS in Drawer */}
+            {["bounty", "briefs", "table", "seal", "letter", "obituary"].includes(selectedBlock.type) && (
+              <div className="space-y-2 p-3 bg-[#dcd0b8]/60 border border-[#8b4513]/30 rounded text-xs text-[#2c241e] font-serif leading-relaxed">
+                <p className="font-bold text-[#8b4513]">✨ 所见即所得编辑</p>
+                <p className="text-[11px] text-[#4a3728]">
+                  该【{blockTypeName}】已深度支持原地实时打字。在报纸画布上直接点击任意文字或表格单元格即可修改，零弹窗零干扰。
+                </p>
+              </div>
+            )}
+
             {/* Add new block shortcut */}
             <div className="border-t border-[#8b4513]/20 pt-3">
               <p className="text-xs font-bold text-[#8b4513] mb-2">在当前栏位追加新区块</p>
@@ -597,83 +608,10 @@ export default function MobileNav() {
           </div>
 
           {/* Drawer Content */}
-          <div className="overflow-y-auto p-4 space-y-4 flex-1 text-sm scrollbar-thin">
+          <div className="overflow-y-auto p-3 space-y-4 flex-1 text-sm scrollbar-thin">
             {activeTab === "blocks" ? (
               <div className="space-y-3 font-serif">
-                <div className="p-2 bg-[#8b4513]/10 border border-[#8b4513]/30 rounded text-xs text-[#8b4513]">
-                  <span>快速添加版式区块至指定栏位</span>
-                </div>
-                {/* Target column selector */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#8b4513] block">目标栏位</label>
-                  <select
-                    value={activeTargetColId}
-                    onChange={(e) => setSelectedColumnId(e.target.value)}
-                    className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-2.5 py-1.5 text-xs text-[#2c241e] font-serif font-bold"
-                  >
-                    {targetColOptions.map(opt => (
-                      <option key={opt.id} value={opt.id}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-                {/* Quick Add buttons */}
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => { addBlockToColumn(activeTargetColId, "article"); setDrawerOpen(null); }}
-                    className="p-2.5 bg-[#dcd0b8]/40 border border-[#8b4513]/30 rounded text-left flex items-center gap-2 hover:bg-[#8b4513]/10 cursor-pointer"
-                  >
-                    <FileText className="w-4 h-4 text-[#8b4513]" />
-                    <div>
-                      <div className="font-bold text-xs text-[#2c241e]">见闻文章</div>
-                      <div className="text-[10px] text-[#4a3728]/70">正文多段落</div>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { addBlockToColumn(activeTargetColId, "headline"); setDrawerOpen(null); }}
-                    className="p-2.5 bg-[#dcd0b8]/40 border border-[#8b4513]/30 rounded text-left flex items-center gap-2 hover:bg-[#8b4513]/10 cursor-pointer"
-                  >
-                    <FontIcon className="w-4 h-4 text-[#8b4513]" />
-                    <div>
-                      <div className="font-bold text-xs text-[#2c241e]">装饰大标</div>
-                      <div className="text-[10px] text-[#4a3728]/70">头条大字标</div>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { addBlockToColumn(activeTargetColId, "image"); setDrawerOpen(null); }}
-                    className="p-2.5 bg-[#dcd0b8]/40 border border-[#8b4513]/30 rounded text-left flex items-center gap-2 hover:bg-[#8b4513]/10 cursor-pointer"
-                  >
-                    <ImageIcon className="w-4 h-4 text-[#8b4513]" />
-                    <div>
-                      <div className="font-bold text-xs text-[#2c241e]">版画插图</div>
-                      <div className="text-[10px] text-[#4a3728]/70">木刻版画</div>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { addBlockToColumn(activeTargetColId, "divider"); setDrawerOpen(null); }}
-                    className="p-2.5 bg-[#dcd0b8]/40 border border-[#8b4513]/30 rounded text-left flex items-center gap-2 hover:bg-[#8b4513]/10 cursor-pointer"
-                  >
-                    <Scissors className="w-4 h-4 text-[#8b4513]" />
-                    <div>
-                      <div className="font-bold text-xs text-[#2c241e]">花式隔线</div>
-                      <div className="text-[10px] text-[#4a3728]/70">徽章分隔条</div>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { addBlockToColumn(activeTargetColId, "ad"); setDrawerOpen(null); }}
-                    className="col-span-2 p-2.5 bg-[#dcd0b8]/40 border border-[#8b4513]/30 rounded text-left flex items-center gap-2 hover:bg-[#8b4513]/10 cursor-pointer"
-                  >
-                    <CoinsIcon className="w-4 h-4 text-[#8b4513]" />
-                    <div>
-                      <div className="font-bold text-xs text-[#2c241e]">行商布告</div>
-                      <div className="text-[10px] text-[#4a3728]/70">药水招募公告框</div>
-                    </div>
-                  </button>
-                </div>
+                <BlockPalette theme={theme} />
               </div>
             ) : (
               <div className="space-y-4 font-serif">

@@ -185,6 +185,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     const timer = setTimeout(() => {
       try {
         localStorage.setItem(`newspaper_draft_${newspaperData.theme}`, JSON.stringify(newspaperData));
+        localStorage.setItem("medieval_newspaper_data", JSON.stringify(newspaperData));
         setAutoSaveStatus("saved");
       } catch (e) {
         console.error("Auto save failed", e);
@@ -380,14 +381,6 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     reader.readAsDataURL(file);
     e.target.value = "";
   };
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("medieval_newspaper_data", JSON.stringify(newspaperData));
-    } catch (e) {
-      console.warn("localStorage quota exceeded when saving newspaper data", e);
-    }
-  }, [newspaperData]);
 
   useEffect(() => {
     const settings = {
