@@ -3,7 +3,8 @@ import {
   RefreshCw, HelpCircle, Scissors, Type as FontIcon, 
   Settings, FileText, Image as ImageIcon, 
   Trash2, Printer, Download, Undo2, Redo2, BookOpen, Save,
-  Coins as CoinsIcon, Sparkles, Boxes, SlidersHorizontal
+  Coins as CoinsIcon, Sparkles, Boxes, SlidersHorizontal,
+  Camera, CircleDot, RotateCw, ZoomIn, ZoomOut
 } from "lucide-react";
 import logoUrl from "../assets/logo";
 import { useNewspaper } from "../context/NewspaperContext";
@@ -39,8 +40,53 @@ export default function Sidebar() {
     undo, redo, canUndo, canRedo, setShowSaveManager,
     theme, triggerImageUpload,
     geminiApiKey, setGeminiApiKey,
-    navigateToHome, autoSaveStatus
+    navigateToHome, autoSaveStatus,
+    selectedSealId, setSelectedSealId,
+    updateFloatingSeal, deleteFloatingSeal, addFloatingSeal
   } = useNewspaper();
+
+  const bountySidebarInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSidebarBountyUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedBlockId) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const srcUrl = event.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 1200;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressed = canvas.toDataURL("image/jpeg", 0.85);
+          updateBlock(selectedBlockId, blk => ({
+            ...blk,
+            avatarType: "image",
+            avatarSrc: compressed,
+          } as BountyBlock));
+        }
+      };
+      img.src = srcUrl;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
 
   const [aiTopic, setAiTopic] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -201,6 +247,7 @@ export default function Sidebar() {
   };
 
   const selectedBlock = findSelectedBlock();
+  const selectedSeal = newspaperData.floatingSeals?.find(s => s.id === selectedSealId);
 
   return (
     <>
@@ -314,7 +361,7 @@ export default function Sidebar() {
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span className="font-bold tracking-wider">
-              {selectedBlock ? "🎨 区块排版" : "🗞️ 整版属性"}
+              {selectedBlock ? "🎨 区块排版" : selectedSeal ? "🔏 印章设置" : "🗞️ 整版属性"}
             </span>
           </button>
         </div>
@@ -1091,28 +1138,50 @@ export default function Sidebar() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => updateBlock(selectedBlock.id, b => ({ ...b, avatarType: "image" } as BountyBlock))}
-                              className={`py-1 text-xs font-bold rounded-xs border cursor-pointer ${
+                              onClick={() => {
+                                updateBlock(selectedBlock.id, b => ({ ...b, avatarType: "image" } as BountyBlock));
+                                bountySidebarInputRef.current?.click();
+                              }}
+                              className={`py-1 text-xs font-bold rounded-xs border cursor-pointer flex items-center justify-center gap-1 ${
                                 (selectedBlock as BountyBlock).avatarType === "image"
                                   ? "bg-[#8b4513] text-[#f5deb3] border-[#5a2d0c]"
                                   : "bg-[#dcd0b8] text-[#8b4513] border-[#8b4513]/40"
                               }`}
                             >
-                              自定义图片 URL
+                              <Camera className="w-3 h-3" />
+                              <span>上传自定义肖像</span>
                             </button>
                           </div>
                         </div>
 
+                        {/* Local Upload or URL input */}
                         {(selectedBlock as BountyBlock).avatarType === "image" ? (
-                          <div className="space-y-1">
-                            <label className="text-xs font-bold text-[#8b4513]">嫌犯照片 URL</label>
+                          <div className="space-y-2 p-2 bg-[#dcd0b8]/40 border border-[#8b4513]/30 rounded-xs">
+                            <button
+                              type="button"
+                              onClick={() => bountySidebarInputRef.current?.click()}
+                              className="w-full py-1.5 px-3 bg-[#8b4513] text-[#f5deb3] rounded-xs text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-[#73370d] transition-colors cursor-pointer shadow-xs"
+                            >
+                              <Camera className="w-3.5 h-3.5" />
+                              <span>从电脑上传本地肖像照片</span>
+                            </button>
                             <input
-                              type="text"
-                              value={(selectedBlock as BountyBlock).avatarSrc || ""}
-                              onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, avatarSrc: e.target.value } as BountyBlock))}
-                              placeholder="https://..."
-                              className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-2.5 py-1 text-xs text-[#2c241e] font-mono"
+                              type="file"
+                              ref={bountySidebarInputRef}
+                              onChange={handleSidebarBountyUpload}
+                              accept="image/*"
+                              className="hidden"
                             />
+                            <div className="space-y-1">
+                              <label className="text-[10px] text-[#8b4513]/80 block">或输入嫌犯图片网络链接：</label>
+                              <input
+                                type="text"
+                                value={(selectedBlock as BountyBlock).avatarSrc || ""}
+                                onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, avatarSrc: e.target.value } as BountyBlock))}
+                                placeholder="https://..."
+                                className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-2 py-1 text-[11px] text-[#2c241e] font-mono"
+                              />
+                            </div>
                           </div>
                         ) : (
                           <div className="space-y-1">
@@ -1131,6 +1200,38 @@ export default function Sidebar() {
                             </select>
                           </div>
                         )}
+
+                        {/* Portrait Size Slider */}
+                        <div className="space-y-1 pt-1 border-t border-[#8b4513]/20">
+                          <div className="flex justify-between text-xs font-bold text-[#8b4513]">
+                            <span>画像显示尺寸</span>
+                            <span>{(selectedBlock as BountyBlock).avatarSize || 72} px</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="48"
+                            max="180"
+                            step="6"
+                            value={(selectedBlock as BountyBlock).avatarSize || 72}
+                            onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, avatarSize: parseInt(e.target.value) } as BountyBlock))}
+                            className="w-full accent-[#8b4513]"
+                          />
+                        </div>
+
+                        {/* Portrait Filter Tone */}
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#8b4513]">肖像复古滤镜风格</label>
+                          <select
+                            value={(selectedBlock as BountyBlock).avatarFilter || "woodblock"}
+                            onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, avatarFilter: e.target.value as any } as BountyBlock))}
+                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] text-xs focus:outline-none"
+                          >
+                            <option value="woodblock">粗粝木刻版画 (Woodblock Print)</option>
+                            <option value="sepia">泛黄旧照质地 (Sepia Tone)</option>
+                            <option value="high-contrast">高对比黑白油墨 (High Contrast)</option>
+                            <option value="none">原始彩照相片 (Original Color)</option>
+                          </select>
+                        </div>
                       </div>
                     )}
 
@@ -1302,8 +1403,138 @@ export default function Sidebar() {
                       </button>
                     </div>
                   </div>
+                ) : selectedSeal ? (
+                  /* SUB-VIEW B: FLOATING SEAL INSPECTOR */
+                  <div className="space-y-4 animate-fadeIn font-serif">
+                    <div className="pb-3 border-b border-[#8b4513] flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold uppercase tracking-widest text-[#8b4513] flex items-center gap-1.5">
+                          <span>🔏</span>
+                          官方自由印信图层
+                        </span>
+                        <button 
+                          type="button"
+                          onClick={() => setSelectedSealId(null)}
+                          className="text-[10px] text-[#8b4513]/70 hover:text-[#2c241e] underline cursor-pointer"
+                        >
+                          (切至全局)
+                        </button>
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => deleteFloatingSeal(selectedSeal.id)}
+                        className="text-xs text-red-800 hover:text-red-900 border border-red-700/50 flex items-center gap-1 px-2 py-1 rounded transition cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>撕除印章</span>
+                      </button>
+                    </div>
+
+                    <div className="p-2.5 bg-[#dcd0b8]/60 border border-[#8b4513]/30 rounded text-xs leading-relaxed text-[#4a3728]">
+                      <p className="font-bold text-[#8b4513] mb-0.5">📌 自由拖拽就位：</p>
+                      <p>此印章位于报纸最上层图层。在右侧报纸上直接按住印章，可自由拖拽放置在任意位置（如压盖在标题、落款或通缉令上）。</p>
+                    </div>
+
+                    {/* 印章形制 */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-[#8b4513]">印章形制风格</label>
+                      <select
+                        value={selectedSeal.shape}
+                        onChange={(e) => updateFloatingSeal(selectedSeal.id, s => ({ ...s, shape: e.target.value as any }))}
+                        className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] text-xs focus:outline-none"
+                      >
+                        <option value="wax">立体火漆蜡印 (Wax Seal)</option>
+                        <option value="oval">民国官署双椭圆印 (Oval Stamp)</option>
+                        <option value="circle">经典圆形印信 (Round Stamp)</option>
+                        <option value="square">御敕朱砂大方印 (Square Seal)</option>
+                      </select>
+                    </div>
+
+                    {/* 印章颜色 */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-[#8b4513]">印泥印色</label>
+                      <div className="grid grid-cols-5 gap-1.5">
+                        {[
+                          { k: "crimson", l: "深红" },
+                          { k: "red",     l: "朱砂" },
+                          { k: "black",   l: "黑墨" },
+                          { k: "indigo",  l: "藏青" },
+                          { k: "gold",    l: "金印" },
+                        ].map(c => (
+                          <button
+                            key={c.k}
+                            type="button"
+                            onClick={() => updateFloatingSeal(selectedSeal.id, s => ({ ...s, color: c.k as any }))}
+                            className={`py-1 text-[11px] font-bold rounded-xs border cursor-pointer ${
+                              selectedSeal.color === c.k
+                                ? "bg-[#8b4513] text-[#f5deb3] border-[#5a2d0c]"
+                                : "bg-[#dcd0b8] text-[#8b4513] border-[#8b4513]/40"
+                            }`}
+                          >
+                            {c.l}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 倾角旋转 */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs font-bold text-[#8b4513]">
+                        <span>盖印倾角</span>
+                        <span className="font-mono">{selectedSeal.rotation ?? -8}°</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="-90"
+                        max="90"
+                        step="1"
+                        value={selectedSeal.rotation ?? -8}
+                        onChange={(e) => updateFloatingSeal(selectedSeal.id, s => ({ ...s, rotation: parseInt(e.target.value) }))}
+                        className="w-full accent-[#8b4513]"
+                      />
+                    </div>
+
+                    {/* 缩放比例 */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs font-bold text-[#8b4513]">
+                        <span>尺寸缩放</span>
+                        <span className="font-mono">{Math.round((selectedSeal.scale ?? 1.0) * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="2.0"
+                        step="0.05"
+                        value={selectedSeal.scale ?? 1.0}
+                        onChange={(e) => updateFloatingSeal(selectedSeal.id, s => ({ ...s, scale: parseFloat(e.target.value) }))}
+                        className="w-full accent-[#8b4513]"
+                      />
+                    </div>
+
+                    {/* 印文文字 */}
+                    <div className="space-y-2">
+                      <div>
+                        <label className="text-xs font-bold text-[#8b4513] block mb-1">主印文</label>
+                        <input
+                          type="text"
+                          value={selectedSeal.text}
+                          onChange={(e) => updateFloatingSeal(selectedSeal.id, s => ({ ...s, text: e.target.value }))}
+                          className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-xs text-[#2c241e]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-[#8b4513] block mb-1">副印文 / 年份批号</label>
+                        <input
+                          type="text"
+                          value={selectedSeal.subtext || ""}
+                          onChange={(e) => updateFloatingSeal(selectedSeal.id, s => ({ ...s, subtext: e.target.value }))}
+                          className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-xs text-[#2c241e]"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 ) : (
-                  /* SUB-VIEW B: WHOLE-PAGE & GLOBAL INSPECTOR */
+                  /* SUB-VIEW C: WHOLE-PAGE & GLOBAL INSPECTOR */
                   <div className="space-y-5 animate-fadeIn">
                     <div className="pb-2 border-b border-[#8b4513] flex items-center justify-between">
                       <span className="text-xs font-bold uppercase tracking-widest text-[#8b4513] flex items-center gap-1.5">
@@ -1316,6 +1547,24 @@ export default function Sidebar() {
                         className="text-[10px] text-[#8b4513] font-bold underline hover:text-[#2c241e] cursor-pointer"
                       >
                         + 打开素材库
+                      </button>
+                    </div>
+
+                    {/* Top-Level Seal Fast Button */}
+                    <div className="p-2 bg-[#dcd0b8]/60 border border-[#8b4513]/40 rounded-sm flex items-center justify-between">
+                      <div>
+                        <div className="font-bold text-xs text-[#2c241e] flex items-center gap-1">
+                          <span>🔏</span>
+                          <span>最上层自由印信图层</span>
+                        </div>
+                        <div className="text-[10px] text-[#8b4513]/70">可任意拖拽放置在报纸任何角落压盖</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => addFloatingSeal()}
+                        className="px-2.5 py-1 bg-[#8b4513] hover:bg-[#73370d] text-[#f5deb3] font-bold text-xs rounded transition-colors cursor-pointer shadow-xs shrink-0"
+                      >
+                        + 盖新印章
                       </button>
                     </div>
 

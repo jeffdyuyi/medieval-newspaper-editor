@@ -104,6 +104,8 @@ export interface BountyBlock {
   avatarSrc?: string;
   clipartId?: string;
   borderStyle?: "wood" | "metal" | "dashed" | "wenwu";
+  avatarSize?: number; // 画像尺寸 48 ~ 180 px，默认 72
+  avatarFilter?: "woodblock" | "sepia" | "high-contrast" | "none"; // 画像滤镜风格
 }
 
 export interface BriefItem {
@@ -213,10 +215,24 @@ export interface NewspaperHeader {
   publisherOffice?: string; // 发行局/印刷所 e.g. "上海山东路一六三号"
 }
 
+export interface FloatingSeal {
+  id: string;
+  shape: "wax" | "circle" | "oval" | "square";
+  color: "crimson" | "red" | "indigo" | "black" | "gold";
+  text: string;     // 主印文，如 "帝国特许" / "审核验讫"
+  subtext?: string; // 副印文，如 "圣历742年" / "第307号"
+  x: number;        // 百分比 0 ~ 100，相对报纸容器
+  y: number;        // 百分比 0 ~ 100，相对报纸容器
+  rotation: number; // 倾角 -180 ~ 180，默认 -8
+  scale: number;    // 缩放 0.5 ~ 2.0，默认 1.0
+  opacity?: number; // 透明度 0.3 ~ 1.0，默认 0.95
+}
+
 export interface NewspaperData {
   theme?: NewspaperTheme;
   header: NewspaperHeader;
   rows: Row[];
+  floatingSeals?: FloatingSeal[];
 }
 
 export interface ClipartItem {

@@ -29,7 +29,7 @@ const FANTASY_CARDS: PaletteCardDef[] = [
   { type: "obituary", emoji: "✝", label: "沉痛讣告",   desc: "哀思铭记与奠仪" },
   { type: "ad",       emoji: "🪙", label: "商号告示",   desc: "商铺招牌广告框" },
   { type: "letter",   emoji: "✉", label: "读者投书",   desc: "手迹信笺与启事" },
-  { type: "seal",     emoji: "🔏", label: "官方印信",   desc: "火漆蜡印与特许章" },
+  { type: "seal",     emoji: "🔏", label: "官方印信",   desc: "顶层图层·任意拖拽" },
   { type: "image",    emoji: "🖼", label: "版画插图",   desc: "木刻风格图像块" },
   { type: "divider",  emoji: "◇", label: "装饰分隔",   desc: "羽饰纹样隔线" },
 ];
@@ -43,7 +43,7 @@ const REPUBLICAN_CARDS: PaletteCardDef[] = [
   { type: "obituary", emoji: "▪", label: "生殁讣告",   desc: "沉肃黑框开吊公祭" },
   { type: "ad",       emoji: "◎", label: "广告版块",   desc: "民国商业牌号告白" },
   { type: "letter",   emoji: "✉", label: "读者来信",   desc: "投书杂感与郑重声明" },
-  { type: "seal",     emoji: "印", label: "官厅印戳",   desc: "朱砂椭圆审核验讫章" },
+  { type: "seal",     emoji: "印", label: "官厅印戳",   desc: "顶层图层·任意拖拽" },
   { type: "image",    emoji: "📷", label: "报刊图片",   desc: "新闻照片或木刻画" },
   { type: "divider",  emoji: "—", label: "版面分隔",   desc: "报栏横断文武线" },
 ];
@@ -131,6 +131,7 @@ export default function BlockPalette({ theme }: BlockPaletteProps) {
     setSelectedColumnId,
     setSelectedRowId,
     addBlockToColumn,
+    addFloatingSeal,
   } = useNewspaper();
   const isRep = theme === "republican";
   const cards = isRep ? REPUBLICAN_CARDS : FANTASY_CARDS;
@@ -149,6 +150,10 @@ export default function BlockPalette({ theme }: BlockPaletteProps) {
   const activeTargetColId = selectedColumnId || targetColOptions[0]?.id || "";
 
   const handleQuickAdd = (type: BlockType) => {
+    if (type === "seal") {
+      addFloatingSeal();
+      return;
+    }
     if (activeTargetColId) {
       addBlockToColumn(activeTargetColId, type);
     }

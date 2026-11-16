@@ -28,6 +28,7 @@ export default function App() {
     newspaperData,
     setNewspaperData,
     addBlockToColumn,
+    addFloatingSeal,
     theme,
     currentView,
     openEditor,
@@ -140,6 +141,11 @@ export default function App() {
     if (curActiveId.startsWith("palette::") || activeData?.isPaletteItem) {
       const blockType: BlockType =
         activeData?.blockType || (curActiveId.replace("palette::", "") as BlockType);
+
+      if (blockType === "seal") {
+        addFloatingSeal();
+        return;
+      }
 
       // Determine target column and optionally insert after a specific block
       let targetColId: string | null = null;

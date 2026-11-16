@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { 
   NewspaperData, Row, Column, Block, BlockType, 
   ColumnSplit, NewspaperHeader, NewspaperTheme, PaperTone,
-  ArticleBlock, HeadlineBlock, ImageBlock
+  ArticleBlock, HeadlineBlock, ImageBlock, FloatingSeal
 } from "../types";
 import { INITIAL_NEWSPAPER_DATA, REPUBLICAN_NEWSPAPER_DATA } from "../defaultData";
 
@@ -55,9 +55,25 @@ export function sanitizeNewspaperData(data: NewspaperData): NewspaperData {
     };
   });
 
+  const sanitizedSeals = Array.isArray(data.floatingSeals)
+    ? data.floatingSeals.map((s, idx) => ({
+        id: s.id || `seal_${Date.now()}_${idx}`,
+        shape: s.shape || "wax",
+        color: s.color || "crimson",
+        text: s.text || "帝国特许",
+        subtext: s.subtext || "",
+        x: typeof s.x === "number" ? Math.max(0, Math.min(100, s.x)) : 75,
+        y: typeof s.y === "number" ? Math.max(0, Math.min(100, s.y)) : 15,
+        rotation: typeof s.rotation === "number" ? s.rotation : -8,
+        scale: typeof s.scale === "number" ? s.scale : 1.0,
+        opacity: typeof s.opacity === "number" ? s.opacity : 0.95,
+      }))
+    : [];
+
   return {
     ...data,
-    rows: sanitizedRows
+    rows: sanitizedRows,
+    floatingSeals: sanitizedSeals,
   };
 }
 
@@ -131,6 +147,11 @@ interface NewspaperContextType {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  selectedSealId: string | null;
+  setSelectedSealId: React.Dispatch<React.SetStateAction<string | null>>;
+  addFloatingSeal: (customProps?: Partial<FloatingSeal>) => void;
+  updateFloatingSeal: (id: string, updater: (seal: FloatingSeal) => FloatingSeal) => void;
+  deleteFloatingSeal: (id: string) => void;
 }
 
 const NewspaperContext = createContext<NewspaperContextType | undefined>(undefined);
@@ -284,6 +305,46 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
       return "col_1_2";
     }
   });
+
+  const [selectedSealId, setSelectedSealId] = useState<string | null>(null);
+
+  const addFloatingSeal = (customProps?: Partial<FloatingSeal>) => {
+    const isRepublican = newspaperData.theme === "republican";
+    const newSeal: FloatingSeal = {
+      id: `seal_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      shape: customProps?.shape || (isRepublican ? "oval" : "wax"),
+      color: customProps?.color || (isRepublican ? "red" : "crimson"),
+      text: customProps?.text || (isRepublican ? "淞滬警備·驗訖" : "皇家特許"),
+      subtext: customProps?.subtext !== undefined ? customProps.subtext : (isRepublican ? "民國十二年" : "聖歷七四二年"),
+      x: customProps?.x ?? 80,
+      y: customProps?.y ?? 15,
+      rotation: customProps?.rotation ?? (isRepublican ? -5 : -10),
+      scale: customProps?.scale ?? 1.0,
+      opacity: customProps?.opacity ?? 0.95,
+    };
+
+    setNewspaperData(prev => ({
+      ...prev,
+      floatingSeals: [...(prev.floatingSeals || []), newSeal],
+    }));
+    setSelectedSealId(newSeal.id);
+    setSelectedBlockId(null);
+  };
+
+  const updateFloatingSeal = (id: string, updater: (seal: FloatingSeal) => FloatingSeal) => {
+    setNewspaperData(prev => ({
+      ...prev,
+      floatingSeals: (prev.floatingSeals || []).map(s => s.id === id ? updater(s) : s),
+    }));
+  };
+
+  const deleteFloatingSeal = (id: string) => {
+    setNewspaperData(prev => ({
+      ...prev,
+      floatingSeals: (prev.floatingSeals || []).filter(s => s.id !== id),
+    }));
+    if (selectedSealId === id) setSelectedSealId(null);
+  };
 
   const getInitialLayoutSetting = <T,>(key: string, defaultValue: T): T => {
     const saved = localStorage.getItem("newspaper_layout_settings");
@@ -1047,7 +1108,9 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     updateRowSplit, splitColumn, deleteColumn, insertRowBelow, addNewRow, deleteRow, moveRow,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, handleResetData,
     triggerImageUpload,
-    undo, redo, canUndo, canRedo
+    undo, redo, canUndo, canRedo,
+    selectedSealId, setSelectedSealId,
+    addFloatingSeal, updateFloatingSeal, deleteFloatingSeal
   };
 
   return (

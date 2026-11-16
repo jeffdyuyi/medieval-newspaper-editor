@@ -153,6 +153,20 @@ export const INITIAL_NEWSPAPER_DATA: NewspaperData = {
         }
       ]
     }
+  ],
+  floatingSeals: [
+    {
+      id: "seal_default_fantasy",
+      shape: "wax",
+      color: "crimson",
+      text: "帝国特许",
+      subtext: "圣历742年",
+      x: 82,
+      y: 12,
+      rotation: -10,
+      scale: 1.0,
+      opacity: 0.95
+    }
   ]
 };
 
@@ -273,6 +287,20 @@ export const REPUBLICAN_NEWSPAPER_DATA: NewspaperData = {
           ]
         }
       ]
+    }
+  ],
+  floatingSeals: [
+    {
+      id: "seal_default_rep",
+      shape: "oval",
+      color: "red",
+      text: "淞滬警備·驗訖",
+      subtext: "民國十二年",
+      x: 82,
+      y: 11,
+      rotation: -6,
+      scale: 1.0,
+      opacity: 0.92
     }
   ]
 };

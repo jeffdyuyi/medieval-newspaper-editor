@@ -1,5 +1,8 @@
-import React from 'react';
-import { Eye, Plus, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Trash2, Settings, Image as ImageIcon } from "lucide-react";
+import React, { useRef, useState } from 'react';
+import { 
+  Eye, Plus, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, 
+  Trash2, Settings, Image as ImageIcon, Camera, ZoomIn, ZoomOut, RotateCcw
+} from "lucide-react";
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SortableBlock } from "./SortableBlock";
 import { useNewspaper } from "../context/NewspaperContext";
@@ -13,6 +16,7 @@ import SelectionToolbar from "./SelectionToolbar";
 import ColumnResizeHandle from "./ColumnResizeHandle";
 import RowResizeHandle from "./RowResizeHandle";
 import DroppableColumn from "./DroppableColumn";
+import FloatingSealsLayer from "./FloatingSealsLayer";
 
 export default function NewspaperPreview() {
   const {
@@ -31,8 +35,57 @@ export default function NewspaperPreview() {
     selectBlockAndContext,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, updateBlock,
     theme, updateRowHeight, updateRowColumnFractions, updateHeader, triggerImageUpload,
-    splitColumn, deleteColumn, insertRowBelow, moveRow, deleteRow
+    splitColumn, deleteColumn, insertRowBelow, moveRow, deleteRow,
+    setSelectedSealId,
   } = useNewspaper();
+
+  // 报纸主容器引用，供顶层自由印章图层计算相对坐标
+  const newspaperContainerRef = useRef<HTMLDivElement>(null);
+
+  // 通缉令自定义画像文件上传引用
+  const bountyImageInputRef = useRef<HTMLInputElement>(null);
+  const [activeBountyBlockId, setActiveBountyBlockId] = useState<string | null>(null);
+
+  const handleBountyImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activeBountyBlockId) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const srcUrl = event.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 1200;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressed = canvas.toDataURL("image/jpeg", 0.85);
+          updateBlock(activeBountyBlockId, blk => ({
+            ...blk,
+            avatarType: "image",
+            avatarSrc: compressed,
+          } as BountyBlock));
+        }
+      };
+      img.src = srcUrl;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
 
   // 记录新回车分段时的自动对焦目标
   const [focusedPara, setFocusedPara] = React.useState<{ blockId: string; index: number } | null>(null);
@@ -53,6 +106,7 @@ export default function NewspaperPreview() {
 
           {/* THE ACTUAL NEWSPAPER */}
           <div 
+            ref={newspaperContainerRef}
             id="printable-newspaper-content"
             className={`printable-newspaper w-full p-6 md:p-10 transition-all duration-300 shadow-2xl relative select-text ${
               paperTone === "aged" ? "tone-aged" :
@@ -813,6 +867,15 @@ export default function NewspaperPreview() {
                                     {block.type === "bounty" && (() => {
                                       const b = block as BountyBlock;
                                       const avatarClipart = ALL_CLIPART.find(c => c.id === (b.clipartId || "skull"));
+                                      const avatarSize = b.avatarSize || 72;
+                                      const avatarFilter = b.avatarFilter || "woodblock";
+                                      const filterClass = 
+                                        avatarFilter === "woodblock" ? "grayscale contrast-150 brightness-95" :
+                                        avatarFilter === "sepia" ? "sepia contrast-125 brightness-95" :
+                                        avatarFilter === "high-contrast" ? "grayscale contrast-200" :
+                                        avatarFilter === "none" ? "" :
+                                        "grayscale contrast-125";
+
                                       return (
                                         <div className={`p-3 text-center space-y-2 select-text ${
                                           b.borderStyle === "wenwu" ? "border-wenwu" :
@@ -838,15 +901,80 @@ export default function NewspaperPreview() {
                                             />
                                           </div>
 
-                                          {/* Target Avatar / Portrait */}
-                                          <div className="w-16 h-16 mx-auto my-1 border-2 border-[#2b221a] p-1 bg-[#e8dcc4] flex items-center justify-center shadow-inner overflow-hidden">
-                                            {b.avatarType === "image" && b.avatarSrc ? (
-                                              <img src={b.avatarSrc} alt={b.targetName} className="w-full h-full object-cover grayscale contrast-125" />
-                                            ) : avatarClipart ? (
-                                              <div className="w-full h-full text-[#2b221a]" dangerouslySetInnerHTML={{ __html: avatarClipart.svgPath }} />
-                                            ) : (
-                                              <span className="text-2xl font-serif">☠</span>
-                                            )}
+                                          {/* Target Avatar / Portrait with Custom Upload & Scale */}
+                                          <div className="relative group/bounty-avatar mx-auto my-1 flex flex-col items-center">
+                                            <div 
+                                              style={{ width: `${avatarSize}px`, height: `${avatarSize}px` }}
+                                              onClick={() => {
+                                                setActiveBountyBlockId(block.id);
+                                                bountyImageInputRef.current?.click();
+                                              }}
+                                              className="border-2 border-[#2b221a] p-1 bg-[#e8dcc4] flex items-center justify-center shadow-inner overflow-hidden cursor-pointer relative group-hover/bounty-avatar:border-[#8b4513] transition-all rounded-xs"
+                                              title="点击直接上传嫌犯自定义肖像照片"
+                                            >
+                                              {b.avatarType === "image" && b.avatarSrc ? (
+                                                <img src={b.avatarSrc} alt={b.targetName} className={`w-full h-full object-cover transition-all ${filterClass}`} />
+                                              ) : avatarClipart ? (
+                                                <div className="w-full h-full text-[#2b221a]" dangerouslySetInnerHTML={{ __html: avatarClipart.svgPath }} />
+                                              ) : (
+                                                <span className="text-3xl font-serif">☠</span>
+                                              )}
+
+                                              {/* Hover camera upload prompt overlay */}
+                                              <div className="no-print absolute inset-0 bg-black/60 opacity-0 group-hover/bounty-avatar:opacity-100 flex flex-col items-center justify-center text-[#f5deb3] text-[9px] font-sans font-bold transition-opacity">
+                                                <Camera className="w-4 h-4 mb-0.5" />
+                                                <span>更换肖像</span>
+                                              </div>
+                                            </div>
+
+                                            {/* Quick in-situ resize toolbar for Bounty Avatar */}
+                                            <div className="no-print opacity-0 group-hover/bounty-avatar:opacity-100 transition-opacity mt-1 flex items-center gap-1 bg-[#241c16]/90 border border-[#8b4513] text-[#f5deb3] px-1.5 py-0.5 rounded-full shadow-md text-[9px]">
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  updateBlock(block.id, blk => ({
+                                                    ...blk,
+                                                    avatarSize: Math.max(48, (b.avatarSize || 72) - 12)
+                                                  } as BountyBlock));
+                                                }}
+                                                className="p-0.5 hover:text-[#e0a96d] cursor-pointer"
+                                                title="缩小肖像尺寸"
+                                              >
+                                                <ZoomOut className="w-3 h-3" />
+                                              </button>
+                                              <span className="font-mono text-[9px] px-0.5 text-stone-300">{avatarSize}px</span>
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  updateBlock(block.id, blk => ({
+                                                    ...blk,
+                                                    avatarSize: Math.min(180, (b.avatarSize || 72) + 12)
+                                                  } as BountyBlock));
+                                                }}
+                                                className="p-0.5 hover:text-[#e0a96d] cursor-pointer"
+                                                title="放大肖像尺寸"
+                                              >
+                                                <ZoomIn className="w-3 h-3" />
+                                              </button>
+                                              {b.avatarType === "image" && (
+                                                <button
+                                                  type="button"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    updateBlock(block.id, blk => ({
+                                                      ...blk,
+                                                      avatarType: "clipart"
+                                                    } as BountyBlock));
+                                                  }}
+                                                  className="p-0.5 hover:text-[#e0a96d] cursor-pointer border-l border-[#8b4513]/50 pl-1"
+                                                  title="重置为木刻剪贴画头像"
+                                                >
+                                                  <RotateCcw className="w-3 h-3" />
+                                                </button>
+                                              )}
+                                            </div>
                                           </div>
 
                                           <EditableText
@@ -1422,6 +1550,9 @@ export default function NewspaperPreview() {
               />
             </div>
 
+            {/* TOP-LEVEL FLOATING SEALS LAYER (最上层官方自由印章图层 - 任意拖拽与微调) */}
+            <FloatingSealsLayer containerRef={newspaperContainerRef} />
+
           </div>
 
         </div>
@@ -1430,6 +1561,15 @@ export default function NewspaperPreview() {
 
       {/* Bubble Menu: Selection Floating Formatting Toolbar */}
       <SelectionToolbar />
+
+      {/* Hidden input for Bounty portrait image upload */}
+      <input
+        type="file"
+        ref={bountyImageInputRef}
+        onChange={handleBountyImageUpload}
+        accept="image/*"
+        className="hidden"
+      />
     </>
   );
 }
