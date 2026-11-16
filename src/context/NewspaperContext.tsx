@@ -495,14 +495,19 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
         const newColumns = [...row.columns];
         newColumns.splice(colIdx + 1, 0, newCol);
 
-        const currentFractions =
-          row.columnFractions && row.columnFractions.length === row.columns.length
-            ? [...row.columnFractions]
-            : new Array(row.columns.length).fill(1);
-
-        const currentFr = currentFractions[colIdx] || 1;
-        const halfFr = Math.max(0.2, Number((currentFr / 2).toFixed(2)));
-        currentFractions.splice(colIdx, 1, halfFr, halfFr);
+        let currentFractions: number[];
+        if (row.columns.length === 1) {
+          currentFractions = [1, 1];
+        } else {
+          const prevFrs =
+            row.columnFractions && row.columnFractions.length === row.columns.length
+              ? [...row.columnFractions]
+              : new Array(row.columns.length).fill(1);
+          const currentFr = prevFrs[colIdx] || 1;
+          const halfFr = Math.max(0.2, Number((currentFr / 2).toFixed(2)));
+          prevFrs.splice(colIdx, 1, halfFr, halfFr);
+          currentFractions = prevFrs;
+        }
 
         const newSplit: ColumnSplit =
           newColumns.length === 2
@@ -568,8 +573,15 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
           .filter((_, idx) => idx !== colIdx);
 
         let newFractions: number[] | undefined = undefined;
-        if (r.columnFractions && r.columnFractions.length === r.columns.length) {
-          newFractions = r.columnFractions.filter((_, idx) => idx !== colIdx);
+        if (newColumns.length <= 1) {
+          // 合并后仅剩单栏，必须彻底清除 fractions，使单栏回归 100% 满宽自适应
+          newFractions = undefined;
+        } else if (r.columnFractions && r.columnFractions.length === r.columns.length) {
+          // 多栏情况下，将被删除栏目的宽度份额完整交还累加到合并目标栏目中
+          const currentFrs = [...r.columnFractions];
+          const deletedFr = currentFrs[colIdx] || 1;
+          currentFrs[mergeTargetIdx] = Number(((currentFrs[mergeTargetIdx] || 1) + deletedFr).toFixed(2));
+          newFractions = currentFrs.filter((_, idx) => idx !== colIdx);
         }
 
         const newSplit: ColumnSplit =

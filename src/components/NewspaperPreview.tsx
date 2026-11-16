@@ -316,14 +316,16 @@ export default function NewspaperPreview() {
                 const isRepublican = theme === "republican";
                 const rowHeight = row.height || (isRepublican ? 480 : 360);
 
-                // Compute continuous fractions for columns
-                const fractions = (row.columnFractions && row.columnFractions.length === row.columns.length)
-                  ? row.columnFractions
-                  : (row.split === "1-1" ? [1, 1] :
-                     row.split === "1-2" ? [1, 2] :
-                     row.split === "2-1" ? [2, 1] :
-                     row.split === "1-1-1" ? [1, 1, 1] :
-                     new Array(row.columns.length).fill(1));
+                // Compute continuous fractions for columns (single column is always full 100% width)
+                const fractions = row.columns.length === 1
+                  ? [1]
+                  : (row.columnFractions && row.columnFractions.length === row.columns.length)
+                    ? row.columnFractions
+                    : (row.split === "1-1" ? [1, 1] :
+                       row.split === "1-2" ? [1, 2] :
+                       row.split === "2-1" ? [2, 1] :
+                       row.split === "1-1-1" ? [1, 1, 1] :
+                       new Array(row.columns.length).fill(1));
 
                 return (
                   <div

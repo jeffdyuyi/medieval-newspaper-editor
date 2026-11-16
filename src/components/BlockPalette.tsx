@@ -69,49 +69,52 @@ function PaletteCard({ card, theme, onQuickAdd }: PaletteCardProps) {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
+      onClick={() => onQuickAdd(card.type)}
       className={`
         select-none cursor-grab active:cursor-grabbing rounded border transition-all duration-150
-        p-2.5 text-left group flex items-center justify-between
+        p-1.5 text-left group relative flex flex-col justify-between min-h-[50px]
         ${isDragging ? "opacity-50 scale-95 shadow-inner" : "hover:shadow-md hover:-translate-y-0.5"}
         ${isRep
-          ? "bg-[#f4f3ef] border-[#1a1a1a]/20 hover:border-[#1a1a1a]/50 hover:bg-[#eae9e4]"
-          : "bg-[#f0e6cc] border-[#8b4513]/20 hover:border-[#8b4513]/50 hover:bg-[#ead9b6]"
+          ? "bg-[#f4f3ef] border-[#1a1a1a]/20 hover:border-[#1a1a1a]/60 hover:bg-[#eae9e4]"
+          : "bg-[#f0e6cc] border-[#8b4513]/25 hover:border-[#8b4513]/60 hover:bg-[#ead9b6]"
         }
       `}
-      title="按住可拖拽到报纸任意栏目中；或点击右侧➕直接追加"
+      title={`按住拖拽至报纸任意栏目；或点击卡片/加号直接追加【${card.label}】`}
     >
-      <div className="flex items-center gap-2 min-w-0 flex-1">
-        <GripVertical className={`w-3.5 h-3.5 opacity-40 group-hover:opacity-80 shrink-0 ${isRep ? "text-[#1a1a1a]" : "text-[#8b4513]"}`} />
-        <span className={`text-base leading-none select-none shrink-0 ${isRep ? "text-[#1a1a1a]" : "text-[#8b4513]"}`}>
-          {card.emoji}
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className={`text-[11px] font-bold leading-tight truncate ${isRep ? "text-[#0d0d0d] font-sans" : "text-[#2b221a] font-serif"}`}>
+      <div className="flex items-center justify-between gap-1">
+        <div className="flex items-center gap-1 min-w-0">
+          <span className={`text-sm leading-none select-none shrink-0 ${isRep ? "text-[#1a1a1a]" : "text-[#8b4513]"}`}>
+            {card.emoji}
+          </span>
+          <span className={`text-[11px] font-bold leading-tight truncate ${isRep ? "text-[#0d0d0d] font-sans" : "text-[#2b221a] font-serif"}`}>
             {card.label}
-          </div>
-          <div className={`text-[9px] leading-tight mt-0.5 truncate ${isRep ? "text-[#1a1a1a]/50" : "text-[#2b221a]/50"}`}>
-            {card.desc}
-          </div>
+          </span>
         </div>
+
+        {/* Quick Add Button */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onQuickAdd(card.type);
+          }}
+          title="点击直接追加到目标栏目"
+          className={`w-4 h-4 rounded flex items-center justify-center shrink-0 transition-colors cursor-pointer shadow-xs ${
+            isRep
+              ? "bg-[#1a1a1a]/15 text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-[#f4f3ef]"
+              : "bg-[#8b4513]/15 text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3]"
+          }`}
+        >
+          <Plus className="w-2.5 h-2.5" />
+        </button>
       </div>
 
-      {/* Quick Add Button */}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onQuickAdd(card.type);
-        }}
-        title="点击直接追加到当前选中的栏目"
-        className={`ml-2 px-2 py-1 rounded text-[10px] font-bold flex items-center gap-0.5 transition-colors cursor-pointer shrink-0 shadow-sm ${
-          isRep
-            ? "bg-[#1a1a1a] text-[#f4f3ef] hover:bg-[#333]"
-            : "bg-[#8b4513] text-[#f5deb3] hover:bg-[#753a10]"
-        }`}
-      >
-        <Plus className="w-3 h-3" />
-        <span>添加</span>
-      </button>
+      <div className="flex items-center justify-between gap-1 mt-1 text-[9px]">
+        <span className={`truncate leading-none ${isRep ? "text-[#1a1a1a]/60 font-sans" : "text-[#2b221a]/60 font-serif"}`}>
+          {card.desc}
+        </span>
+        <GripVertical className={`w-3 h-3 opacity-30 group-hover:opacity-80 shrink-0 ${isRep ? "text-[#1a1a1a]" : "text-[#8b4513]"}`} />
+      </div>
     </div>
   );
 }
@@ -200,8 +203,8 @@ export default function BlockPalette({ theme }: BlockPaletteProps) {
         按住抓手<strong>拖拽到任意栏目</strong>；或点击<strong>【+ 添加】</strong>直接插入目标栏目末尾。
       </p>
 
-      {/* Cards */}
-      <div className="space-y-1.5">
+      {/* Cards - 双列紧凑布局，节省垂直空间 */}
+      <div className="grid grid-cols-2 gap-1.5">
         {cards.map((card) => (
           <PaletteCard key={card.type} card={card} theme={theme} onQuickAdd={handleQuickAdd} />
         ))}
