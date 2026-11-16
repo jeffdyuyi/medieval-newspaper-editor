@@ -54,28 +54,94 @@ export default function MobileNav() {
     try {
       const width = element.offsetWidth;
       const height = element.offsetHeight;
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${new XMLSerializer().serializeToString(element)}</div></foreignObject></svg>`;
+
+      // Clone node to strip editing controls and handles cleanly
+      const clone = element.cloneNode(true) as HTMLElement;
+      clone.querySelectorAll(".no-print").forEach((el) => el.remove());
+      // Strip active selection rings and outlines
+      clone.querySelectorAll("*").forEach((el) => {
+        el.classList.remove(
+          "ring-1",
+          "ring-2",
+          "ring-4",
+          "ring-[#8b4513]/80",
+          "ring-[#8b4513]",
+          "ring-[#e0a96d]",
+          "ring-offset-2",
+          "ring-offset-transparent",
+          "bg-[#2b221a]/4",
+          "bg-[#2b221a]/5",
+          "shadow-md",
+          "cursor-pointer",
+          "cursor-text",
+          "cursor-grab",
+          "cursor-grabbing"
+        );
+      });
+
+      const serializedHtml = new XMLSerializer().serializeToString(clone);
+      const fontStyles = `
+        @import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@300;400;700&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=LXGW+WenKai&family=Grenze+Gotisch:wght@400;700&family=Cinzel:wght@400;700&display=swap');
+        .no-print { display: none !important; }
+        .font-serif { font-family: 'Noto Serif SC', 'SimSun', 'Songti SC', serif !important; }
+        .font-sans { font-family: 'Inter', 'Microsoft YaHei', 'SimHei', sans-serif !important; }
+        .font-kai { font-family: 'LXGW WenKai', 'KaiTi', 'STKaiti', serif !important; }
+        .font-xiaowei { font-family: 'ZCOOL XiaoWei', serif !important; }
+        .font-mashan { font-family: 'Ma Shan Zheng', cursive !important; }
+        .font-zhimang { font-family: 'Zhi Mang Xing', cursive !important; }
+        .font-gothic { font-family: 'Grenze Gotisch', serif !important; }
+        .font-cinzel { font-family: 'Cinzel', serif !important; }
+        .font-fangsong { font-family: 'FangSong', 'STFangsong', serif !important; }
+        .font-lishu { font-family: 'LiSu', 'STLiti', serif !important; }
+      `;
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+          <foreignObject width="100%" height="100%">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+              <style>${fontStyles}</style>
+              ${serializedHtml}
+            </div>
+          </foreignObject>
+        </svg>
+      `;
       const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-      const blobUrl = URL.createObjectURL(blob);
+      const blobUrl = window.URL.createObjectURL(blob);
       const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = width * 2; canvas.height = height * 2;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.fillStyle = "#f1e4cb"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, width * 2, height * 2);
-          const a = document.createElement("a");
-          a.href = canvas.toDataURL("image/png");
-          a.download = `${newspaperData.header.title || "newspaper"}.png`;
-          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = width * 2;
+          canvas.height = height * 2;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            const defaultBg = theme === "republican"
+              ? (paperTone === "aged" ? "#eae6db" : paperTone === "antique" ? "#e0dacb" : paperTone === "bright" ? "#faf9f5" : "#f4f3ef")
+              : (paperTone === "aged" ? "#e8d7b7" : paperTone === "antique" ? "#dcc49c" : paperTone === "bright" ? "#fbf5e6" : "#f1e4cb");
+            ctx.fillStyle = defaultBg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, width * 2, height * 2);
+            const a = document.createElement("a");
+            a.href = canvas.toDataURL("image/png");
+            a.download = `${newspaperData.header.title || "newspaper"}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+        } finally {
+          window.URL.revokeObjectURL(blobUrl);
+          setIsExporting(false);
         }
-        URL.revokeObjectURL(blobUrl);
-        setIsExporting(false);
       };
-      img.onerror = () => { setIsExporting(false); alert("导出失败，请使用打印PDF功能。"); };
+      img.onerror = () => {
+        window.URL.revokeObjectURL(blobUrl);
+        setIsExporting(false);
+        alert("由于预览沙箱的安全限制或跨域资源，部分内容在导出为PNG时遇到阻碍。\n\n强烈推荐点击左下角【打印 / 导出高分辨率PDF】按钮，可无损保存为矢量文件！");
+      };
       img.src = blobUrl;
-    } catch { setIsExporting(false); alert("导出失败，请使用打印PDF功能。"); }
+    } catch {
+      setIsExporting(false);
+      alert("导出失败，请使用打印PDF功能。");
+    }
   };
 
   const targetColOptions = newspaperData.rows.flatMap((row, ri) =>

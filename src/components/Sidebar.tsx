@@ -164,14 +164,21 @@ export default function Sidebar() {
       // Strip active selection rings and outlines
       clone.querySelectorAll("*").forEach((el) => {
         el.classList.remove(
+          "ring-1",
           "ring-2",
+          "ring-4",
           "ring-[#8b4513]/80",
           "ring-[#8b4513]",
+          "ring-[#e0a96d]",
+          "ring-offset-2",
+          "ring-offset-transparent",
           "bg-[#2b221a]/4",
           "bg-[#2b221a]/5",
           "shadow-md",
           "cursor-pointer",
-          "cursor-text"
+          "cursor-text",
+          "cursor-grab",
+          "cursor-grabbing"
         );
       });
 

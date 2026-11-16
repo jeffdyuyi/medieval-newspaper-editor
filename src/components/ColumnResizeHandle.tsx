@@ -55,10 +55,11 @@ export default function ColumnResizeHandle({
       e.preventDefault();
 
       const dx = e.clientX - startX.current;
+      const effectiveDx = isRepublican ? -dx : dx;
       const totalFr = startFractions.current.reduce((a, b) => a + b, 0);
       const pxPerFr = containerWidth.current / totalFr;
 
-      const dFr = dx / pxPerFr;
+      const dFr = effectiveDx / pxPerFr;
 
       const newFractions = [...startFractions.current];
       // Clamp: left column min 0.2 fr, right column min 0.2 fr

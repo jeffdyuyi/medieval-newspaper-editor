@@ -41,19 +41,27 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
   const [saves, setSaves] = useState<SaveSlot[]>([]);
   const [newSaveName, setNewSaveName] = useState("");
 
+  const storageKey = `newspaper_saves_${theme}`;
+
   useEffect(() => {
-    const loadedSaves = localStorage.getItem("medieval_newspaper_saves");
-    if (loadedSaves) {
+    let raw = localStorage.getItem(storageKey);
+    // Backward compatibility for fantasy theme with legacy key
+    if (!raw && theme === "fantasy") {
+      raw = localStorage.getItem("medieval_newspaper_saves");
+    }
+    if (raw) {
       try {
-        setSaves(JSON.parse(loadedSaves));
+        setSaves(JSON.parse(raw));
       } catch (e) {
         console.error("Failed to parse saves", e);
       }
+    } else {
+      setSaves([]);
     }
-  }, []);
+  }, [storageKey, theme]);
 
   const saveToLocalStorage = (newSaves: SaveSlot[]) => {
-    localStorage.setItem("medieval_newspaper_saves", JSON.stringify(newSaves));
+    localStorage.setItem(storageKey, JSON.stringify(newSaves));
     setSaves(newSaves);
   };
 
@@ -81,7 +89,17 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
 
   const handleLoad = (save: SaveSlot) => {
     if (!confirm("加载存档将覆盖当前未保存的内容，确定要加载吗？")) return;
-    const sanitized = sanitizeNewspaperData(save.data);
+    let targetData = save.data;
+    if (save.data.theme && save.data.theme !== theme) {
+      const fromName = save.data.theme === "republican" ? "民国报刊" : "中世纪奇幻";
+      const toName = theme === "republican" ? "民国报刊" : "中世纪奇幻";
+      const ok = confirm(
+        `检测到该存档记录源自【${fromName}】环境。\n\n是否允许将其中的标题、副标、文章正文、作者、图片与告示等内容，自动转换并适配至当前【${toName}】编辑器？`
+      );
+      if (!ok) return;
+      targetData = convertThemeContent(save.data, theme);
+    }
+    const sanitized = sanitizeNewspaperData(targetData);
     setNewspaperData(sanitized);
     setSelectedBlockId(null);
     setSelectedRowId(null);
