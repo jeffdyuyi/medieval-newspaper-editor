@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { 
   RefreshCw, HelpCircle, Scissors, Type as FontIcon, 
-  Layout, Settings, FileText, Image as ImageIcon, 
+  Settings, FileText, Image as ImageIcon, 
   Trash2, Printer, Download, Undo2, Redo2, BookOpen, Save,
   Coins as CoinsIcon, Sparkles, Boxes, SlidersHorizontal
 } from "lucide-react";
@@ -414,14 +414,6 @@ export default function Sidebar() {
                           </p>
                         </div>
 
-                        {/* 所见即所得原地打字提示 */}
-                        <div className="bg-[#8b4513]/10 border border-[#8b4513]/30 rounded p-2.5 text-xs text-[#4a3728] flex items-start gap-2 leading-relaxed">
-                          <span className="text-base select-none shrink-0">✍</span>
-                          <div>
-                            <span className="font-bold block text-[#2b221a]">所见即所得原生排版</span>
-                            <span className="text-[11px] text-[#4a3728]/80">标题、副标、署名与正文已全面支持在右侧报纸上单击直接打字；敲回车自动分段，选中文本直接浮出格式条。</span>
-                          </div>
-                        </div>
 
                         {/* 大标题排版配置 */}
                         <div className="p-2 border border-[#8b4513]/20 bg-[#8b4513]/5 rounded space-y-1.5 animate-fadeIn">
@@ -617,14 +609,6 @@ export default function Sidebar() {
                     {/* HEADLINE BLOCK EDIT CONTROLS */}
                     {selectedBlock.type === "headline" && (
                       <div className="space-y-4 animate-fadeIn">
-                        {/* 所见即所得原地打字提示 */}
-                        <div className="bg-[#8b4513]/10 border border-[#8b4513]/30 rounded p-2.5 text-xs text-[#4a3728] flex items-start gap-2 leading-relaxed">
-                          <span className="text-base select-none shrink-0">✍</span>
-                          <div>
-                            <span className="font-bold block text-[#2b221a]">画布直接编辑</span>
-                            <span className="text-[11px] text-[#4a3728]/80">大字主标题及副标题已全面支持在右侧报纸上单击直接打字修改；此处专注调整大字规格、字体与对齐。</span>
-                          </div>
-                        </div>
 
                         {/* 标题文字排版 */}
                         <div className="p-2 border border-[#8b4513]/20 bg-[#8b4513]/5 rounded space-y-1.5">
@@ -935,14 +919,6 @@ export default function Sidebar() {
                     {/* ADVERTISEMENT BLOCK EDIT CONTROLS */}
                     {selectedBlock.type === "ad" && (
                       <div className="space-y-4">
-                        {/* 所见即所得原地打字提示 */}
-                        <div className="bg-[#8b4513]/10 border border-[#8b4513]/30 rounded p-2.5 text-xs text-[#4a3728] flex items-start gap-2 leading-relaxed">
-                          <span className="text-base select-none shrink-0">✍</span>
-                          <div>
-                            <span className="font-bold block text-[#2b221a]">画布直接编辑</span>
-                            <span className="text-[11px] text-[#4a3728]/80">告示主题、宣传内容、商号发布人与标价均已支持在右侧报纸上单击打字；此处专注配置古风边框与字形排版。</span>
-                          </div>
-                        </div>
 
                         {/* 告示主题排版 */}
                         <div className="p-2 border border-[#8b4513]/20 bg-[#8b4513]/5 rounded space-y-1.5 animate-fadeIn">

@@ -100,8 +100,6 @@ interface NewspaperContextType {
   setIsExporting: React.Dispatch<React.SetStateAction<boolean>>;
   activeAddBlockColId: string | null;
   setActiveAddBlockColId: React.Dispatch<React.SetStateAction<string | null>>;
-  showWelcomeModal: boolean;
-  setShowWelcomeModal: React.Dispatch<React.SetStateAction<boolean>>;
   currentView: "home" | "editor";
   setCurrentView: React.Dispatch<React.SetStateAction<"home" | "editor">>;
   autoSaveStatus: "saved" | "saving";
@@ -109,7 +107,6 @@ interface NewspaperContextType {
   navigateToHome: () => void;
   convertThemeContent: (data: NewspaperData, targetTheme: NewspaperTheme) => NewspaperData;
   theme: NewspaperTheme;
-  switchTheme: (newTheme: NewspaperTheme, skipConfirm?: boolean) => void;
   updateRowHeight: (rowId: string, height: number) => void;
   updateRowColumnFractions: (rowId: string, fractions: number[]) => void;
   
@@ -169,11 +166,6 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     return savedView === "editor" ? "editor" : "home";
   });
 
-  const [activeTheme, setActiveTheme] = useState<NewspaperTheme>(() => {
-    const saved = localStorage.getItem("active_newspaper_theme");
-    return saved === "republican" ? "republican" : "fantasy";
-  });
-
   const [history, setHistory] = useState<{ past: NewspaperData[], present: NewspaperData, future: NewspaperData[] }>(() => {
     const initialTheme = (localStorage.getItem("active_newspaper_theme") as NewspaperTheme) || "fantasy";
     const initialData = loadThemeDraft(initialTheme);
@@ -203,7 +195,6 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
   }, [newspaperData, currentView]);
 
   const openEditor = (targetTheme: NewspaperTheme) => {
-    setActiveTheme(targetTheme);
     localStorage.setItem("active_newspaper_theme", targetTheme);
     const draft = loadThemeDraft(targetTheme);
     setHistory({ past: [], present: draft, future: [] });
@@ -260,12 +251,6 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
       };
     });
   }, []);
-
-  const [showWelcomeModal, setShowWelcomeModal] = useState<boolean>(() => {
-    const saved = localStorage.getItem("medieval_newspaper_data");
-    const chosen = localStorage.getItem("has_chosen_theme");
-    return !saved && !chosen;
-  });
 
   const [activeTab, setActiveTab] = useState<SidebarTab>("blocks");
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(() => {
@@ -853,38 +838,6 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     };
   };
 
-  const switchTheme = (newTheme: NewspaperTheme, skipConfirm = false) => {
-    if (theme === newTheme && localStorage.getItem("has_chosen_theme")) return;
-    if (!skipConfirm) {
-      const newThemeName = newTheme === "fantasy" ? "中世纪奇幻" : "民国报刊";
-      const currentThemeName = theme === "fantasy" ? "中世纪奇幻" : "民国报刊";
-      const choice = confirm(
-        `即将切换至「${newThemeName}」主题。\n\n当前文字内容将被保留并转换格式，不兼容的样式将重置为新主题默认值。\n\n如需保留当前「${currentThemeName}」存档，请先取消，前往存档管理保存后再切换。\n\n确认切换到「${newThemeName}」吗？`
-      );
-      if (!choice) return;
-    }
-    
-    // Set localStorage flag so welcome modal is never shown again
-    localStorage.setItem("has_chosen_theme", "true");
-    setShowWelcomeModal(false);
-
-    // If there is no saved layout, load the respective theme's default data template
-    const saved = localStorage.getItem("medieval_newspaper_data");
-    if (!saved) {
-      const defaultData = newTheme === "republican" ? REPUBLICAN_NEWSPAPER_DATA : INITIAL_NEWSPAPER_DATA;
-      setNewspaperData(defaultData);
-      setSelectedBlockId(newTheme === "republican" ? "rep_block_art_1" : "block_art_1");
-      setSelectedRowId(newTheme === "republican" ? "rep_row_1" : "row_1");
-      setSelectedColumnId(newTheme === "republican" ? "rep_col_1_1" : "col_1_2");
-    } else {
-      const converted = convertThemeContent(newspaperData, newTheme);
-      setNewspaperData(converted);
-      setSelectedBlockId(null);
-      setSelectedRowId(null);
-      setSelectedColumnId(null);
-    }
-  };
-
   const updateRowHeight = (rowId: string, height: number) => {
     setNewspaperData(prev => ({
       ...prev,
@@ -929,13 +882,12 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     sidebarWidth, setSidebarWidth,
     isExporting, setIsExporting,
     activeAddBlockColId, setActiveAddBlockColId,
-    showWelcomeModal, setShowWelcomeModal,
     currentView, setCurrentView,
     autoSaveStatus,
     openEditor,
     navigateToHome,
     convertThemeContent,
-    theme, switchTheme, updateRowHeight, updateRowColumnFractions,
+    theme, updateRowHeight, updateRowColumnFractions,
     findSelectedBlock, selectBlockAndContext, updateBlock, updateHeader,
     updateRowSplit, splitColumn, deleteColumn, insertRowBelow, addNewRow, deleteRow, moveRow,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, handleResetData,

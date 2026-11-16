@@ -27,7 +27,7 @@ export default function NewspaperPreview() {
     setActiveTab,
     selectBlockAndContext,
     addBlockToColumn, deleteBlock, moveBlock, moveBlockHorizontally, updateBlock,
-    theme, switchTheme, updateRowHeight, updateRowColumnFractions, updateHeader, triggerImageUpload,
+    theme, updateRowHeight, updateRowColumnFractions, updateHeader, triggerImageUpload,
     splitColumn, deleteColumn, insertRowBelow, moveRow, deleteRow
   } = useNewspaper();
 
@@ -41,37 +41,6 @@ export default function NewspaperPreview() {
         {/* Printable Canvas Box wrapper */}
         <div className="w-full max-w-[800px] select-text relative">
           
-          {/* Top-Level Theme Switcher Entry */}
-          <div className="no-print mb-4 bg-[#e8dcc4] border-2 border-[#8b4513] p-2 rounded flex items-center justify-between shadow-md">
-            <span className="text-xs font-serif font-bold text-[#8b4513] flex items-center gap-1.5">
-              <Eye className="w-4 h-4 text-[#8b4513]" />
-              <span>报纸风格实时切换：</span>
-            </span>
-            <div className="flex gap-1.5">
-              <button
-                type="button"
-                onClick={() => switchTheme("fantasy")}
-                className={`px-3 py-1 text-xs font-serif font-bold rounded-sm border transition-all cursor-pointer ${
-                  theme === "fantasy"
-                    ? "bg-[#8b4513] text-[#f5deb3] border-[#5a2d0c] shadow-inner"
-                    : "bg-[#dcd0b8] text-[#8b4513] border-[#8b4513]/30 hover:bg-[#8b4513]/10"
-                }`}
-              >
-                ⚔ 中世纪奇幻
-              </button>
-              <button
-                type="button"
-                onClick={() => switchTheme("republican")}
-                className={`px-3 py-1 text-xs font-serif font-bold rounded-sm border transition-all cursor-pointer ${
-                  theme === "republican"
-                    ? "bg-[#1a1a1a] text-[#f4f3ef] border-black shadow-inner"
-                    : "bg-[#dcd0b8] text-[#8b4513] border-[#8b4513]/30 hover:bg-[#8b4513]/10"
-                }`}
-              >
-                ■ 民国报刊
-              </button>
-            </div>
-          </div>
 
           {/* Editor Quick overlay for mobile viewport */}
           <div className="no-print bg-[#e8dcc4] border-2 border-[#8b4513] px-3 py-1.5 rounded-sm text-xs font-serif font-bold text-[#8b4513] flex items-center justify-between mb-4 shadow-md md:hidden">
