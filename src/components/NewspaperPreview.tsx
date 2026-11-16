@@ -108,6 +108,7 @@ export default function NewspaperPreview() {
           <div 
             ref={newspaperContainerRef}
             id="printable-newspaper-content"
+            onClick={() => setSelectedSealId(null)}
             className={`printable-newspaper w-full p-6 md:p-10 transition-all duration-300 shadow-2xl relative select-text ${
               paperTone === "aged" ? "tone-aged" :
               paperTone === "antique" ? "tone-antique" :

@@ -21,6 +21,7 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
     setSelectedBlockId,
     setSelectedRowId,
     setSelectedColumnId,
+    setSelectedSealId,
     paperTone,
     setPaperTone,
     columnGap,
@@ -85,6 +86,7 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
     setSelectedBlockId(null);
     setSelectedRowId(null);
     setSelectedColumnId(null);
+    setSelectedSealId(null);
     onClose();
   };
 
@@ -165,6 +167,7 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
           setSelectedBlockId(null);
           setSelectedRowId(null);
           setSelectedColumnId(null);
+          setSelectedSealId(null);
           alert("存档与排版内容已成功导入！");
           onClose();
         } else {

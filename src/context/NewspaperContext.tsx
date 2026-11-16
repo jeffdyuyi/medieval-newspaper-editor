@@ -470,6 +470,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     setSelectedBlockId(blockId);
     setSelectedColumnId(colId);
     setSelectedRowId(rowId);
+    setSelectedSealId(null);
   };
 
   const updateBlock = (blockId: string, updater: (block: Block) => Block) => {
@@ -1042,6 +1043,16 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
         })
       }))
     }));
+    const convertedSeals = (data.floatingSeals || []).map(seal => {
+      if (targetTheme === "republican" && seal.shape === "wax") {
+        return { ...seal, shape: "oval" as const, color: "red" as const };
+      }
+      if (targetTheme === "fantasy" && seal.shape === "oval") {
+        return { ...seal, shape: "wax" as const, color: "crimson" as const };
+      }
+      return seal;
+    });
+
     return {
       ...data,
       theme: targetTheme,
@@ -1050,7 +1061,8 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
         headerStyle: targetTheme === "republican" ? "classic" : data.header.headerStyle,
         republicanHeaderStyle: targetTheme === "republican" ? (data.header.republicanHeaderStyle || "vertical-box") : undefined,
       },
-      rows: convertedRows
+      rows: convertedRows,
+      floatingSeals: convertedSeals
     };
   };
 

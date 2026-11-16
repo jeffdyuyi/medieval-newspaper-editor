@@ -26,6 +26,7 @@ export default function FloatingSealsLayer({
     newspaperData,
     selectedSealId,
     setSelectedSealId,
+    setSelectedBlockId,
     updateFloatingSeal,
     deleteFloatingSeal,
     theme,
@@ -45,6 +46,7 @@ export default function FloatingSealsLayer({
     e.preventDefault();
     e.stopPropagation();
     setSelectedSealId(seal.id);
+    setSelectedBlockId(null);
     setDraggingSealId(seal.id);
 
     const container = containerRef.current;
@@ -110,6 +112,7 @@ export default function FloatingSealsLayer({
             onClick={(e) => {
               e.stopPropagation();
               setSelectedSealId(seal.id);
+              setSelectedBlockId(null);
             }}
             style={{
               left: `${seal.x}%`,
