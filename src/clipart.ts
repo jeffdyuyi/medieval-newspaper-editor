@@ -43,6 +43,22 @@ export const FANTASY_CLIPART: ClipartItem[] = [
     </svg>`,
   },
   {
+    id: "skull",
+    name: "通缉骷髅 (Wanted Skull)",
+    category: "Combat",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <path d="M50 15c-16.6 0-30 12.5-30 28 0 8.5 4 16.2 10.5 21.3V75h39V64.3C76 59.2 80 51.5 80 43c0-15.5-13.4-28-30-28zm-11 25c3.3 0 6 3.1 6 7s-2.7 7-6 7-6-3.1-6-7 2.7-7 6-7zm22 0c3.3 0 6 3.1 6 7s-2.7 7-6 7-6-3.1-6-7 2.7-7 6-7zm-11 15l2 5h-4l2-5zm-10 24v-6h4v6h-4zm7 0v-6h4v6h-4zm7 0v-6h4v6h-4zm7 0v-6h4v6h-4z" />
+    </svg>`,
+  },
+  {
+    id: "cross",
+    name: "哀思十字 (Memorial Cross)",
+    category: "Lore",
+    svgPath: `<svg viewBox="0 0 100 100" fill="currentColor" class="w-full h-full">
+      <path d="M43 10h14v25h25v14H57v41H43V49H18V35h25V10z" />
+    </svg>`,
+  },
+  {
     id: "potion",
     name: "炼金药水 (Potion)",
     category: "Alchemy",

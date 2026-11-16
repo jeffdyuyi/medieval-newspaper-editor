@@ -4,7 +4,10 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { SortableBlock } from "./SortableBlock";
 import { useNewspaper } from "../context/NewspaperContext";
 import { ALL_CLIPART } from "../clipart";
-import { ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock } from "../types";
+import { 
+  ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock,
+  BountyBlock, BriefsBlock, TableBlock, SealBlock, LetterBlock, ObituaryBlock
+} from "../types";
 import EditableText from "./EditableText";
 import SelectionToolbar from "./SelectionToolbar";
 import ColumnResizeHandle from "./ColumnResizeHandle";
@@ -803,6 +806,448 @@ export default function NewspaperPreview() {
                                         </div>
                                       </div>
                                     )}
+
+                                    {/* BLOCK RENDERING: BOUNTY / WANTED */}
+                                    {block.type === "bounty" && (() => {
+                                      const b = block as BountyBlock;
+                                      const avatarClipart = ALL_CLIPART.find(c => c.id === (b.clipartId || "skull"));
+                                      return (
+                                        <div className={`p-3 text-center space-y-2 select-text ${
+                                          b.borderStyle === "wenwu" ? "border-wenwu" :
+                                          b.borderStyle === "metal" ? "border-4 border-double border-[#2b221a]" :
+                                          b.borderStyle === "dashed" ? "border-2 border-dashed border-[#2b221a]" :
+                                          "border-2 border-[#2b221a] bg-[#2b221a]/3 p-3.5"
+                                        }`}>
+                                          <EditableText
+                                            tagName="div"
+                                            value={b.headerText}
+                                            onChange={(val) => updateBlock(block.id, blk => ({ ...blk, headerText: val } as BountyBlock))}
+                                            className="text-base md:text-lg font-black tracking-widest text-[#1c1510] uppercase font-serif"
+                                            placeholder="通缉标题 (如：WANTED / 懸賞通緝)"
+                                            title="点击修改通缉标题"
+                                          />
+                                          <div className="inline-block px-3 py-1 bg-[#2b221a] text-[#f5deb3] font-bold text-xs tracking-wider rounded-xs shadow-xs">
+                                            <EditableText
+                                              tagName="span"
+                                              value={b.bountyAmount}
+                                              onChange={(val) => updateBlock(block.id, blk => ({ ...blk, bountyAmount: val } as BountyBlock))}
+                                              placeholder="赏金金额 (如：賞金：5,000 金幣)"
+                                              title="点击修改赏金金额"
+                                            />
+                                          </div>
+
+                                          {/* Target Avatar / Portrait */}
+                                          <div className="w-16 h-16 mx-auto my-1 border-2 border-[#2b221a] p-1 bg-[#e8dcc4] flex items-center justify-center shadow-inner overflow-hidden">
+                                            {b.avatarType === "image" && b.avatarSrc ? (
+                                              <img src={b.avatarSrc} alt={b.targetName} className="w-full h-full object-cover grayscale contrast-125" />
+                                            ) : avatarClipart ? (
+                                              <div className="w-full h-full text-[#2b221a]" dangerouslySetInnerHTML={{ __html: avatarClipart.svgPath }} />
+                                            ) : (
+                                              <span className="text-2xl font-serif">☠</span>
+                                            )}
+                                          </div>
+
+                                          <EditableText
+                                            tagName="h3"
+                                            value={b.targetName}
+                                            onChange={(val) => updateBlock(block.id, blk => ({ ...blk, targetName: val } as BountyBlock))}
+                                            className="text-sm md:text-base font-bold text-[#1c1510] tracking-wider"
+                                            placeholder="嫌犯或目标姓名"
+                                            title="点击修改目标姓名"
+                                          />
+
+                                          <EditableText
+                                            tagName="p"
+                                            multiline
+                                            allowHtml
+                                            value={b.crimeDetails}
+                                            onChange={(val) => updateBlock(block.id, blk => ({ ...blk, crimeDetails: val } as BountyBlock))}
+                                            className="text-[11px] leading-relaxed text-[#2b221a]/90 font-kai max-w-[90%] mx-auto"
+                                            placeholder="罪名描述与体貌特征..."
+                                            title="点击修改案由与罪名描述"
+                                          />
+
+                                          <div className="pt-1.5 border-t border-[#2b221a]/20 text-[9.5px] text-stone-600 font-serif text-right pr-2">
+                                            <EditableText
+                                              tagName="span"
+                                              value={b.issuedBy}
+                                              onChange={(val) => updateBlock(block.id, blk => ({ ...blk, issuedBy: val } as BountyBlock))}
+                                              placeholder="签发署印"
+                                              title="点击修改签发署印机构"
+                                            />
+                                          </div>
+                                        </div>
+                                      );
+                                    })()}
+
+                                    {/* BLOCK RENDERING: BRIEFS */}
+                                    {block.type === "briefs" && (() => {
+                                      const b = block as BriefsBlock;
+                                      return (
+                                        <div className={`p-2.5 space-y-1.5 select-text ${
+                                          b.borderStyle === "boxed" ? "border-wenwu" :
+                                          b.borderStyle === "simple" ? "border-t border-b border-[#2b221a]/40 py-2" :
+                                          "border border-[#2b221a]/30 bg-[#2b221a]/2 p-3"
+                                        }`}>
+                                          <div className="flex items-center justify-between pb-1 border-b border-[#2b221a]/20 mb-1">
+                                            <EditableText
+                                              tagName="h4"
+                                              value={b.title}
+                                              onChange={(val) => updateBlock(block.id, blk => ({ ...blk, title: val } as BriefsBlock))}
+                                              className="text-xs font-bold tracking-wider text-[#1c1510] uppercase"
+                                              placeholder="短讯栏目抬头"
+                                              title="点击修改栏目抬头"
+                                            />
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                const newItemId = `item_${Date.now()}`;
+                                                updateBlock(block.id, blk => ({
+                                                  ...blk,
+                                                  items: [...(blk as BriefsBlock).items, { id: newItemId, tag: "【新讯】", text: "在此输入短讯内容..." }]
+                                                } as BriefsBlock));
+                                              }}
+                                              className="no-print text-[10px] text-[#8b4513] hover:text-[#2c241e] font-bold px-1.5 py-0.5 border border-[#8b4513]/40 rounded hover:bg-[#8b4513]/10 cursor-pointer"
+                                              title="增加一条短讯"
+                                            >
+                                              + 添短讯
+                                            </button>
+                                          </div>
+
+                                          <div className="space-y-1.5 text-xs text-[#2b221a]/95 leading-relaxed font-kai">
+                                            {b.items.map((item, itemIdx) => (
+                                              <div key={item.id || itemIdx} className="group/brief flex items-start gap-1 relative">
+                                                <span className="text-[10px] text-[#8b4513] select-none mt-0.5 shrink-0">
+                                                  {item.prefix || "◆"}
+                                                </span>
+                                                <div className="flex-1">
+                                                  <EditableText
+                                                    tagName="span"
+                                                    value={item.tag || ""}
+                                                    onChange={(val) => updateBlock(block.id, blk => ({
+                                                      ...blk,
+                                                      items: (blk as BriefsBlock).items.map((it, idx) => idx === itemIdx ? { ...it, tag: val } : it)
+                                                    } as BriefsBlock))}
+                                                    className="font-bold text-[#1c1510] mr-1 text-[11px]"
+                                                    placeholder="【地区】"
+                                                  />
+                                                  <EditableText
+                                                    tagName="span"
+                                                    value={item.text}
+                                                    onChange={(val) => updateBlock(block.id, blk => ({
+                                                      ...blk,
+                                                      items: (blk as BriefsBlock).items.map((it, idx) => idx === itemIdx ? { ...it, text: val } : it)
+                                                    } as BriefsBlock))}
+                                                    placeholder="短讯正文..."
+                                                  />
+                                                </div>
+                                                {b.items.length > 1 && (
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      updateBlock(block.id, blk => ({
+                                                        ...blk,
+                                                        items: (blk as BriefsBlock).items.filter((_, idx) => idx !== itemIdx)
+                                                      } as BriefsBlock));
+                                                    }}
+                                                    className="no-print opacity-0 group-hover/brief:opacity-100 text-red-700 hover:text-red-900 text-[10px] px-1 cursor-pointer shrink-0"
+                                                    title="删除本条短讯"
+                                                  >
+                                                    ×
+                                                  </button>
+                                                )}
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      );
+                                    })()}
+
+                                    {/* BLOCK RENDERING: TABLE */}
+                                    {block.type === "table" && (() => {
+                                      const b = block as TableBlock;
+                                      return (
+                                        <div className="my-1.5 space-y-1 select-text">
+                                          <div className="text-center pb-1">
+                                            <EditableText
+                                              tagName="h4"
+                                              value={b.title}
+                                              onChange={(val) => updateBlock(block.id, blk => ({ ...blk, title: val } as TableBlock))}
+                                              className="text-xs md:text-sm font-bold tracking-wider text-[#1c1510]"
+                                              placeholder="表格标题"
+                                            />
+                                            {b.subtitle !== undefined && (
+                                              <EditableText
+                                                tagName="p"
+                                                value={b.subtitle}
+                                                onChange={(val) => updateBlock(block.id, blk => ({ ...blk, subtitle: val } as TableBlock))}
+                                                className="text-[9.5px] text-stone-600 font-serif italic"
+                                                placeholder="副标题说明"
+                                              />
+                                            )}
+                                          </div>
+
+                                          <div className="overflow-x-auto border-t-2 border-b-2 border-[#2b221a]">
+                                            <table className="w-full text-[10.5px] border-collapse font-serif text-[#2b221a]">
+                                              <thead>
+                                                <tr className="border-b border-[#2b221a]/40 bg-[#2b221a]/5">
+                                                  {b.headers.map((h, hIdx) => (
+                                                    <th key={hIdx} className="p-1 font-bold text-left">
+                                                      <EditableText
+                                                        tagName="span"
+                                                        value={h}
+                                                        onChange={(val) => updateBlock(block.id, blk => ({
+                                                          ...blk,
+                                                          headers: (blk as TableBlock).headers.map((hdr, idx) => idx === hIdx ? val : hdr)
+                                                        } as TableBlock))}
+                                                        placeholder={`列 ${hIdx + 1}`}
+                                                      />
+                                                    </th>
+                                                  ))}
+                                                  <th className="no-print w-6 p-0"></th>
+                                                </tr>
+                                              </thead>
+                                              <tbody>
+                                                {b.rows.map((rowCells, rIdx) => (
+                                                  <tr key={rIdx} className="border-b border-[#2b221a]/15 last:border-b-0 hover:bg-[#2b221a]/3">
+                                                    {rowCells.map((cell, cIdx) => (
+                                                      <td key={cIdx} className="p-1 text-left">
+                                                        <EditableText
+                                                          tagName="span"
+                                                          value={cell}
+                                                          onChange={(val) => updateBlock(block.id, blk => ({
+                                                            ...blk,
+                                                            rows: (blk as TableBlock).rows.map((rw, ridx) => 
+                                                              ridx === rIdx ? rw.map((cl, cidx) => cidx === cIdx ? val : cl) : rw
+                                                            )
+                                                          } as TableBlock))}
+                                                          placeholder="内容"
+                                                        />
+                                                      </td>
+                                                    ))}
+                                                    <td className="no-print p-0 text-center">
+                                                      {b.rows.length > 1 && (
+                                                        <button
+                                                          type="button"
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            updateBlock(block.id, blk => ({
+                                                          ...blk,
+                                                          rows: (blk as TableBlock).rows.filter((_, ridx) => ridx !== rIdx)
+                                                        } as TableBlock));
+                                                      }}
+                                                      className="text-red-700 hover:text-red-900 text-[10px] px-1 cursor-pointer"
+                                                      title="删除此行"
+                                                    >
+                                                      ×
+                                                    </button>
+                                                  )}
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+
+                                      <div className="no-print flex justify-end pt-0.5">
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            const newRow = new Array(b.headers.length).fill("新项目");
+                                            updateBlock(block.id, blk => ({
+                                              ...blk,
+                                              rows: [...(blk as TableBlock).rows, newRow]
+                                            } as TableBlock));
+                                          }}
+                                          className="text-[9.5px] text-[#8b4513] hover:text-[#2c241e] font-bold px-1.5 py-0.5 border border-[#8b4513]/40 rounded hover:bg-[#8b4513]/10 cursor-pointer"
+                                        >
+                                          + 增加行
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+
+                                {/* BLOCK RENDERING: SEAL / STAMP */}
+                                {block.type === "seal" && (() => {
+                                  const b = block as SealBlock;
+                                  const rot = b.rotation !== undefined ? b.rotation : -5;
+                                  const isWax = b.sealShape === "wax";
+                                  const alignClass = b.align === "left" ? "justify-start" : b.align === "right" ? "justify-end" : "justify-center";
+                                  
+                                  const colorMap = {
+                                    crimson: "text-[#8b1e1e] border-[#8b1e1e]",
+                                    red: "text-[#b22222] border-[#b22222]",
+                                    indigo: "text-[#2a347b] border-[#2a347b]",
+                                    black: "text-[#1a1a1a] border-[#1a1a1a]",
+                                  };
+                                  const colorClass = colorMap[b.color] || colorMap.crimson;
+
+                                  return (
+                                    <div className={`my-2 flex ${alignClass} select-text`}>
+                                      <div 
+                                        style={{ transform: `rotate(${rot}deg)` }}
+                                        className={`transition-transform duration-200 select-text ${
+                                          isWax
+                                            ? "w-22 h-22 rounded-full bg-gradient-to-br from-[#a72626] via-[#851818] to-[#5a0f0f] text-[#fbe3b5] p-2 flex flex-col items-center justify-center text-center shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),_0_4px_8px_rgba(0,0,0,0.4)] border-2 border-[#540c0c]"
+                                            : b.sealShape === "oval"
+                                            ? `px-4 py-2 rounded-[50%] border-2 border-double ${colorClass} flex flex-col items-center justify-center text-center shadow-xs bg-[#b22222]/5`
+                                            : b.sealShape === "square"
+                                            ? `w-18 h-18 border-2 border-double ${colorClass} flex flex-col items-center justify-center text-center shadow-xs bg-[#b22222]/5 p-1`
+                                            : `w-18 h-18 rounded-full border-2 border-double ${colorClass} flex flex-col items-center justify-center text-center shadow-xs bg-[#b22222]/5 p-1`
+                                        }`}
+                                      >
+                                        <EditableText
+                                          tagName="div"
+                                          value={b.text}
+                                          onChange={(val) => updateBlock(block.id, blk => ({ ...blk, text: val } as SealBlock))}
+                                          className={`font-black tracking-widest text-center leading-tight ${isWax ? "text-xs text-[#fef3c7] font-serif" : "text-xs font-serif"}`}
+                                          placeholder="印文 (如: 驗訖)"
+                                          title="点击修改印章文字"
+                                        />
+                                        {b.subtext && (
+                                          <EditableText
+                                            tagName="div"
+                                            value={b.subtext}
+                                            onChange={(val) => updateBlock(block.id, blk => ({ ...blk, subtext: val } as SealBlock))}
+                                            className={`text-[8px] tracking-wider mt-0.5 opacity-90 ${isWax ? "text-[#fde68a]" : ""}`}
+                                            placeholder="副标/年份"
+                                            title="点击修改印章副标"
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+
+                                {/* BLOCK RENDERING: LETTER / STATEMENT */}
+                                {block.type === "letter" && (() => {
+                                  const b = block as LetterBlock;
+                                  return (
+                                    <div className={`p-3 my-1.5 space-y-1.5 select-text ${
+                                      b.borderStyle === "vintage" ? "border-wenwu bg-[#2b221a]/2" :
+                                      b.borderStyle === "quote" ? "border-l-4 border-[#8b4513] pl-3 py-1 bg-[#8b4513]/5" :
+                                      "border border-[#2b221a]/40 bg-[#f7f2e7]/40 shadow-xs rounded-xs p-3.5"
+                                    }`}>
+                                      {b.title && (
+                                        <EditableText
+                                          tagName="h4"
+                                          value={b.title}
+                                          onChange={(val) => updateBlock(block.id, blk => ({ ...blk, title: val } as LetterBlock))}
+                                          className="text-xs font-bold text-[#1c1510] tracking-wider text-center pb-1 border-b border-[#2b221a]/15"
+                                          placeholder="信件/声明抬头"
+                                        />
+                                      )}
+                                      {b.recipient && (
+                                        <EditableText
+                                          tagName="div"
+                                          value={b.recipient}
+                                          onChange={(val) => updateBlock(block.id, blk => ({ ...blk, recipient: val } as LetterBlock))}
+                                          className="text-xs font-bold text-[#2b221a]"
+                                          placeholder="称谓 (如: 致 编者阁下：)"
+                                        />
+                                      )}
+                                      <EditableText
+                                        tagName="p"
+                                        multiline
+                                        allowHtml
+                                        value={b.content}
+                                        onChange={(val) => updateBlock(block.id, blk => ({ ...blk, content: val } as LetterBlock))}
+                                        className="text-xs leading-relaxed text-[#2b221a]/95 font-kai indent-6"
+                                        placeholder="来信或声明正文..."
+                                      />
+                                      <div className="pt-1 flex justify-between items-center text-[10px] text-stone-600 font-serif">
+                                        <EditableText
+                                          tagName="span"
+                                          value={b.date || ""}
+                                          onChange={(val) => updateBlock(block.id, blk => ({ ...blk, date: val } as LetterBlock))}
+                                          placeholder="日期署名"
+                                        />
+                                        <EditableText
+                                          tagName="span"
+                                          value={b.sender}
+                                          onChange={(val) => updateBlock(block.id, blk => ({ ...blk, sender: val } as LetterBlock))}
+                                          className="font-bold text-[#1c1510]"
+                                          placeholder="署名发信人"
+                                        />
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+
+                                {/* BLOCK RENDERING: OBITUARY */}
+                                {block.type === "obituary" && (() => {
+                                  const b = block as ObituaryBlock;
+                                  return (
+                                    <div className="p-4 my-2 border-4 border-[#1a1a1a] bg-[#1a1a1a]/4 text-center space-y-2 select-text">
+                                      <EditableText
+                                        tagName="div"
+                                        value={b.headerBadge || "【 訃 告 】"}
+                                        onChange={(val) => updateBlock(block.id, blk => ({ ...blk, headerBadge: val } as ObituaryBlock))}
+                                        className="text-xs md:text-sm font-black tracking-widest text-black uppercase"
+                                        placeholder="【 訃 告 】"
+                                      />
+
+                                      <EditableText
+                                        tagName="h3"
+                                        value={b.deceasedName}
+                                        onChange={(val) => updateBlock(block.id, blk => ({ ...blk, deceasedName: val } as ObituaryBlock))}
+                                        className="text-base md:text-lg font-black tracking-widest text-[#0d0d0d] font-serif"
+                                        placeholder="逝者名讳"
+                                      />
+
+                                      {b.titleOrRole && (
+                                        <EditableText
+                                          tagName="p"
+                                          value={b.titleOrRole}
+                                          onChange={(val) => updateBlock(block.id, blk => ({ ...blk, titleOrRole: val } as ObituaryBlock))}
+                                          className="text-xs text-stone-700 font-serif tracking-wide"
+                                          placeholder="生前职务或头衔"
+                                        />
+                                      )}
+
+                                      <EditableText
+                                        tagName="div"
+                                        value={b.dates}
+                                        onChange={(val) => updateBlock(block.id, blk => ({ ...blk, dates: val } as ObituaryBlock))}
+                                        className="text-[10px] text-stone-600 font-mono tracking-wider"
+                                        placeholder="生卒年月与享年"
+                                      />
+
+                                      <EditableText
+                                        tagName="p"
+                                        multiline
+                                        allowHtml
+                                        value={b.message}
+                                        onChange={(val) => updateBlock(block.id, blk => ({ ...blk, message: val } as ObituaryBlock))}
+                                        className="text-xs leading-relaxed text-stone-800 font-kai max-w-[92%] mx-auto"
+                                        placeholder="生平生殁叙述与悼辞..."
+                                      />
+
+                                      <div className="pt-2 border-t border-black/30 space-y-0.5 text-[10px] text-stone-700 font-serif">
+                                        <EditableText
+                                          tagName="div"
+                                          value={b.mourners}
+                                          onChange={(val) => updateBlock(block.id, blk => ({ ...blk, mourners: val } as ObituaryBlock))}
+                                          className="font-bold text-black"
+                                          placeholder="治丧名录 (如: 治喪委員會 叩告)"
+                                        />
+                                        {b.serviceInfo && (
+                                          <EditableText
+                                            tagName="div"
+                                            value={b.serviceInfo}
+                                            onChange={(val) => updateBlock(block.id, blk => ({ ...blk, serviceInfo: val } as ObituaryBlock))}
+                                            className="text-stone-600 italic"
+                                            placeholder="公祭追思弥撒地址与时间"
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
                                   </SortableBlock>
                                 );
                               })}

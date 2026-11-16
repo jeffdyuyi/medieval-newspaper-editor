@@ -7,7 +7,11 @@ import {
 } from "lucide-react";
 import logoUrl from "../assets/logo";
 import { useNewspaper } from "../context/NewspaperContext";
-import { ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock, PaperTone } from "../types";
+import { 
+  ArticleBlock, HeadlineBlock, ImageBlock, DividerBlock, AdBlock, 
+  BountyBlock, BriefsBlock, TableBlock, SealBlock, LetterBlock, ObituaryBlock,
+  PaperTone 
+} from "../types";
 import { ALL_CLIPART } from "../clipart";
 import { FONT_OPTIONS } from "../constants";
 import { generateArticleAI } from "../utils/aiGenerator";
@@ -354,7 +358,24 @@ export default function Sidebar() {
                         {selectedBlock.type === "image" && <ImageIcon className="w-3.5 h-3.5" />}
                         {selectedBlock.type === "divider" && <Scissors className="w-3.5 h-3.5" />}
                         {selectedBlock.type === "ad" && <CoinsIcon className="w-3.5 h-3.5" />}
-                        选中的{selectedBlock.type === "article" ? "文章" : selectedBlock.type === "headline" ? "标题" : selectedBlock.type === "image" ? "插图" : selectedBlock.type === "divider" ? "分隔线" : "公告"}区块
+                        {selectedBlock.type === "bounty" && <span>⚔</span>}
+                        {selectedBlock.type === "briefs" && <span>❖</span>}
+                        {selectedBlock.type === "table" && <span>📊</span>}
+                        {selectedBlock.type === "seal" && <span>🔏</span>}
+                        {selectedBlock.type === "letter" && <span>✉</span>}
+                        {selectedBlock.type === "obituary" && <span>✝</span>}
+                        选中的{
+                          selectedBlock.type === "article" ? "文章" :
+                          selectedBlock.type === "headline" ? "标题" :
+                          selectedBlock.type === "image" ? "插图" :
+                          selectedBlock.type === "divider" ? "分隔线" :
+                          selectedBlock.type === "ad" ? "公告" :
+                          selectedBlock.type === "bounty" ? "悬赏令" :
+                          selectedBlock.type === "briefs" ? "要闻短讯" :
+                          selectedBlock.type === "table" ? "行情表格" :
+                          selectedBlock.type === "seal" ? "官方印信" :
+                          selectedBlock.type === "letter" ? "读者投书" : "沉痛讣告"
+                        }区块
                       </span>
                       <button 
                         type="button"
@@ -1032,6 +1053,234 @@ export default function Sidebar() {
                             <option value="ornate">皇家花饰刻线 (Double Antique)</option>
                             <option value="wenwu">民国文武线框 (Civil-Military)</option>
                             <option value="yunwen">民国云纹边框 (Cloud Pattern)</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* BOUNTY BLOCK EDIT CONTROLS */}
+                    {selectedBlock.type === "bounty" && (
+                      <div className="space-y-3 font-serif">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#8b4513]">通缉边框风格</label>
+                          <select 
+                            value={(selectedBlock as BountyBlock).borderStyle || "wood"}
+                            onChange={(e: any) => updateBlock(selectedBlock.id, b => ({ ...b, borderStyle: e.target.value } as BountyBlock))}
+                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] text-xs focus:outline-none"
+                          >
+                            <option value="wood">粗粝木刻实框 (Rustic Woodblock)</option>
+                            <option value="wenwu">民国文武通缉线 (Civil-Military)</option>
+                            <option value="metal">铁艺双层外框 (Double Metal)</option>
+                            <option value="dashed">醒目虚线警戒 (Dashed Line)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#8b4513]">通缉目标画像来源</label>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => updateBlock(selectedBlock.id, b => ({ ...b, avatarType: "clipart" } as BountyBlock))}
+                              className={`py-1 text-xs font-bold rounded-xs border cursor-pointer ${
+                                (selectedBlock as BountyBlock).avatarType !== "image"
+                                  ? "bg-[#8b4513] text-[#f5deb3] border-[#5a2d0c]"
+                                  : "bg-[#dcd0b8] text-[#8b4513] border-[#8b4513]/40"
+                              }`}
+                            >
+                              古典木刻剪贴画
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateBlock(selectedBlock.id, b => ({ ...b, avatarType: "image" } as BountyBlock))}
+                              className={`py-1 text-xs font-bold rounded-xs border cursor-pointer ${
+                                (selectedBlock as BountyBlock).avatarType === "image"
+                                  ? "bg-[#8b4513] text-[#f5deb3] border-[#5a2d0c]"
+                                  : "bg-[#dcd0b8] text-[#8b4513] border-[#8b4513]/40"
+                              }`}
+                            >
+                              自定义图片 URL
+                            </button>
+                          </div>
+                        </div>
+
+                        {(selectedBlock as BountyBlock).avatarType === "image" ? (
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold text-[#8b4513]">嫌犯照片 URL</label>
+                            <input
+                              type="text"
+                              value={(selectedBlock as BountyBlock).avatarSrc || ""}
+                              onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, avatarSrc: e.target.value } as BountyBlock))}
+                              placeholder="https://..."
+                              className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-2.5 py-1 text-xs text-[#2c241e] font-mono"
+                            />
+                          </div>
+                        ) : (
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold text-[#8b4513]">选择特征头像</label>
+                            <select
+                              value={(selectedBlock as BountyBlock).clipartId || "skull"}
+                              onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, clipartId: e.target.value } as BountyBlock))}
+                              className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] text-xs focus:outline-none"
+                            >
+                              <option value="skull">☠ 骷髅死煞 (Skull)</option>
+                              <option value="dragon">🐉 邪龙魔怪 (Dragon)</option>
+                              <option value="sword-shield">⚔ 叛誓骑士 (Knight)</option>
+                              <option value="vintage-camera">📷 摄影相片 (Camera)</option>
+                              <option value="rickshaw">🛺 街头走卒 (Rickshaw)</option>
+                              <option value="castle">🏰 要塞潜行 (Castle)</option>
+                            </select>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* BRIEFS BLOCK EDIT CONTROLS */}
+                    {selectedBlock.type === "briefs" && (
+                      <div className="space-y-3 font-serif">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#8b4513]">短讯栏框样式</label>
+                          <select 
+                            value={(selectedBlock as BriefsBlock).borderStyle || "vintage"}
+                            onChange={(e: any) => updateBlock(selectedBlock.id, b => ({ ...b, borderStyle: e.target.value } as BriefsBlock))}
+                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] text-xs focus:outline-none"
+                          >
+                            <option value="vintage">仿古淡雅底框 (Vintage Tint)</option>
+                            <option value="boxed">民国文武边框 (Civil-Military)</option>
+                            <option value="simple">极简上下双线 (Simple Lines)</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* TABLE BLOCK EDIT CONTROLS */}
+                    {selectedBlock.type === "table" && (
+                      <div className="space-y-3 font-serif">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#8b4513]">表格装帧样式</label>
+                          <select 
+                            value={(selectedBlock as TableBlock).style || "classic"}
+                            onChange={(e: any) => updateBlock(selectedBlock.id, b => ({ ...b, style: e.target.value } as TableBlock))}
+                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] text-xs focus:outline-none"
+                          >
+                            <option value="classic">古典上下双粗线 (Classic Rules)</option>
+                            <option value="boxed">全封闭格状表 (Full Boxed)</option>
+                            <option value="striped">隔行微弱底纹 (Subtle Striped)</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SEAL BLOCK EDIT CONTROLS */}
+                    {selectedBlock.type === "seal" && (
+                      <div className="space-y-3 font-serif">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#8b4513]">印章印形</label>
+                          <select 
+                            value={(selectedBlock as SealBlock).sealShape || "wax"}
+                            onChange={(e: any) => updateBlock(selectedBlock.id, b => ({ ...b, sealShape: e.target.value } as SealBlock))}
+                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] text-xs focus:outline-none"
+                          >
+                            <option value="wax">火漆立体蜡印 (Wax Seal)</option>
+                            <option value="oval">民国官厅椭圆印 (Oval Bureau)</option>
+                            <option value="circle">双圈朱砂圆章 (Double Circle)</option>
+                            <option value="square">古拙四方重印 (Square Seal)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#8b4513]">印泥色调</label>
+                          <div className="grid grid-cols-4 gap-1 text-[10px] text-center font-bold">
+                            {[
+                              { k: "crimson", label: "火漆红", bg: "bg-[#8b1e1e] text-white" },
+                              { k: "red", label: "朱砂红", bg: "bg-[#b22222] text-white" },
+                              { k: "indigo", label: "蓝靛印", bg: "bg-[#2a347b] text-white" },
+                              { k: "black", label: "墨黑印", bg: "bg-[#1a1a1a] text-white" },
+                            ].map(c => (
+                              <button
+                                key={c.k}
+                                type="button"
+                                onClick={() => updateBlock(selectedBlock.id, b => ({ ...b, color: c.k } as SealBlock))}
+                                className={`py-1 rounded-xs border cursor-pointer ${
+                                  (selectedBlock as SealBlock).color === c.k
+                                    ? `${c.bg} border-amber-300 ring-1 ring-amber-400`
+                                    : "bg-[#dcd0b8] border-[#8b4513]/40 text-[#4a3728]"
+                                }`}
+                              >
+                                {c.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs font-bold text-[#8b4513]">
+                            <span>印章倾斜角度</span>
+                            <span className="font-mono">{(selectedBlock as SealBlock).rotation ?? -5}°</span>
+                          </div>
+                          <input 
+                            type="range"
+                            min="-20"
+                            max="20"
+                            step="1"
+                            value={(selectedBlock as SealBlock).rotation ?? -5}
+                            onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, rotation: parseInt(e.target.value) } as SealBlock))}
+                            className="w-full accent-[#8b4513]"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#8b4513]">水平对齐</label>
+                          <div className="grid grid-cols-3 gap-1.5 text-xs text-center font-bold">
+                            {["left", "center", "right"].map(al => (
+                              <button
+                                key={al}
+                                type="button"
+                                onClick={() => updateBlock(selectedBlock.id, b => ({ ...b, align: al } as SealBlock))}
+                                className={`py-1 rounded-xs border cursor-pointer ${
+                                  ((selectedBlock as SealBlock).align || "center") === al
+                                    ? "bg-[#8b4513] text-[#f5deb3] border-[#5a2d0c]"
+                                    : "bg-[#dcd0b8] text-[#8b4513] border-[#8b4513]/40"
+                                }`}
+                              >
+                                {al === "left" ? "靠左" : al === "right" ? "靠右" : "居中"}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* LETTER BLOCK EDIT CONTROLS */}
+                    {selectedBlock.type === "letter" && (
+                      <div className="space-y-3 font-serif">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#8b4513]">信笺底框装饰</label>
+                          <select 
+                            value={(selectedBlock as LetterBlock).borderStyle || "paper"}
+                            onChange={(e: any) => updateBlock(selectedBlock.id, b => ({ ...b, borderStyle: e.target.value } as LetterBlock))}
+                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] text-xs focus:outline-none"
+                          >
+                            <option value="paper">古朴便笺纸框 (Parchment Paper)</option>
+                            <option value="quote">左侧重墨引言线 (Quote Accent)</option>
+                            <option value="vintage">文武声明框线 (Vintage Frame)</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* OBITUARY BLOCK EDIT CONTROLS */}
+                    {selectedBlock.type === "obituary" && (
+                      <div className="space-y-3 font-serif">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#8b4513]">讣告挽框装帧</label>
+                          <select 
+                            value={(selectedBlock as ObituaryBlock).borderStyle || "black-thick"}
+                            onChange={(e: any) => updateBlock(selectedBlock.id, b => ({ ...b, borderStyle: e.target.value } as ObituaryBlock))}
+                            className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] text-xs focus:outline-none"
+                          >
+                            <option value="black-thick">沉肃粗黑框 (Solemn Bold Box)</option>
+                            <option value="double-black">哀思双黑线 (Double Black Rule)</option>
+                            <option value="ornate-black">重墨角花双框 (Antique Memorial)</option>
                           </select>
                         </div>
                       </div>

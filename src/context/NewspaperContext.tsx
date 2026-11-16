@@ -686,6 +686,144 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
       newBlock = isRep
         ? { id: newBlockId, type: "divider", style: "wenwu" }
         : { id: newBlockId, type: "divider", style: "ornament", ornamentType: "fleur-de-lis" };
+    } else if (type === "bounty") {
+      newBlock = isRep
+        ? {
+            id: newBlockId, type: "bounty",
+            headerText: "懸 賞 通 緝",
+            bountyAmount: "賞格：大洋 壹仟圓 整",
+            targetName: "江洋大盜·趙黑虎",
+            crimeDetails: "案由：昨夜夥同匪徒持械搶掠洋行銀元，現飭巡捕緝拿，生擒或密報破案者從重酬獎。",
+            issuedBy: "淞滬巡警總局 督察處 宣",
+            avatarType: "clipart",
+            clipartId: "vintage-camera",
+            borderStyle: "wenwu"
+          }
+        : {
+            id: newBlockId, type: "bounty",
+            headerText: "✦ 懸賞通緝 ✦",
+            bountyAmount: "賞金：5,000 金幣 · 生死不論",
+            targetName: "暗夜刺客·維克托",
+            crimeDetails: "罪名：盜掘古王陵寢秘寶、襲擊帝國巡邏隊。極度危險，常出沒於黑霧森林。",
+            issuedBy: "聖殿騎士團 治安判事署 簽批",
+            avatarType: "clipart",
+            clipartId: "skull",
+            borderStyle: "wood"
+          };
+    } else if (type === "briefs") {
+      newBlock = isRep
+        ? {
+            id: newBlockId, type: "briefs",
+            title: "■ 申江本埠時事短電 ■",
+            borderStyle: "boxed",
+            items: [
+              { id: "b1", tag: "【法租界訊】", text: "電車路昨晚全部通車，票價維持原額，商民咸稱便利。" },
+              { id: "b2", tag: "【總商會訊】", text: "各業同業公會昨開茶話會，商討平抑米價救濟平民辦法。" },
+              { id: "b3", tag: "【輪船消息】", text: "江裕輪自漢口裝運熟桐油二千桶抵滬，今早進港卸貨。" }
+            ]
+          }
+        : {
+            id: newBlockId, type: "briefs",
+            title: "❖ 王國四方短訊輯要 ❖",
+            borderStyle: "vintage",
+            items: [
+              { id: "b1", tag: "【西境要塞】", text: "巡林客哨所昨報，黑霧山谷魔獸異動暫歇，商道已重開。" },
+              { id: "b2", tag: "【白銀港口】", text: "精靈商船隊攜珍珠草與月光絲綢順風抵港，水手雲集。" },
+              { id: "b3", tag: "【皇家法學院】", text: "春季法術考核明日舉行，院長提醒學徒佩帶防護符文。" }
+            ]
+          };
+    } else if (type === "table") {
+      newBlock = isRep
+        ? {
+            id: newBlockId, type: "table",
+            title: "中外洋行銀圓行情牌價",
+            subtitle: "上海金業公所昨日申刻牌價",
+            headers: ["洋鈿種類", "昨日收盤", "今日開盤", "市面行情"],
+            rows: [
+              ["袁大頭壹圓", "七角八分", "七角八分二厘", "平穩"],
+              ["孫頭開國幣", "七角七分", "七角七分五厘", "微升"],
+              ["墨西哥鷹洋", "七角六分", "七角六分", "持平"],
+              ["雙毫銀角子", "一角五分", "一角五分二厘", "交易旺"]
+            ],
+            style: "boxed"
+          }
+        : {
+            id: newBlockId, type: "table",
+            title: "皇家行商·武器藥劑官價牌",
+            subtitle: "聖歷742年春 帝國度支司特許發布",
+            headers: ["品名與規格", "官方定價", "市面備註"],
+            rows: [
+              ["精煉秘銀長劍", "120 金幣", "存貨緊俏·每人限購一柄"],
+              ["極效治療藥劑", "15 金幣", "鍊金術士公會特許正品"],
+              ["古銀旅行乾糧包", "3 銀幣", "耐寒耐濕·冒險必備"],
+              ["魔法照明水晶", "45 銀幣", "光芒可持續七日不滅"]
+            ],
+            style: "classic"
+          };
+    } else if (type === "seal") {
+      newBlock = isRep
+        ? {
+            id: newBlockId, type: "seal",
+            text: "淞滬警備司·驗訖",
+            subtext: "民國十二年 · 核准印發",
+            sealShape: "oval",
+            color: "red",
+            rotation: -4,
+            align: "center"
+          }
+        : {
+            id: newBlockId, type: "seal",
+            text: "聖塞西爾·御審",
+            subtext: "特許放行 · 聖歷742年",
+            sealShape: "wax",
+            color: "crimson",
+            rotation: -6,
+            align: "center"
+          };
+    } else if (type === "letter") {
+      newBlock = isRep
+        ? {
+            id: newBlockId, type: "letter",
+            title: "【讀者投書】",
+            recipient: "主筆先生大鑒：",
+            content: "昨日拜讀貴報所評《電車工人風潮》一文，立論平正，深獲鄙人共鳴。然查南市各路行車，每遇早暮繁劇之時，擁擠不堪。若能增開班次，則工友生計得全，市民亦免苦候之虞矣。",
+            sender: "愛國路讀者·王啟明 頓首",
+            date: "十一月十五日夜",
+            borderStyle: "vintage"
+          }
+        : {
+            id: newBlockId, type: "letter",
+            title: "【讀者來鴻】",
+            recipient: "致 帝國時報總編閣下：",
+            content: "近日王都盛傳巨龍重現邊境之流言，人心惶惶。鄙人長年巡狩於黑森林，確見林间雀鳥絕跡、地脈微震，絕非空穴來風。願王都守衛嚴加防範，莫使邊陲重蹈三十年前之災厄。",
+            sender: "遠境巡林客·阿蘭 謹書於西境哨所",
+            date: "星輝曆七四二年·冬月",
+            borderStyle: "paper"
+          };
+    } else if (type === "obituary") {
+      newBlock = isRep
+        ? {
+            id: newBlockId, type: "obituary",
+            headerBadge: "【 訃 告 】",
+            deceasedName: "先考嚴公諱複先府君",
+            titleOrRole: "前北京大學校長 · 思想啟蒙家 · 文林巨擘",
+            dates: "生於清咸豐四年 · 卒於民國十年 享壽六十有八",
+            message: "不孝男等痛心疾首，先考不幸於昨日申刻因痼疾復發，在滬寓溘然長逝。生平道德文章，天下共仰。茲定於本月二十日假座萬國公殯舍開弔，薄陳菲奠，用答存唁。",
+            mourners: "治喪委員會 暨 孤哀子等 泣血稽顙",
+            serviceInfo: "開弔日期：本月二十日上午十時 / 靈堂設在膠州路萬國殯儀館大禮堂",
+            borderStyle: "black-thick"
+          }
+        : {
+            id: newBlockId, type: "obituary",
+            headerBadge: "✦ 沉 痛 哀 告 ✦",
+            deceasedName: "亞瑟·馮·瓦倫丁 卿",
+            titleOrRole: "前皇家第二禁衛騎士團副團長 · 金鳶尾勳章受勳者",
+            dates: "聖歷 668 年 ~ 742 年 · 享年七十四歲",
+            message: "瓦倫丁卿於前日黎明在王都宅邸安詳逝世。卿戎馬一生，三度衛戍王畿，勇毅忠誠，名垂帝國史冊。大主教將於明晨親臨主持追思彌撒。",
+            mourners: "帝國皇家騎士團 暨 瓦倫丁家族 泣告",
+            serviceInfo: "追思彌撒：明晨辰時 王都聖彼得主教堂 / 安葬於聖塞西爾先賢陵園",
+            borderStyle: "black-thick"
+          };
     } else {
       newBlock = isRep
         ? { id: newBlockId, type: "ad", title: "先施公司新貨告白", content: "本公司由英美各國採辦應時綢緞呢絨、時裝西服，照公道定價發售，歡迎各界賜顧！", price: "定價：童叟無欺", merchant: "南京路大東門英租界", borderStyle: "wenwu" }
@@ -820,6 +958,18 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
             const a = block as any;
             if (targetTheme === "republican" && a.borderStyle === "ornate") return { ...a, borderStyle: "wenwu" };
             if (targetTheme === "fantasy" && (a.borderStyle === "wenwu" || a.borderStyle === "yunwen")) return { ...a, borderStyle: "ornate" };
+            return block;
+          }
+          if (block.type === "bounty") {
+            const bo = block as any;
+            if (targetTheme === "republican" && bo.borderStyle === "wood") return { ...bo, borderStyle: "wenwu", clipartId: bo.clipartId === "skull" ? "vintage-camera" : bo.clipartId };
+            if (targetTheme === "fantasy" && bo.borderStyle === "wenwu") return { ...bo, borderStyle: "wood", clipartId: bo.clipartId === "vintage-camera" ? "skull" : bo.clipartId };
+            return block;
+          }
+          if (block.type === "seal") {
+            const s = block as any;
+            if (targetTheme === "republican" && s.sealShape === "wax") return { ...s, sealShape: "oval", color: "red" };
+            if (targetTheme === "fantasy" && s.sealShape === "oval") return { ...s, sealShape: "wax", color: "crimson" };
             return block;
           }
           return block;

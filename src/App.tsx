@@ -212,6 +212,12 @@ export default function App() {
         image: { title: "🖼 版画插图", desc: "木刻版画或现代相片" },
         divider: { title: "◇ 装饰隔线", desc: "双线或徽记分隔条" },
         ad: { title: "🪙 告示商号", desc: "广告商号与边框公告" },
+        bounty: { title: "⚔ 悬赏通缉", desc: "WANTED 悬赏缉拿公文" },
+        briefs: { title: "❖ 要闻短讯", desc: "四方杂闻多条辑要" },
+        table: { title: "📊 行情物价", desc: "行市牌价与时刻表" },
+        seal: { title: "🔏 官方印信", desc: "火漆蜡印与审核公章" },
+        letter: { title: "✉ 读者投书", desc: "读者信笺与郑重声明" },
+        obituary: { title: "✝ 沉痛讣告", desc: "生殁哀告与公祭典礼" },
       };
       const info = titles[type] || { title: "模块", desc: "放置在栏目中" };
 
@@ -235,7 +241,19 @@ export default function App() {
               ? "🖼 版画插图"
               : activeBlock.type === "divider"
               ? "◇ 分隔线"
-              : "🪙 告示商号"}
+              : activeBlock.type === "ad"
+              ? "🪙 告示商号"
+              : activeBlock.type === "bounty"
+              ? "⚔ 悬赏通缉"
+              : activeBlock.type === "briefs"
+              ? "❖ 要闻短讯"
+              : activeBlock.type === "table"
+              ? "📊 行情物价"
+              : activeBlock.type === "seal"
+              ? "🔏 官方印信"
+              : activeBlock.type === "letter"
+              ? "✉ 读者投书"
+              : "✝ 沉痛讣告"}
           </span>
           <p className="line-clamp-2 text-stone-700 text-[11px] leading-tight">
             {activeBlock.type === "article"
@@ -244,7 +262,7 @@ export default function App() {
               ? (activeBlock as HeadlineBlock).text
               : activeBlock.type === "image"
               ? (activeBlock as ImageBlock).caption || "插图"
-              : "区块移动中..."}
+              : (activeBlock as any).title || (activeBlock as any).targetName || (activeBlock as any).deceasedName || (activeBlock as any).text || "区块移动中..."}
           </p>
         </div>
       );

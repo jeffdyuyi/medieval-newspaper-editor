@@ -1,6 +1,17 @@
 export type ColumnSplit = "1" | "1-1" | "1-2" | "2-1" | "1-1-1";
 
-export type BlockType = "headline" | "article" | "image" | "divider" | "ad";
+export type BlockType = 
+  | "headline" 
+  | "article" 
+  | "image" 
+  | "divider" 
+  | "ad"
+  | "bounty"
+  | "briefs"
+  | "table"
+  | "seal"
+  | "letter"
+  | "obituary";
 
 export type NewspaperTheme = "fantasy" | "republican";
 
@@ -81,7 +92,92 @@ export interface AdBlock {
   contentAlign?: "left" | "center" | "right" | "justify";
 }
 
-export type Block = HeadlineBlock | ArticleBlock | ImageBlock | DividerBlock | AdBlock;
+export interface BountyBlock {
+  id: string;
+  type: "bounty";
+  headerText: string; // e.g. "✦ 懸賞通緝 ✦" or "WANTED"
+  bountyAmount: string; // e.g. "賞金：5,000 金幣 · 生死不論"
+  targetName: string; // e.g. "暗夜刺客·維克托"
+  crimeDetails: string; // 罪名或案由
+  issuedBy: string; // 簽發公署 / 治安判事署
+  avatarType?: "clipart" | "image";
+  avatarSrc?: string;
+  clipartId?: string;
+  borderStyle?: "wood" | "metal" | "dashed" | "wenwu";
+}
+
+export interface BriefItem {
+  id: string;
+  tag?: string; // e.g. "【西境要塞】" / "【法租界訊】"
+  prefix?: string; // e.g. "◆", "▲", "·"
+  text: string;
+}
+
+export interface BriefsBlock {
+  id: string;
+  type: "briefs";
+  title: string;
+  items: BriefItem[];
+  borderStyle?: "vintage" | "simple" | "boxed";
+}
+
+export interface TableBlock {
+  id: string;
+  type: "table";
+  title: string;
+  subtitle?: string;
+  headers: string[];
+  rows: string[][];
+  style?: "classic" | "boxed" | "striped";
+}
+
+export interface SealBlock {
+  id: string;
+  type: "seal";
+  text: string; // 印章文字，如 "聖塞西爾·御審" / "淞滬警備司·驗訖"
+  subtext?: string; // 副标，如 "聖歷七四二年" / "民國十二年"
+  sealShape: "wax" | "circle" | "oval" | "square";
+  color: "crimson" | "red" | "indigo" | "black";
+  rotation?: number; // 倾斜角度，如 -6
+  align?: "left" | "center" | "right";
+}
+
+export interface LetterBlock {
+  id: string;
+  type: "letter";
+  title?: string; // e.g. "【讀者投書】" / "【鄭重聲明】"
+  recipient?: string; // e.g. "致 帝國時報總編閣下："
+  content: string; // 信件/声明正文
+  sender: string; // e.g. "遠境巡林客·阿蘭 謹上"
+  date?: string; // 日期/署期
+  borderStyle?: "paper" | "quote" | "vintage";
+}
+
+export interface ObituaryBlock {
+  id: string;
+  type: "obituary";
+  headerBadge?: string; // e.g. "✦ 沉痛哀告 ✦" or "【訃 告】"
+  deceasedName: string; // 逝者姓名
+  titleOrRole?: string; // 头衔/身份
+  dates: string; // 生卒年月与享年
+  message: string; // 悼念文辞与安息叙述
+  mourners: string; // 治丧组织/家属名录
+  serviceInfo?: string; // 追思弥撒/公祭地址时间
+  borderStyle?: "black-thick" | "ornate-black" | "double-black";
+}
+
+export type Block = 
+  | HeadlineBlock 
+  | ArticleBlock 
+  | ImageBlock 
+  | DividerBlock 
+  | AdBlock
+  | BountyBlock
+  | BriefsBlock
+  | TableBlock
+  | SealBlock
+  | LetterBlock
+  | ObituaryBlock;
 
 export interface Column {
   id: string;

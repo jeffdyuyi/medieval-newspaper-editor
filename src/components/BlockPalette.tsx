@@ -23,17 +23,29 @@ interface PaletteCardDef {
 const FANTASY_CARDS: PaletteCardDef[] = [
   { type: "headline", emoji: "✦", label: "大字标题",   desc: "装饰性栏目抬头" },
   { type: "article",  emoji: "✍", label: "文章正文",   desc: "含标题段落全文" },
+  { type: "bounty",   emoji: "⚔", label: "悬赏通缉",   desc: "WANTED 赏金公文" },
+  { type: "briefs",   emoji: "❖", label: "要闻短讯",   desc: "四方杂闻多条辑录" },
+  { type: "table",    emoji: "📜", label: "物价行市",   desc: "装备药剂金银价目" },
+  { type: "obituary", emoji: "✝", label: "沉痛讣告",   desc: "哀思铭记与奠仪" },
+  { type: "ad",       emoji: "🪙", label: "商号告示",   desc: "商铺招牌广告框" },
+  { type: "letter",   emoji: "✉", label: "读者投书",   desc: "手迹信笺与启事" },
+  { type: "seal",     emoji: "🔏", label: "官方印信",   desc: "火漆蜡印与特许章" },
   { type: "image",    emoji: "🖼", label: "版画插图",   desc: "木刻风格图像块" },
   { type: "divider",  emoji: "◇", label: "装饰分隔",   desc: "羽饰纹样隔线" },
-  { type: "ad",       emoji: "🪙", label: "商号告示",   desc: "商铺招牌广告框" },
 ];
 
 const REPUBLICAN_CARDS: PaletteCardDef[] = [
   { type: "headline", emoji: "■", label: "新闻标题",   desc: "民国排版黑体头条" },
-  { type: "article",  emoji: "✍", label: "新闻正文",   desc: "竖排新闻文章" },
-  { type: "image",    emoji: "📷", label: "报刊图片",   desc: "新闻照片或插图" },
-  { type: "divider",  emoji: "—", label: "版面分隔",   desc: "报栏横切线" },
-  { type: "ad",       emoji: "◎", label: "广告版块",   desc: "民国商业告白" },
+  { type: "article",  emoji: "✍", label: "新闻正文",   desc: "竖排新闻报道文章" },
+  { type: "bounty",   emoji: "🔍", label: "通缉悬赏",   desc: "官厅缉拿重酬启事" },
+  { type: "briefs",   emoji: "▲", label: "本埠简讯",   desc: "短电杂俎流式栏目" },
+  { type: "table",    emoji: "📊", label: "行情班期",   desc: "银元米价轮船班期" },
+  { type: "obituary", emoji: "▪", label: "生殁讣告",   desc: "沉肃黑框开吊公祭" },
+  { type: "ad",       emoji: "◎", label: "广告版块",   desc: "民国商业牌号告白" },
+  { type: "letter",   emoji: "✉", label: "读者来信",   desc: "投书杂感与郑重声明" },
+  { type: "seal",     emoji: "印", label: "官厅印戳",   desc: "朱砂椭圆审核验讫章" },
+  { type: "image",    emoji: "📷", label: "报刊图片",   desc: "新闻照片或木刻画" },
+  { type: "divider",  emoji: "—", label: "版面分隔",   desc: "报栏横断文武线" },
 ];
 
 // ── Single draggable & clickable palette card ─────────────────────────

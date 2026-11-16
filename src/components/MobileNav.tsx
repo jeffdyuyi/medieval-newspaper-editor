@@ -90,7 +90,13 @@ export default function MobileNav() {
     : selectedBlock.type === "headline" ? "标题"
     : selectedBlock.type === "image" ? "插图"
     : selectedBlock.type === "divider" ? "分隔线"
-    : "公告" : "";
+    : selectedBlock.type === "ad" ? "公告"
+    : selectedBlock.type === "bounty" ? "悬赏令"
+    : selectedBlock.type === "briefs" ? "要闻短讯"
+    : selectedBlock.type === "table" ? "行情表格"
+    : selectedBlock.type === "seal" ? "官方印信"
+    : selectedBlock.type === "letter" ? "读者投书"
+    : "沉痛讣告" : "";
 
   const navTabs = [
     { id: "blocks", icon: <Boxes className="w-4 h-4" />, label: "素材库" },
