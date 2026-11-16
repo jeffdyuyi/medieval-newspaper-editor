@@ -42,7 +42,7 @@ export default function EditableText({
   tagName = "span",
   placeholder = "点击输入文本...",
   multiline = false,
-  allowHtml = false,
+  allowHtml = true,
   autoFocus = false,
   onEnter,
   onBackspaceEmpty,

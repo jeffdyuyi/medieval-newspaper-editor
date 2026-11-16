@@ -317,3 +317,36 @@
     overflow: visible !important;
   }
 }
+
+/* ============================================================
+   RICH TEXT IN-SITU FORMATTING STYLES (加粗、斜体、幻色保障)
+   ============================================================ */
+.printable-newspaper b,
+.printable-newspaper strong {
+  font-weight: 800 !important;
+}
+
+.printable-newspaper i,
+.printable-newspaper em {
+  font-style: italic !important;
+}
+
+/* 垂直排版模式下的汉字倾斜增强（浏览器原生对竖排 CJK 字符关闭 italic） */
+.rep-col-inner i,
+.rep-col-inner em,
+.rep-masthead-vertical i,
+.rep-masthead-vertical em,
+[style*="writing-mode: vertical"] i,
+[style*="writing-mode: vertical"] em {
+  font-style: italic !important;
+  display: inline-block !important;
+  transform: skewX(-12deg) !important;
+  transform-origin: center center !important;
+}
+
+/* 确保选区色彩在任何背景下清晰可见并被打印保留 */
+.printable-newspaper [style*="color"] {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+

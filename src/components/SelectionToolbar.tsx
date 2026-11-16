@@ -2,11 +2,21 @@
  * SelectionToolbar.tsx
  * 画布选中文本情境浮动工具栏（Bubble Menu，参考 Word / Notion 标准）。
  * 当用户在报纸画布上拉选文本时，就近在选区上方轻盈浮现微型格式条：
- * 支持加粗、斜体、下划线、删除线、朱砂红字、清除格式等，点击即变，不选文字时静默隐藏。
+ * 支持加粗、斜体、下划线、删除线、五色幻色高亮（朱砂红/琥珀金/玄天青/松石翠/纯玄墨）、清除格式等。
+ * 点击即变，不选文字时静默隐藏。
  */
 import React, { useEffect, useState, useCallback } from "react";
 import { Bold, Italic, Underline, Strikethrough, Eraser } from "lucide-react";
 import { useNewspaper } from "../context/NewspaperContext";
+
+// 预设五色历史幻色盘
+const CHROMA_COLORS = [
+  { name: "朱砂红", color: "#b22222", bgClass: "bg-[#b22222]" },
+  { name: "琥珀金", color: "#b8860b", bgClass: "bg-[#b8860b]" },
+  { name: "玄天青", color: "#1e3a8a", bgClass: "bg-[#1e3a8a]" },
+  { name: "松石翠", color: "#166534", bgClass: "bg-[#166534]" },
+  { name: "纯玄墨", color: "#111111", bgClass: "bg-[#111111]" },
+];
 
 export default function SelectionToolbar() {
   const { theme } = useNewspaper();
@@ -43,19 +53,19 @@ export default function SelectionToolbar() {
         return;
       }
 
-      // 计算浮条位置：居中位于选区上方约 8px
-      const toolbarWidth = 190;
+      // 计算浮条位置：居中位于选区上方约 42px
+      const toolbarWidth = 280;
       let left = rect.left + rect.width / 2 - toolbarWidth / 2;
-      let top = rect.top - 40;
+      let top = rect.top - 44;
 
       // 视口边界保护
-      if (left < 8) left = 8;
-      if (left + toolbarWidth > window.innerWidth - 8) {
-        left = window.innerWidth - toolbarWidth - 8;
+      if (left < 10) left = 10;
+      if (left + toolbarWidth > window.innerWidth - 10) {
+        left = window.innerWidth - toolbarWidth - 10;
       }
-      if (top < 8) {
+      if (top < 10) {
         // 如果上方超出屏幕，则翻转显示在选区下方
-        top = rect.bottom + 8;
+        top = rect.bottom + 10;
       }
 
       setPosition({ top, left });
@@ -67,7 +77,7 @@ export default function SelectionToolbar() {
 
   useEffect(() => {
     const handleSelectionChange = () => {
-      // 稍微防抖避免微小跳动
+      // 动画帧防抖
       requestAnimationFrame(updatePosition);
     };
 
@@ -84,9 +94,20 @@ export default function SelectionToolbar() {
 
   if (!isVisible || !position) return null;
 
-  const dispatchInput = (node: Node | null) => {
-    const parentEl = node instanceof HTMLElement ? node : node?.parentElement;
-    const editable = parentEl?.closest("[contenteditable='true']");
+  // 辅助查找正在编辑的 contenteditable 容器
+  const findActiveEditable = (range: Range | null): HTMLElement | null => {
+    if (!range) return null;
+    let node: Node | null = range.commonAncestorContainer;
+    while (node) {
+      if (node instanceof HTMLElement && node.getAttribute("contenteditable") === "true") {
+        return node;
+      }
+      node = node.parentNode;
+    }
+    return null;
+  };
+
+  const dispatchInput = (editable: HTMLElement | null) => {
     if (editable) {
       editable.dispatchEvent(new Event("input", { bubbles: true }));
     }
@@ -94,30 +115,60 @@ export default function SelectionToolbar() {
 
   const executeCmd = (cmd: string, val: string | undefined = undefined) => {
     const selection = window.getSelection();
-    const container = selection?.rangeCount ? selection.getRangeAt(0).commonAncestorContainer : null;
+    if (!selection || !selection.rangeCount) return;
+    const range = selection.getRangeAt(0);
+    const editable = findActiveEditable(range);
+
     document.execCommand(cmd, false, val);
-    dispatchInput(container);
+    dispatchInput(editable);
     updatePosition();
   };
 
-  const applyRedHighlight = () => {
+  // 幻色应用：使用 DOM range extractContents 无损保留子节点
+  const applyColor = (colorHex: string) => {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
     const range = selection.getRangeAt(0);
-    const selectedText = range.toString();
-    if (!selectedText) return;
+    if (range.collapsed) return;
 
-    // 创建朱砂红字高亮 span
-    const span = document.createElement("span");
-    span.className = "text-[#962a1a] font-bold border-b border-[#962a1a]/30 mx-0.5";
-    span.textContent = selectedText;
+    const editable = findActiveEditable(range);
 
-    const container = range.commonAncestorContainer;
-    range.deleteContents();
-    range.insertNode(span);
-    dispatchInput(container);
-    selection.removeAllRanges();
-    setIsVisible(false);
+    try {
+      // 提取文档碎片，保留内部已有的 <b>, <i>, <u> 等节点
+      const fragment = range.extractContents();
+      const span = document.createElement("span");
+      span.style.color = colorHex;
+      span.style.textDecorationColor = colorHex;
+      span.appendChild(fragment);
+      range.insertNode(span);
+
+      // 重新选中包裹后的内容，保持选区可见
+      const newRange = document.createRange();
+      newRange.selectNodeContents(span);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+
+      dispatchInput(editable);
+      updatePosition();
+    } catch {
+      // 若出现复杂跨域边界选区，回退至原生带样式的 foreColor
+      document.execCommand("styleWithCSS", false, "true");
+      document.execCommand("foreColor", false, colorHex);
+      dispatchInput(editable);
+      updatePosition();
+    }
+  };
+
+  // 清除选区格式
+  const clearFormatting = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    const range = selection.getRangeAt(0);
+    const editable = findActiveEditable(range);
+
+    document.execCommand("removeFormat", false, undefined);
+    dispatchInput(editable);
+    updatePosition();
   };
 
   const isRep = theme === "republican";
@@ -127,7 +178,7 @@ export default function SelectionToolbar() {
 
   return (
     <div
-      className="fixed z-[9999] no-print flex items-center gap-0.5 px-2 py-1 rounded-full shadow-2xl border text-xs select-none backdrop-blur-md transition-opacity duration-150 animate-fadeIn"
+      className="fixed z-[9999] no-print flex items-center gap-1 px-2.5 py-1.5 rounded-full shadow-2xl border text-xs select-none backdrop-blur-md transition-opacity duration-150 animate-fadeIn"
       style={{
         top: position.top,
         left: position.left,
@@ -136,7 +187,7 @@ export default function SelectionToolbar() {
         color: textColor,
       }}
       onMouseDown={(e) => {
-        // 阻止失焦
+        // 阻止按钮点击导致编辑器失焦
         e.preventDefault();
       }}
     >
@@ -144,7 +195,7 @@ export default function SelectionToolbar() {
         type="button"
         onClick={() => executeCmd("bold")}
         title="加粗 (Ctrl+B)"
-        className="p-1 hover:bg-white/10 hover:text-white rounded transition cursor-pointer"
+        className="p-1 hover:bg-white/15 hover:text-white rounded transition cursor-pointer"
       >
         <Bold className="w-3.5 h-3.5" />
       </button>
@@ -153,7 +204,7 @@ export default function SelectionToolbar() {
         type="button"
         onClick={() => executeCmd("italic")}
         title="斜体 (Ctrl+I)"
-        className="p-1 hover:bg-white/10 hover:text-white rounded transition cursor-pointer"
+        className="p-1 hover:bg-white/15 hover:text-white rounded transition cursor-pointer"
       >
         <Italic className="w-3.5 h-3.5" />
       </button>
@@ -162,7 +213,7 @@ export default function SelectionToolbar() {
         type="button"
         onClick={() => executeCmd("underline")}
         title="下划线 (Ctrl+U)"
-        className="p-1 hover:bg-white/10 hover:text-white rounded transition cursor-pointer"
+        className="p-1 hover:bg-white/15 hover:text-white rounded transition cursor-pointer"
       >
         <Underline className="w-3.5 h-3.5" />
       </button>
@@ -171,31 +222,37 @@ export default function SelectionToolbar() {
         type="button"
         onClick={() => executeCmd("strikeThrough")}
         title="删除线"
-        className="p-1 hover:bg-white/10 hover:text-white rounded transition cursor-pointer"
+        className="p-1 hover:bg-white/15 hover:text-white rounded transition cursor-pointer"
       >
         <Strikethrough className="w-3.5 h-3.5" />
       </button>
 
-      <span className="w-[1px] h-3 bg-white/20 mx-0.5" />
+      <span className="w-[1px] h-3.5 bg-white/20 mx-0.5" />
+
+      {/* 幻色盘 Color Swatches */}
+      <div className="flex items-center gap-1.5 px-0.5" title="幻色：古风与时代五色墨彩">
+        {CHROMA_COLORS.map((item) => (
+          <button
+            key={item.color}
+            type="button"
+            onClick={() => applyColor(item.color)}
+            title={`幻色：${item.name}`}
+            className="w-4 h-4 rounded-full border border-white/40 hover:scale-125 transition-transform cursor-pointer shadow-xs"
+            style={{ backgroundColor: item.color }}
+          />
+        ))}
+      </div>
+
+      <span className="w-[1px] h-3.5 bg-white/20 mx-0.5" />
 
       <button
         type="button"
-        onClick={applyRedHighlight}
-        title="报刊重点朱砂红字"
-        className="px-1.5 py-0.5 text-[10px] font-bold text-[#ff6b6b] hover:bg-white/10 rounded transition cursor-pointer"
-      >
-        朱砂红
-      </button>
-
-      <button
-        type="button"
-        onClick={() => executeCmd("removeFormat")}
+        onClick={clearFormatting}
         title="清除格式"
-        className="p-1 hover:bg-white/10 hover:text-white rounded transition cursor-pointer opacity-70 hover:opacity-100"
+        className="p-1 hover:bg-white/15 hover:text-white rounded transition cursor-pointer opacity-70 hover:opacity-100"
       >
-        <Eraser className="w-3 h-3" />
+        <Eraser className="w-3.5 h-3.5" />
       </button>
     </div>
   );
 }
-
