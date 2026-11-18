@@ -1,0 +1,48 @@
+{
+  "author": "Kenney",
+  "source": "https://kenney.nl/assets/ui-pack-adventure",
+  "download": "https://opengameart.org/sites/default/files/kenney_ui-pack-adventure.zip",
+  "license": "CC0",
+  "assets": [
+    {
+      "file": "panel.png",
+      "original": "PNG/Default/panel_brown_corners_a.png",
+      "sha256": "809ef1cdc355cebce955feb1e235f35e61237146c0fc8ef2158bae531e09b85f",
+      "modified": false
+    },
+    {
+      "file": "card.png",
+      "original": "PNG/Default/panel_brown.png",
+      "sha256": "fb166d6c3a55dfd70d361c664df5b0e01811f328a9048455e2c0a285a4fbf1b7",
+      "modified": false
+    },
+    {
+      "file": "button.png",
+      "original": "PNG/Default/button_brown.png",
+      "sha256": "ee6d0103b23c877d28296a3fb620b5cdb340dd2c798134a7ea6317d5467d5053",
+      "modified": false
+    },
+    {
+      "file": "selected.png",
+      "original": "PNG/Default/button_red.png",
+      "sha256": "7305fb0dda92ebfa206bc893806b2f637b1b25e51a61faaa7f6c79cf178a9ac7",
+      "modified": false
+    },
+    {
+      "file": "slot-ready.png",
+      "original": "PNG/Double/round_brown.png",
+      "sourcePack": "UI Pack - Adventure",
+      "source": "https://kenney.nl/assets/ui-pack-adventure",
+      "sha256": "d418543a4da683eb9322f8ee0f2856103ef07fdb9a25a38124fdc308e7433341",
+      "modified": false
+    },
+    {
+      "file": "slot-spent.png",
+      "original": "PNG/Double/round_brown_dark.png",
+      "sourcePack": "UI Pack - Adventure",
+      "source": "https://kenney.nl/assets/ui-pack-adventure",
+      "sha256": "2655330979915ec0517fc91429085e346f53ecbd1a25ed0c8dfe3ad30ea64343",
+      "modified": false
+    }
+  ]
+}

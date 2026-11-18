@@ -1,0 +1,459 @@
+{
+  "date": "2026-11-02",
+  "revisions": {
+    "game": "82d948812bfe3f269ef8f731dcdb07b08160edc4",
+    "pixel": "c9ecc2da61afde85dbe539025e3d931c6152ad75"
+  },
+  "entries": [
+    {
+      "key": "game/armors",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/breastplate.svg",
+      "target": "public/icons/game/armors.svg",
+      "sha256": "b53210f6ff74ad55e1629a8e87b6badff2e6d8b6948265a1c2402ad8eac85633",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/backgrounds",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/scroll-unfurled.svg",
+      "target": "public/icons/game/backgrounds.svg",
+      "sha256": "bbbe367221e46a6d9ad8f1b0c47e8a0db223cd2b9fda67b885e906c6fe72d9c9",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/barbarian",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/battle-axe.svg",
+      "target": "public/icons/game/barbarian.svg",
+      "sha256": "c0c9c2359cc1fb66976fed317df7e5329ee5b2f0c7463f89b7aaebdb28d19834",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/bard",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/lyre.svg",
+      "target": "public/icons/game/bard.svg",
+      "sha256": "2781700fcb4ec7de561300092491634b9177ef26e9ceea1ec535d64c34d23c22",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/book",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/open-book.svg",
+      "target": "public/icons/game/book.svg",
+      "sha256": "fea1988dca10d827a6159328da655f9aaefcd642e2a08588d728424190fcd285",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/bow",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/bowman.svg",
+      "target": "public/icons/game/bow.svg",
+      "sha256": "d36e4e7cfaf8c8bc3a5af12b4eb839aaa39484419e1c0a8817ade3616bd7945b",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/candle",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/candle-flame.svg",
+      "target": "public/icons/game/candle.svg",
+      "sha256": "b0d4c8281cd555161571030f4ec3d0ce65028a69ca0dd74186279b30fe364e51",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/characters",
+      "author": "delapouite",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/wizard-face.svg",
+      "target": "public/icons/game/characters.svg",
+      "sha256": "20fbc45ec55e019fe970b26d2f5f88a5cddc60b584ba7d1532b27ee1fcd17a0a",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/classes",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/crossed-swords.svg",
+      "target": "public/icons/game/classes.svg",
+      "sha256": "d977de17aa347c15a311e96ee4c7194837e47d119d2b5a06bc1dbbd2cd1a92f2",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/cleric",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/holy-symbol.svg",
+      "target": "public/icons/game/cleric.svg",
+      "sha256": "bddc96373287b8c47e12a3a410eaea9af756389398ac9437727b20df85e5753a",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/druid",
+      "author": "delapouite",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/oak-leaf.svg",
+      "target": "public/icons/game/druid.svg",
+      "sha256": "eec3ed3b0f228535d3720a2a95759853d029e84d651803fdc88ecb7846558827",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/feats",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/crowned-heart.svg",
+      "target": "public/icons/game/feats.svg",
+      "sha256": "7b7095e5706f454feac3aa159d64339e523fec8119506f16309c4e7773a9659a",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/fighter",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/crossed-swords.svg",
+      "target": "public/icons/game/fighter.svg",
+      "sha256": "d977de17aa347c15a311e96ee4c7194837e47d119d2b5a06bc1dbbd2cd1a92f2",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/gears",
+      "author": "delapouite",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/backpack.svg",
+      "target": "public/icons/game/gears.svg",
+      "sha256": "6036f15b66931d8770a4d202c93fbf0a5036f40e582dc303204b637cb2617b08",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/magicItems",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/crystal-ball.svg",
+      "target": "public/icons/game/magicItems.svg",
+      "sha256": "5bd0091b48f9a8fdb68a9ef3a1c85979052655466d08a2d1797f1d4bc5beba1a",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/monk",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/fist.svg",
+      "target": "public/icons/game/monk.svg",
+      "sha256": "90109145ee04ed507f70ff934f5f939ffaea7c50fda8ee18e001de120fe3c115",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/paladin",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/checked-shield.svg",
+      "target": "public/icons/game/paladin.svg",
+      "sha256": "9bbb465f5272eae12dfa536a31f0204eb6d65259607db5e86618d55881c945a0",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/potion",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/potion-ball.svg",
+      "target": "public/icons/game/potion.svg",
+      "sha256": "dea766b6f41e942c25895c497c89e35ce7f16ffb1f08c38d9d3726d740fe7abe",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/ranger",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/bowman.svg",
+      "target": "public/icons/game/ranger.svg",
+      "sha256": "d36e4e7cfaf8c8bc3a5af12b4eb839aaa39484419e1c0a8817ade3616bd7945b",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/rogue",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/cloak-dagger.svg",
+      "target": "public/icons/game/rogue.svg",
+      "sha256": "be7866f25ed16375926cc93286306ff87838a3003e962cbf0ad12158e8b0fb73",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/shield",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/checked-shield.svg",
+      "target": "public/icons/game/shield.svg",
+      "sha256": "9bbb465f5272eae12dfa536a31f0204eb6d65259607db5e86618d55881c945a0",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/sorcerer",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/fireball.svg",
+      "target": "public/icons/game/sorcerer.svg",
+      "sha256": "06fc4f76d5b1144830eda7c98c53b66262718d4bc18c2de121ab82256dd4eefb",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/species",
+      "author": "delapouite",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/dwarf-face.svg",
+      "target": "public/icons/game/species.svg",
+      "sha256": "b658e4948f85701ee066ed49861213b03a3166579286c50340fee98967760869",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/spells",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/wizard-staff.svg",
+      "target": "public/icons/game/spells.svg",
+      "sha256": "743b394ecdbf8c7bf6be177dac0d4e172a4559e66d5c86b8c5aad9c37c394637",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/subclasses",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/crown.svg",
+      "target": "public/icons/game/subclasses.svg",
+      "sha256": "2cc6c5699d80caab294edeacc318b662bffd0c3a672fe34062d5ef0c37a35fb7",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/tools",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/anvil.svg",
+      "target": "public/icons/game/tools.svg",
+      "sha256": "8f1b9ce7c512d167719dcd77fc169c811eb69b25e30ed1ae5610d161ce9007a4",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/warlock",
+      "author": "delapouite",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/warlock-eye.svg",
+      "target": "public/icons/game/warlock.svg",
+      "sha256": "679c8a2fb24c5aeb98c2877723054c8418cc79b9cb9514c8d62a9d203412c15a",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/weapons",
+      "author": "lorc",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/crossed-swords.svg",
+      "target": "public/icons/game/weapons.svg",
+      "sha256": "d977de17aa347c15a311e96ee4c7194837e47d119d2b5a06bc1dbbd2cd1a92f2",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "game/wizard",
+      "author": "delapouite",
+      "license": "CC BY 3.0",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/spell-book.svg",
+      "target": "public/icons/game/wizard.svg",
+      "sha256": "4966d0148d28ff97f20d4528827517f7e49ea251b51d899874839a2a0573d9a2",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/add",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/plus.svg",
+      "target": "public/icons/pixel/add.svg",
+      "sha256": "b7b6631409898550d823f06488c66c995f273e2eabdea5d06c8f3643e4f5a4de",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/back",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/arrow-left.svg",
+      "target": "public/icons/pixel/back.svg",
+      "sha256": "e97c564d0b86da241d52b980c21f5ec568e28cc3f25a4dc101963064838c6aba",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/book",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/book-open.svg",
+      "target": "public/icons/pixel/book.svg",
+      "sha256": "a36417e30abc82e93e37ffa844c791fece78c99e445a7710bf63d37df7199859",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/check",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/check.svg",
+      "target": "public/icons/pixel/check.svg",
+      "sha256": "539e0df8b4519ae07a2d803d10b27be6343819a7912f0c038745cfa65fcd37db",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/close",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/close.svg",
+      "target": "public/icons/pixel/close.svg",
+      "sha256": "9944c7d86468bffbcabdf3e94e03736b58eb0f8a38dba7844201a048f2d2aa6e",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/delete",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/trash.svg",
+      "target": "public/icons/pixel/delete.svg",
+      "sha256": "4aff6085c3617f4ce64cd44cef95f48115e563debd110b7d23ed2e7430871e53",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/download",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/download.svg",
+      "target": "public/icons/pixel/download.svg",
+      "sha256": "2a419389fa31eb2f2bab03e2c94f5129e5d5734e1ab54fe630e41eb1e0139374",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/edit",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/pencil.svg",
+      "target": "public/icons/pixel/edit.svg",
+      "sha256": "de547af9cc67017b1c6228f65ab317f681558cdca67b0afeeb22709136de80a2",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/external",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/external-link.svg",
+      "target": "public/icons/pixel/external.svg",
+      "sha256": "3b8f3c44eb134fe5ba3660c2c55eeb28d86628920ce035c5fd5f76d061984083",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/filter",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/filter.svg",
+      "target": "public/icons/pixel/filter.svg",
+      "sha256": "8d9760d238b1f2f9c8aa848a7849e891202591069e9f4d4a675db6caaa52c047",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/home",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/home.svg",
+      "target": "public/icons/pixel/home.svg",
+      "sha256": "da320202d53ae29fbdf803838b64e7980f946a1c3622c7b7b76c6a215a1ea7c3",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/left",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/chevron-left.svg",
+      "target": "public/icons/pixel/left.svg",
+      "sha256": "264dbd0445ec38c10b97f8d7296bf1b0f9b5c68d96a99a140b64f04a509fd30c",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/lightning",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/zap.svg",
+      "target": "public/icons/pixel/lightning.svg",
+      "sha256": "294975ccc602739edb4bc562bad9ec8c9436608a6c2ee312ce9042e394fc08dc",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/menu",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/menu.svg",
+      "target": "public/icons/pixel/menu.svg",
+      "sha256": "5de638e86355169e61b633af0115ed7c13c3fbd6fd5f09d2909950e1a9841e93",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/right",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/chevron-right.svg",
+      "target": "public/icons/pixel/right.svg",
+      "sha256": "b4f9b4e2317ac4ff07ac6291eaead2e6c553d3cea8e63163f520843561c3fe8c",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/save",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/save.svg",
+      "target": "public/icons/pixel/save.svg",
+      "sha256": "8a2a2bec7634d7aabf33df56cbf48738c307f4bfece1ad6346f32a75552f11db",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/scale",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/scale.svg",
+      "target": "public/icons/pixel/scale.svg",
+      "sha256": "b745d2d792860f86f2b56d7f44a97cd7510d91164209e4a54df7229070ff50d9",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/search",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/search.svg",
+      "target": "public/icons/pixel/search.svg",
+      "sha256": "ed931ec3576a46cc2f10d53b4643a4f19f5e4cec8e7ae943c4f6db81d384b5e5",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/star",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/star.svg",
+      "target": "public/icons/pixel/star.svg",
+      "sha256": "66e73c19e046f3c060dea9299ef1896b6f17120d129025149620d84d76d0f6ff",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/upload",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/upload.svg",
+      "target": "public/icons/pixel/upload.svg",
+      "sha256": "427ed865ba3303fba14da2b69ac36cccd99d74e86ca4953116d03cbdecccc032",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    },
+    {
+      "key": "pixel/user",
+      "author": "Gerrit Halfmann",
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/c9ecc2da61afde85dbe539025e3d931c6152ad75/svg/user.svg",
+      "target": "public/icons/pixel/user.svg",
+      "sha256": "17b4a7950d37cb6af135301c90c27d8617d91b3cc7b1d2fb5b10c4cdf4401209",
+      "changes": "SVG background removed where present; monochrome fills use currentColor; geometry unchanged"
+    }
+  ]
+}

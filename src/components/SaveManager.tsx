@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { X, Save, Upload, Trash2, Clock, FilePlus } from "lucide-react";
 import { NewspaperData, PaperTone } from "../types";
 import { useNewspaper, sanitizeNewspaperData } from "../context/NewspaperContext";
+import PixelIcon from "./PixelIcon";
 
 interface SaveSlot {
   id: string;
@@ -55,46 +55,57 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
       } catch (e) {
         console.error("Failed to parse saves", e);
       }
-    } else {
-      setSaves([]);
     }
   }, [storageKey, theme]);
 
   const saveToLocalStorage = (newSaves: SaveSlot[]) => {
-    localStorage.setItem(storageKey, JSON.stringify(newSaves));
     setSaves(newSaves);
+    localStorage.setItem(storageKey, JSON.stringify(newSaves));
+    if (theme === "fantasy") {
+      localStorage.setItem("medieval_newspaper_saves", JSON.stringify(newSaves));
+    }
   };
 
   const handleCreateSave = () => {
-    const name = newSaveName.trim() || `存档 ${new Date().toLocaleString()}`;
+    if (!newSaveName.trim()) {
+      alert("请输入存档名称");
+      return;
+    }
+
     const newSave: SaveSlot = {
-      id: `save_${Date.now()}`,
-      name,
+      id: Date.now().toString(),
+      name: newSaveName.trim(),
       timestamp: Date.now(),
-      data: sanitizeNewspaperData(newspaperData),
+      data: JSON.parse(JSON.stringify(newspaperData)),
     };
-    saveToLocalStorage([newSave, ...saves]);
+
+    const newSaves = [newSave, ...saves];
+    saveToLocalStorage(newSaves);
     setNewSaveName("");
   };
 
   const handleOverwrite = (id: string) => {
-    if (!confirm("确定要用当前报纸覆盖此存档吗？")) return;
-    const newSaves = saves.map((s) =>
-      s.id === id
-        ? { ...s, data: sanitizeNewspaperData(newspaperData), timestamp: Date.now() }
-        : s
-    );
+    if (!confirm("确定要使用当前画布内容覆盖此存档吗？")) return;
+    const newSaves = saves.map((s) => {
+      if (s.id === id) {
+        return {
+          ...s,
+          timestamp: Date.now(),
+          data: JSON.parse(JSON.stringify(newspaperData)),
+        };
+      }
+      return s;
+    });
     saveToLocalStorage(newSaves);
   };
 
   const handleLoad = (save: SaveSlot) => {
-    if (!confirm("加载存档将覆盖当前未保存的内容，确定要加载吗？")) return;
     let targetData = save.data;
     if (save.data.theme && save.data.theme !== theme) {
       const fromName = save.data.theme === "republican" ? "民国报刊" : "中世纪奇幻";
       const toName = theme === "republican" ? "民国报刊" : "中世纪奇幻";
       const ok = confirm(
-        `检测到该存档记录源自【${fromName}】环境。\n\n是否允许将其中的标题、副标、文章正文、作者、图片与告示等内容，自动转换并适配至当前【${toName}】编辑器？`
+        `检测到该存档源自【${fromName}】环境。\n\n是否允许将其中的标题、副标、文章正文、作者、图片与告示等内容，自动转换并适配至当前【${toName}】？`
       );
       if (!ok) return;
       targetData = convertThemeContent(save.data, theme);
@@ -142,7 +153,7 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
     URL.revokeObjectURL(url);
   };
 
-  // Helper for JSON File Import (supports both raw NewspaperData and full backup packets)
+  // Helper for JSON File Import
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -152,10 +163,8 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
         const parsed = JSON.parse(event.target?.result as string);
         let rawData: NewspaperData | null = null;
 
-        // Check if it's the enhanced 2.0 backup envelope
         if (parsed && parsed.data && parsed.data.rows && parsed.data.header) {
           rawData = parsed.data;
-          // Restore visual settings if present
           if (parsed.settings) {
             if (parsed.settings.paperTone) setPaperTone(parsed.settings.paperTone as PaperTone);
             if (typeof parsed.settings.columnGap === "number") setColumnGap(parsed.settings.columnGap);
@@ -165,7 +174,6 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
             if (typeof parsed.settings.enableCoffeeStains === "boolean") setEnableCoffeeStains(parsed.settings.enableCoffeeStains);
           }
         } else if (parsed && parsed.rows && parsed.header) {
-          // Classic raw NewspaperData
           rawData = parsed;
         }
 
@@ -200,40 +208,41 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-[#e8dcc4] border-2 border-[#8b4513] rounded-lg max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden font-serif">
+    <div className="fixed inset-0 bg-[#070a10]/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="pixel-panel max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="bg-[#dcd0b8] border-b-2 border-[#8b4513] p-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-[#2c241e] flex items-center gap-2">
-            <Save className="w-5 h-5 text-[#8b4513]" />
+        <div className="pixel-panel-header px-4 py-3 flex items-center justify-between">
+          <h2 className="text-base font-bold text-[var(--color-gold)] flex items-center gap-2">
+            <PixelIcon name="pixel/save" size={18} className="text-[var(--color-gold)]" />
             档案馆 (多存档管理)
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-[#8b4513]/10 text-[#8b4513] rounded transition-colors"
+            className="p-1 hover:text-[var(--color-gold)] text-[var(--color-muted)] transition-colors cursor-pointer"
+            title="关闭"
           >
-            <X className="w-6 h-6" />
+            <PixelIcon name="pixel/close" size={18} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-thin">
+        <div className="flex-1 overflow-y-auto p-5 space-y-6 pixel-scroll">
           {/* Create New Save */}
-          <div className="bg-[#dcd0b8]/40 p-4 border border-[#8b4513]/30 rounded space-y-3">
-            <h3 className="text-sm font-bold text-[#8b4513]">存入新档</h3>
+          <div className="pixel-card p-4 space-y-3">
+            <h3 className="text-sm font-bold text-[var(--color-gold)]">存入新档</h3>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={newSaveName}
                 onChange={(e) => setNewSaveName(e.target.value)}
                 placeholder="在此输入存档名称（如：最终决战号外）..."
-                className="flex-1 bg-[#e8dcc4] border border-[#8b4513] rounded px-3 py-2 text-sm text-[#2c241e] focus:outline-none focus:ring-1 focus:ring-[#8b4513]"
+                className="pixel-input flex-1 text-sm"
               />
               <button
                 onClick={handleCreateSave}
-                className="bg-[#8b4513] hover:bg-[#753a10] text-[#f5deb3] px-4 py-2 rounded font-bold text-sm transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="pixel-btn text-sm px-4 py-1.5"
               >
-                <FilePlus className="w-4 h-4" />
+                <PixelIcon name="pixel/add" size={16} />
                 保存
               </button>
             </div>
@@ -241,12 +250,13 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
 
           {/* Local Save List */}
           <div className="space-y-3">
-            <h3 className="text-sm font-bold text-[#8b4513] border-b border-[#8b4513]/20 pb-1">
-              本地历史存档 ({saves.length})
+            <h3 className="text-sm font-bold text-[var(--color-ink)] border-b border-[var(--color-line)] pb-1 flex items-center justify-between">
+              <span>本地历史存档</span>
+              <span className="text-xs text-[var(--color-muted)] font-normal">{saves.length} 个记录</span>
             </h3>
 
             {saves.length === 0 ? (
-              <p className="text-xs text-[#8b4513]/60 italic py-4 text-center">
+              <p className="text-xs text-[var(--color-muted)] italic py-6 text-center">
                 档案馆空空如也，尚未有任何记录。
               </p>
             ) : (
@@ -254,34 +264,33 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
                 {saves.map((save) => (
                   <div
                     key={save.id}
-                    className="bg-[#dcd0b8]/60 border border-[#8b4513]/40 p-3 rounded flex items-center justify-between group"
+                    className="pixel-card pixel-card-hover p-3 flex items-center justify-between group"
                   >
                     <div>
-                      <h4 className="font-bold text-[#2c241e]">{save.name}</h4>
-                      <p className="text-xs text-[#8b4513]/80 flex items-center gap-1 mt-1">
-                        <Clock className="w-3 h-3" />
-                        {new Date(save.timestamp).toLocaleString()}
+                      <h4 className="font-bold text-[var(--color-ink)] text-sm">{save.name}</h4>
+                      <p className="text-xs text-[var(--color-muted)] flex items-center gap-1.5 mt-1">
+                        <span>{new Date(save.timestamp).toLocaleString()}</span>
                       </p>
                     </div>
                     <div className="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => handleLoad(save)}
-                        className="px-3 py-1.5 bg-[#2c241e] text-[#e8dcc4] text-xs rounded hover:bg-black transition-colors cursor-pointer"
+                        className="pixel-btn text-xs px-3 py-1"
                       >
                         加载
                       </button>
                       <button
                         onClick={() => handleOverwrite(save.id)}
-                        className="px-3 py-1.5 border border-[#8b4513] text-[#8b4513] text-xs rounded hover:bg-[#8b4513] hover:text-[#f5deb3] transition-colors cursor-pointer"
+                        className="pixel-btn text-xs px-3 py-1 text-[var(--color-gold)]"
                       >
                         覆盖
                       </button>
                       <button
                         onClick={() => handleDelete(save.id)}
-                        className="px-2 py-1.5 border border-red-800/50 text-red-800 text-xs rounded hover:bg-red-100 transition-colors cursor-pointer"
+                        className="pixel-btn pixel-btn-danger text-xs px-2.5 py-1 text-[var(--color-danger)]"
                         title="删除"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <PixelIcon name="pixel/delete" size={14} />
                       </button>
                     </div>
                   </div>
@@ -291,18 +300,18 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
           </div>
 
           {/* File Import / Export */}
-          <div className="pt-4 border-t border-[#8b4513]/30">
-            <h3 className="text-sm font-bold text-[#8b4513] mb-3">文件备份与迁移</h3>
+          <div className="pt-4 border-t border-[var(--color-line)]">
+            <h3 className="text-sm font-bold text-[var(--color-gold)] mb-3">文件备份与迁移</h3>
             <div className="flex gap-3">
               <button
                 onClick={handleExportJson}
-                className="flex-1 py-2 border border-[#8b4513] text-[#8b4513] rounded text-sm font-bold hover:bg-[#8b4513] hover:text-[#f5deb3] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="pixel-btn flex-1 py-2 text-sm"
               >
-                <Save className="w-4 h-4" />
+                <PixelIcon name="pixel/download" size={16} />
                 导出 JSON 备份
               </button>
-              <label className="flex-1 py-2 border border-[#8b4513] text-[#8b4513] rounded text-sm font-bold hover:bg-[#8b4513] hover:text-[#f5deb3] transition-colors flex items-center justify-center gap-2 cursor-pointer">
-                <Upload className="w-4 h-4" />
+              <label className="pixel-btn flex-1 py-2 text-sm cursor-pointer">
+                <PixelIcon name="pixel/upload" size={16} />
                 导入 JSON 备份
                 <input
                   type="file"
@@ -312,8 +321,8 @@ export default function SaveManager({ onClose }: SaveManagerProps) {
                 />
               </label>
             </div>
-            <p className="text-[11px] text-[#8b4513]/70 mt-2 leading-relaxed">
-              您可以将报纸数据导出为包含排版设定的独立 JSON 文件。导入时将自动进行数据安全性校验与清洗，保障不同设备之间的无缝流转。
+            <p className="text-[11px] text-[var(--color-muted)] mt-2 leading-relaxed">
+              可将版面数据导出为包含排版设定的独立 JSON 文件。导入时将自动进行数据安全性校验与清洗，保障不同设备之间的无缝流转。
             </p>
           </div>
         </div>

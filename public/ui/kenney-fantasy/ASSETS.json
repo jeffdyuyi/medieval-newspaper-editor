@@ -1,0 +1,49 @@
+{
+  "author": "Kenney",
+  "pack": "Fantasy UI Borders 1.0",
+  "license": "CC0-1.0",
+  "source": "https://kenney.nl/assets/fantasy-ui-borders",
+  "download": "https://opengameart.org/sites/default/files/kenney_fantasy-ui-borders.zip",
+  "files": [
+    {
+      "file": "panel.png",
+      "original": "PNG/Default/Border/panel-border-000.png",
+      "sha256": "af13d7d5d6026cd1642104ceb8eb4b9b11c5607e026f4c1b40633b51770c7988",
+      "modified": false
+    },
+    {
+      "file": "card.png",
+      "original": "PNG/Default/Border/panel-border-012.png",
+      "sha256": "13ad772208fbaa981ca07332096ded6120be028617fe5dddd4b65621a8682468",
+      "modified": false
+    },
+    {
+      "file": "button.png",
+      "original": "PNG/Default/Border/panel-border-001.png",
+      "sha256": "f28e4bbbc3a59c08e6a62145d3e0deb67ca4bc7e63a6bcb55d70b3039faa84e5",
+      "modified": false
+    },
+    {
+      "file": "selected.png",
+      "original": "PNG/Default/Border/panel-border-018.png",
+      "sha256": "0f2cf7e194f0ea7242086d7288a001d82f238544c3040ca91ec8a93bb9a201ca",
+      "modified": false
+    },
+    {
+      "file": "slot-ready.png",
+      "original": "PNG/Double/round_grey.png",
+      "sourcePack": "UI Pack - Adventure",
+      "source": "https://kenney.nl/assets/ui-pack-adventure",
+      "sha256": "bf1cc6e14400cd85574fae2c2dc6276c95c08539e95423e169f8d806a11c2dc7",
+      "modified": false
+    },
+    {
+      "file": "slot-spent.png",
+      "original": "PNG/Double/round_grey_dark.png",
+      "sourcePack": "UI Pack - Adventure",
+      "source": "https://kenney.nl/assets/ui-pack-adventure",
+      "sha256": "87720c433c2a33f88abb2e35c9d18efe724ce011332da0df6d6c97e216774a36",
+      "modified": false
+    }
+  ]
+}

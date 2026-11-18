@@ -115,11 +115,11 @@ export default function ColumnResizeHandle({
       {/* Visual indicator line */}
       <div
         className={`
-          w-[3px] h-[70%] rounded-full transition-all duration-150
+          w-[3px] h-[70%] transition-all duration-150
           opacity-0 group-hover/resizer:opacity-100
           ${isRepublican
-            ? "bg-[#1a1a1a]/30 group-hover/resizer:bg-[#1a1a1a]/60"
-            : "bg-[#8b4513]/30 group-hover/resizer:bg-[#8b4513]/60"
+            ? "bg-[#1a1a1a]/40 group-hover/resizer:bg-[#1a1a1a]/80"
+            : "bg-[var(--color-line)] group-hover/resizer:bg-[var(--color-gold)]"
           }
         `}
       />

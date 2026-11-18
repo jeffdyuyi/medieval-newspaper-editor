@@ -1,0 +1,215 @@
+/* ==========================================================================
+   Dark Fantasy & Pixel RPG Theme Design System
+   Source: Kenney Fantasy UI Borders (CC0) & Fusion Pixel Font (OFL 1.1)
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Fusion Pixel';
+  src: url('/fonts/fusion-pixel-12px-zh-hans.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 400;
+}
+
+:root {
+  /* Fonts */
+  --font-pixel: 'Fusion Pixel', monospace;
+
+  /* Dark Fantasy UI Color Palette (Editor Shell & Modals) */
+  --color-paper: #10141b;          /* 全局主底色 (深蓝黑) */
+  --color-paper-light: #1b222c;    /* 面板、卡片、输入框背景 */
+  --color-paper-shade: #252f3d;    /* 深层凹槽、工具栏底色 */
+  --color-ink: #edf0f5;            /* 主文本 (高对比银白) */
+  --color-muted: #aeb9c7;          /* 弱化说明、标签、灰色文字 */
+  --color-line: #495568;           /* 边框分割线 */
+  --color-gold: #d5b67d;           /* 焦点金边、关键数值、标题修饰 */
+  --color-accent: #334d68;         /* 激活/交互高亮蓝灰 */
+  --color-accent-dark: #e0c38e;    /* 超链接与强调古金 */
+  --color-surface-hover: #303f52;  /* 按钮悬停底色 */
+  --color-surface-selected: #2c4763;/* 按钮/卡片选中底色 */
+  --color-text-selected: #ffe1a5;  /* 选中高亮文字色 */
+  --color-danger: #f0a2a0;         /* 危险/警告红 */
+
+  /* Adventure Paper Tone (Newspaper Canvas) */
+  --adv-paper: #f5e7c9;
+  --adv-paper-light: #fff3d5;
+  --adv-paper-shade: #efdbb6;
+  --adv-ink: #382b22;
+  --adv-muted: #725f4b;
+  --adv-line: #b79462;
+  --adv-gold: #885224;
+
+  /* Nine-Slice Border Assets */
+  --frame-panel: url('/ui/kenney-fantasy/panel.png');
+  --frame-card: url('/ui/kenney-fantasy/card.png');
+  --frame-button: url('/ui/kenney-fantasy/button.png');
+  --frame-selected: url('/ui/kenney-fantasy/selected.png');
+}
+
+/* ==========================================================================
+   Sidebar Dark Fantasy Theme Override
+   ========================================================================== */
+.editor-sidebar-fantasy {
+  background-color: var(--color-paper) !important;
+  color: var(--color-ink) !important;
+  border-color: var(--color-line) !important;
+}
+
+.editor-sidebar-fantasy button:not(.pixel-btn):not(.pixel-card):not(.clipart-card) {
+  border-radius: 0 !important;
+}
+
+.editor-sidebar-fantasy input,
+.editor-sidebar-fantasy select,
+.editor-sidebar-fantasy textarea {
+  border-radius: 0 !important;
+  background-color: var(--color-paper-light) !important;
+  color: var(--color-ink) !important;
+  border-color: var(--color-line) !important;
+}
+
+.editor-sidebar-fantasy input:focus,
+.editor-sidebar-fantasy select:focus,
+.editor-sidebar-fantasy textarea:focus {
+  border-color: var(--color-gold) !important;
+  outline: 1px solid var(--color-gold) !important;
+}
+
+/* ==========================================================================
+   Pixel Framework Component Utility Classes
+   ========================================================================== */
+
+/* 1. Buttons */
+.pixel-btn {
+  font-family: var(--font-pixel) !important;
+  font-synthesis: none;
+  border: 6px solid transparent !important;
+  border-image: var(--frame-button) 12 / 6px / 0 stretch !important;
+  border-radius: 0 !important;
+  background: var(--color-paper-light) !important;
+  color: var(--color-ink) !important;
+  background-clip: padding-box;
+  box-shadow: none !important;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1;
+}
+
+.pixel-btn:hover:not(:disabled) {
+  background-color: var(--color-surface-hover) !important;
+}
+
+.pixel-btn:active:not(:disabled) {
+  background-color: var(--color-surface-selected) !important;
+}
+
+.pixel-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pixel-btn:focus-visible {
+  outline: 2px solid var(--color-gold) !important;
+  outline-offset: 2px;
+}
+
+.pixel-btn-selected,
+.pixel-btn[aria-pressed="true"],
+.pixel-btn.is-active {
+  border-image-source: var(--frame-selected) !important;
+  background: var(--color-surface-selected) !important;
+  color: var(--color-text-selected) !important;
+}
+
+/* Danger variant */
+.pixel-btn-danger:hover:not(:disabled) {
+  background-color: #5c2025 !important;
+  color: #ffc4c4 !important;
+}
+
+/* 2. Panels (Dialogs, Modals, Major containers) */
+.pixel-panel {
+  font-family: var(--font-pixel) !important;
+  font-synthesis: none;
+  border: 8px solid transparent !important;
+  border-image: var(--frame-panel) 12 / 8px / 0 stretch !important;
+  border-radius: 0 !important;
+  background: var(--color-paper-light) !important;
+  color: var(--color-ink) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6) !important;
+}
+
+.pixel-panel-header {
+  background: var(--color-paper-shade);
+  border-bottom: 2px solid var(--color-line);
+  color: var(--color-ink);
+}
+
+/* 3. Cards (Nested cards, list items, save items) */
+.pixel-card {
+  font-family: var(--font-pixel) !important;
+  font-synthesis: none;
+  border: 6px solid transparent !important;
+  border-image: var(--frame-card) 12 / 6px / 0 stretch !important;
+  border-radius: 0 !important;
+  background: var(--color-paper) !important;
+  color: var(--color-ink) !important;
+  background-clip: padding-box;
+}
+
+.pixel-card-hover:hover {
+  background-color: var(--color-paper-shade) !important;
+}
+
+.pixel-card.is-selected {
+  border-image-source: var(--frame-selected) !important;
+  background: var(--color-surface-selected) !important;
+  color: var(--color-text-selected) !important;
+}
+
+/* 4. Pixel Form Inputs */
+.pixel-input {
+  font-family: var(--font-pixel) !important;
+  font-synthesis: none;
+  background: var(--color-paper) !important;
+  color: var(--color-ink) !important;
+  border: 1px solid var(--color-line) !important;
+  border-radius: 0 !important;
+  padding: 6px 10px;
+  outline: none;
+}
+
+.pixel-input:focus {
+  border-color: var(--color-gold) !important;
+  outline: 1px solid var(--color-gold) !important;
+}
+
+.pixel-input::placeholder {
+  color: var(--color-muted) !important;
+}
+
+/* Custom Scrollbars */
+.pixel-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) var(--color-paper);
+}
+
+.pixel-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.pixel-scroll::-webkit-scrollbar-track {
+  background: var(--color-paper);
+}
+
+.pixel-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+}
+
+.pixel-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold);
+}

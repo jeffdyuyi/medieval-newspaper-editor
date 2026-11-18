@@ -1,0 +1,4 @@
+Spell slot indicator PNGs are unmodified assets by Kenney from UI Pack - Adventure.
+Source: https://kenney.nl/assets/ui-pack-adventure
+License: Creative Commons CC0 (same author; see ../kenney-adventure/LICENSE.txt).
+Original paths and SHA-256 hashes are recorded in ASSETS.json.
