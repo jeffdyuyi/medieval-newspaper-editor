@@ -44,7 +44,7 @@ export function SortableBlock({ id, children, isSelected, onSelect }: SortableBl
       <div 
         {...attributes} 
         {...listeners}
-        className="absolute -left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/block:opacity-100 p-1 bg-[#e8dcc4] border border-[#8b4513] text-[#8b4513] rounded-sm cursor-grab active:cursor-grabbing hover:bg-[#8b4513] hover:text-[#f5deb3] transition-colors z-20 no-print shadow-md"
+        className="absolute -left-2.5 top-2 opacity-0 group-hover/block:opacity-100 p-1 bg-[#e8dcc4] border border-[#8b4513] text-[#8b4513] rounded-sm cursor-grab active:cursor-grabbing hover:bg-[#8b4513] hover:text-[#f5deb3] transition-colors z-20 no-print shadow-md"
         title="拖拽排序"
       >
         <GripVertical className="w-3.5 h-3.5" />

@@ -251,11 +251,11 @@
   display: flex;
   flex-direction: row-reverse;
   align-items: stretch;
-  overflow: hidden;
+  overflow: visible;
 }
 .rep-col-container {
   flex: 1;
-  overflow: hidden;
+  overflow: visible;
   border-right: 1px solid rgba(26,26,26,0.3);
 }
 .rep-col-container:last-child {
@@ -266,7 +266,7 @@
   text-orientation: mixed;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
   word-break: break-all;
   text-align: justify;
   text-justify: inter-ideograph;

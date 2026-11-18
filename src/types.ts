@@ -15,6 +15,8 @@ export type BlockType =
 
 export type NewspaperTheme = "fantasy" | "republican";
 
+export type UITheme = "fantasy" | "adventure";
+
 export type PaperTone = "default" | "aged" | "antique" | "bright";
 
 export interface HeadlineBlock {

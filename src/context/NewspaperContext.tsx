@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { 
   NewspaperData, Row, Column, Block, BlockType, 
-  ColumnSplit, NewspaperHeader, NewspaperTheme, PaperTone,
+  ColumnSplit, NewspaperHeader, NewspaperTheme, UITheme, PaperTone,
   ArticleBlock, HeadlineBlock, ImageBlock, FloatingSeal
 } from "../types";
 import { INITIAL_NEWSPAPER_DATA, REPUBLICAN_NEWSPAPER_DATA } from "../defaultData";
@@ -116,6 +116,9 @@ interface NewspaperContextType {
   setIsExporting: React.Dispatch<React.SetStateAction<boolean>>;
   activeAddBlockColId: string | null;
   setActiveAddBlockColId: React.Dispatch<React.SetStateAction<string | null>>;
+  uiTheme: UITheme;
+  setUiTheme: (theme: UITheme) => void;
+  toggleUiTheme: () => void;
   currentView: "home" | "editor";
   setCurrentView: React.Dispatch<React.SetStateAction<"home" | "editor">>;
   autoSaveStatus: "saved" | "saving";
@@ -199,6 +202,26 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
   const canRedo = history.future.length > 0;
 
   const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving">("saved");
+
+  // UI Theme (Dark Fantasy vs Bright Adventure UI Shell)
+  const [uiTheme, setUiThemeState] = useState<UITheme>(() => {
+    const saved = localStorage.getItem("app_ui_theme") as UITheme;
+    return saved === "adventure" ? "adventure" : "fantasy";
+  });
+
+  const setUiTheme = (newUiTheme: UITheme) => {
+    setUiThemeState(newUiTheme);
+    localStorage.setItem("app_ui_theme", newUiTheme);
+    document.documentElement.setAttribute("data-ui-theme", newUiTheme);
+  };
+
+  const toggleUiTheme = () => {
+    setUiTheme(uiTheme === "fantasy" ? "adventure" : "fantasy");
+  };
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-ui-theme", uiTheme);
+  }, [uiTheme]);
 
   useEffect(() => {
     if (currentView !== "editor") return;
@@ -1111,6 +1134,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
     isExporting, setIsExporting,
     activeAddBlockColId, setActiveAddBlockColId,
     currentView, setCurrentView,
+    uiTheme, setUiTheme, toggleUiTheme,
     autoSaveStatus,
     openEditor,
     navigateToHome,

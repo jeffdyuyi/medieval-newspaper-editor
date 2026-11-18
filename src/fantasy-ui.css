@@ -1,6 +1,6 @@
 /* ==========================================================================
-   Dark Fantasy & Pixel RPG Theme Design System
-   Source: Kenney Fantasy UI Borders (CC0) & Fusion Pixel Font (OFL 1.1)
+   Pixel RPG UI Design System (Dark Fantasy & Bright Adventure)
+   Source: Kenney Fantasy & Adventure UI Borders (CC0) & Fusion Pixel (OFL 1.1)
    ========================================================================== */
 
 @font-face {
@@ -10,11 +10,15 @@
   font-weight: 400;
 }
 
-:root {
-  /* Fonts */
+/* ==========================================================================
+   Theme 1: Dark Fantasy (深色奇幻，默认)
+   ========================================================================== */
+:root,
+:root[data-ui-theme="fantasy"] {
   --font-pixel: 'Fusion Pixel', monospace;
+  color-scheme: dark;
 
-  /* Dark Fantasy UI Color Palette (Editor Shell & Modals) */
+  /* Colors */
   --color-paper: #10141b;          /* 全局主底色 (深蓝黑) */
   --color-paper-light: #1b222c;    /* 面板、卡片、输入框背景 */
   --color-paper-shade: #252f3d;    /* 深层凹槽、工具栏底色 */
@@ -29,24 +33,49 @@
   --color-text-selected: #ffe1a5;  /* 选中高亮文字色 */
   --color-danger: #f0a2a0;         /* 危险/警告红 */
 
-  /* Adventure Paper Tone (Newspaper Canvas) */
-  --adv-paper: #f5e7c9;
-  --adv-paper-light: #fff3d5;
-  --adv-paper-shade: #efdbb6;
-  --adv-ink: #382b22;
-  --adv-muted: #725f4b;
-  --adv-line: #b79462;
-  --adv-gold: #885224;
-
-  /* Nine-Slice Border Assets */
+  /* Kenney Nine-Slice Border Assets */
   --frame-panel: url('/ui/kenney-fantasy/panel.png');
   --frame-card: url('/ui/kenney-fantasy/card.png');
   --frame-button: url('/ui/kenney-fantasy/button.png');
   --frame-selected: url('/ui/kenney-fantasy/selected.png');
+  --frame-button-slice: 12;
+  --frame-panel-slice: 12;
 }
 
 /* ==========================================================================
-   Sidebar Dark Fantasy Theme Override
+   Theme 2: Bright Adventure (明亮冒险羊皮纸 UI)
+   ========================================================================== */
+:root[data-ui-theme="adventure"] {
+  --font-pixel: 'Fusion Pixel', monospace;
+  color-scheme: light;
+
+  /* Colors */
+  --color-paper: #f5e7c9;          /* 全局主底色 (暖羊皮纸) */
+  --color-paper-light: #fff3d5;    /* 浅亮卡片表面 */
+  --color-paper-shade: #efdbb6;    /* 凹槽与边栏标题底色 */
+  --color-ink: #382b22;            /* 主文本 (深褐墨) */
+  --color-muted: #725f4b;          /* 弱化说明木褐文字 */
+  --color-line: #b79462;           /* 羊皮纸复古褐色边线 */
+  --color-gold: #885224;           /* 强调暖深棕 */
+  --color-accent: #e0b777;         /* 冒险金黄按钮激活背景 */
+  --color-accent-dark: #9b3f32;    /* 强调暗红 */
+  --color-surface-hover: #ffe7b4;  /* 悬停亮米色 */
+  --color-surface-selected: #f5c7a7;/* 选中暖粉金 */
+  --color-text-selected: #682d24;  /* 选中深红褐字 */
+  --color-danger: #b23238;         /* 危险暗红 */
+
+  /* Kenney Nine-Slice Border Assets */
+  --frame-panel: url('/ui/kenney-adventure/panel.png');
+  --frame-card: url('/ui/kenney-adventure/card.png');
+  --frame-button: url('/ui/kenney-adventure/button.png');
+  --frame-selected: url('/ui/kenney-adventure/selected.png');
+  --frame-button-slice: 4;
+  --frame-panel-slice: 8;
+}
+
+/* ==========================================================================
+   Editor Workspace Shell (Sidebar & Modals) - Pure UI Styling
+   * Note: Canvas newspaper styling remains completely independent *
    ========================================================================== */
 .editor-sidebar-fantasy {
   background-color: var(--color-paper) !important;
@@ -54,8 +83,35 @@
   border-color: var(--color-line) !important;
 }
 
-.editor-sidebar-fantasy button:not(.pixel-btn):not(.pixel-card):not(.clipart-card) {
+.editor-sidebar-fantasy button:not(.pixel-btn):not(.pixel-card) {
   border-radius: 0 !important;
+}
+
+/* 覆盖侧边栏内部所有历史遗留的硬编码深底与浅底容器，确保全局配色统一无反色 */
+.editor-sidebar-fantasy [class*="bg-[#dcd0b8]"],
+.editor-sidebar-fantasy [class*="bg-[#e8dcc4]"] {
+  background-color: var(--color-paper-light) !important;
+  color: var(--color-ink) !important;
+}
+
+.editor-sidebar-fantasy [class*="bg-[#8b4513]/10"],
+.editor-sidebar-fantasy [class*="bg-[#8b4513]/5"],
+.editor-sidebar-fantasy [class*="bg-[#8b4513]/20"] {
+  background-color: var(--color-paper-shade) !important;
+  color: var(--color-ink) !important;
+}
+
+.editor-sidebar-fantasy [class*="border-[#8b4513]"] {
+  border-color: var(--color-line) !important;
+}
+
+.editor-sidebar-fantasy [class*="text-[#8b4513]"] {
+  color: var(--color-gold) !important;
+}
+
+.editor-sidebar-fantasy [class*="text-[#2c241e]"],
+.editor-sidebar-fantasy [class*="text-[#4a3728]"] {
+  color: var(--color-ink) !important;
 }
 
 .editor-sidebar-fantasy input,
@@ -83,7 +139,7 @@
   font-family: var(--font-pixel) !important;
   font-synthesis: none;
   border: 6px solid transparent !important;
-  border-image: var(--frame-button) 12 / 6px / 0 stretch !important;
+  border-image: var(--frame-button) var(--frame-button-slice, 12) / 6px / 0 stretch !important;
   border-radius: 0 !important;
   background: var(--color-paper-light) !important;
   color: var(--color-ink) !important;
@@ -135,11 +191,11 @@
   font-family: var(--font-pixel) !important;
   font-synthesis: none;
   border: 8px solid transparent !important;
-  border-image: var(--frame-panel) 12 / 8px / 0 stretch !important;
+  border-image: var(--frame-panel) var(--frame-panel-slice, 12) / 8px / 0 stretch !important;
   border-radius: 0 !important;
   background: var(--color-paper-light) !important;
   color: var(--color-ink) !important;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45) !important;
 }
 
 .pixel-panel-header {
@@ -153,7 +209,7 @@
   font-family: var(--font-pixel) !important;
   font-synthesis: none;
   border: 6px solid transparent !important;
-  border-image: var(--frame-card) 12 / 6px / 0 stretch !important;
+  border-image: var(--frame-card) var(--frame-panel-slice, 12) / 6px / 0 stretch !important;
   border-radius: 0 !important;
   background: var(--color-paper) !important;
   color: var(--color-ink) !important;

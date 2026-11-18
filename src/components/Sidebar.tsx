@@ -4,7 +4,7 @@ import {
   Settings, FileText, Image as ImageIcon, 
   Trash2, Printer, Download, Undo2, Redo2, BookOpen, Save,
   Coins as CoinsIcon, Sparkles, Boxes, SlidersHorizontal,
-  Camera, CircleDot, RotateCw, ZoomIn, ZoomOut
+  Camera, CircleDot, RotateCw, ZoomIn, ZoomOut, Sun, Moon
 } from "lucide-react";
 import logoUrl from "../assets/logo";
 import { useNewspaper } from "../context/NewspaperContext";
@@ -41,6 +41,7 @@ export default function Sidebar() {
     theme, triggerImageUpload,
     geminiApiKey, setGeminiApiKey,
     navigateToHome, autoSaveStatus,
+    uiTheme, toggleUiTheme,
     selectedSealId, setSelectedSealId,
     updateFloatingSeal, deleteFloatingSeal, addFloatingSeal
   } = useNewspaper();
@@ -302,6 +303,14 @@ export default function Sidebar() {
           </button>
           
           <div className="flex items-center gap-1">
+            <button 
+              onClick={toggleUiTheme}
+              title={`切换工具栏风格：当前为${uiTheme === "fantasy" ? "深色奇幻" : "明亮冒险"}`}
+              className="pixel-btn text-xs px-2 py-1"
+            >
+              {uiTheme === "fantasy" ? <Moon className="w-3.5 h-3.5 text-indigo-300" /> : <Sun className="w-3.5 h-3.5 text-amber-500" />}
+            </button>
+            <div className="w-[1px] h-3.5 bg-[var(--color-line)] mx-0.5"></div>
             <button 
               onClick={undo}
               disabled={!canUndo}

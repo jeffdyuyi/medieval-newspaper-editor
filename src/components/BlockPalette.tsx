@@ -1,10 +1,7 @@
 /**
  * BlockPalette.tsx
  * 左侧现代化版式模板素材库。
- * 支持：
- * 1. 抓手拖拽（Drag & Drop）放置到右侧报纸任意栏目；
- * 2. 一键点击追加（Click-to-Add）：点击卡片或“➕”按钮，一秒追加到当前选中栏目末尾；
- * 3. 始终驻留在素材库视图，添加后不强行跳走，支持连续顺畅排版。
+ * 遵循当前 UITheme (深色奇幻 / 明亮冒险) 调色板与像素边框风格规范。
  */
 import React from "react";
 import { useDraggable } from "@dnd-kit/core";
@@ -52,17 +49,14 @@ const REPUBLICAN_CARDS: PaletteCardDef[] = [
 interface PaletteCardProps {
   key?: React.Key;
   card: PaletteCardDef;
-  theme: NewspaperTheme;
   onQuickAdd: (type: BlockType) => void;
 }
 
-function PaletteCard({ card, theme, onQuickAdd }: PaletteCardProps) {
+function PaletteCard({ card, onQuickAdd }: PaletteCardProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `palette::${card.type}`,
     data: { isPaletteItem: true, blockType: card.type },
   });
-
-  const isRep = theme === "republican";
 
   return (
     <div
@@ -71,22 +65,18 @@ function PaletteCard({ card, theme, onQuickAdd }: PaletteCardProps) {
       {...listeners}
       onClick={() => onQuickAdd(card.type)}
       className={`
-        select-none cursor-grab active:cursor-grabbing rounded border transition-all duration-150
-        p-1.5 text-left group relative flex flex-col justify-between min-h-[50px]
-        ${isDragging ? "opacity-50 scale-95 shadow-inner" : "hover:shadow-md hover:-translate-y-0.5"}
-        ${isRep
-          ? "bg-[#f4f3ef] border-[#1a1a1a]/20 hover:border-[#1a1a1a]/60 hover:bg-[#eae9e4]"
-          : "bg-[#f0e6cc] border-[#8b4513]/25 hover:border-[#8b4513]/60 hover:bg-[#ead9b6]"
-        }
+        pixel-card pixel-card-hover select-none cursor-grab active:cursor-grabbing transition-all duration-150
+        p-2 text-left group relative flex flex-col justify-between min-h-[52px]
+        ${isDragging ? "opacity-40 scale-95" : "hover:-translate-y-0.5"}
       `}
       title={`按住拖拽至报纸任意栏目；或点击卡片/加号直接追加【${card.label}】`}
     >
       <div className="flex items-center justify-between gap-1">
-        <div className="flex items-center gap-1 min-w-0">
-          <span className={`text-sm leading-none select-none shrink-0 ${isRep ? "text-[#1a1a1a]" : "text-[#8b4513]"}`}>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-sm leading-none select-none shrink-0 text-[var(--color-gold)]">
             {card.emoji}
           </span>
-          <span className={`text-[11px] font-bold leading-tight truncate ${isRep ? "text-[#0d0d0d] font-sans" : "text-[#2b221a] font-serif"}`}>
+          <span className="text-[11px] font-bold leading-tight truncate text-[var(--color-ink)]">
             {card.label}
           </span>
         </div>
@@ -99,21 +89,17 @@ function PaletteCard({ card, theme, onQuickAdd }: PaletteCardProps) {
             onQuickAdd(card.type);
           }}
           title="点击直接追加到目标栏目"
-          className={`w-4 h-4 rounded flex items-center justify-center shrink-0 transition-colors cursor-pointer shadow-xs ${
-            isRep
-              ? "bg-[#1a1a1a]/15 text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-[#f4f3ef]"
-              : "bg-[#8b4513]/15 text-[#8b4513] hover:bg-[#8b4513] hover:text-[#f5deb3]"
-          }`}
+          className="w-4 h-4 pixel-btn flex items-center justify-center shrink-0 cursor-pointer p-0"
         >
-          <Plus className="w-2.5 h-2.5" />
+          <Plus className="w-2.5 h-2.5 text-[var(--color-gold)]" />
         </button>
       </div>
 
       <div className="flex items-center justify-between gap-1 mt-1 text-[9px]">
-        <span className={`truncate leading-none ${isRep ? "text-[#1a1a1a]/60 font-sans" : "text-[#2b221a]/60 font-serif"}`}>
+        <span className="truncate leading-none text-[var(--color-muted)]">
           {card.desc}
         </span>
-        <GripVertical className={`w-3 h-3 opacity-30 group-hover:opacity-80 shrink-0 ${isRep ? "text-[#1a1a1a]" : "text-[#8b4513]"}`} />
+        <GripVertical className="w-3 h-3 text-[var(--color-muted)] opacity-40 group-hover:opacity-100 shrink-0" />
       </div>
     </div>
   );
@@ -160,24 +146,20 @@ export default function BlockPalette({ theme }: BlockPaletteProps) {
   };
 
   return (
-    <div className={`rounded border p-2.5 ${isRep ? "bg-[#eae9e4] border-[#1a1a1a]/20" : "bg-[#e8dcc4] border-[#8b4513]/20"}`}>
+    <div className="pixel-panel p-2.5">
       {/* Panel header */}
-      <div className={`text-[10px] font-bold tracking-widest uppercase mb-1.5 pb-1 border-b flex items-center justify-between
-        ${isRep ? "text-[#1a1a1a]/60 border-[#1a1a1a]/15 font-sans" : "text-[#8b4513]/60 border-[#8b4513]/15 font-serif"}`}
-      >
+      <div className="text-[10px] font-bold tracking-widest uppercase mb-1.5 pb-1 border-b border-[var(--color-line)] flex items-center justify-between text-[var(--color-gold)]">
         <span className="flex items-center gap-1">
           <span>📦</span>
           <span>版式元件库</span>
         </span>
-        <span className="text-[9px] font-normal opacity-75">可拖拽 · 可点击追加</span>
+        <span className="text-[9px] font-normal text-[var(--color-muted)]">可拖拽 · 可点击追加</span>
       </div>
 
       {/* Target Column Selector for Quick Add */}
       {targetColOptions.length > 0 && (
-        <div className={`mb-2 p-1.5 rounded flex items-center gap-1.5 text-xs border ${
-          isRep ? "bg-[#f4f3ef] border-[#1a1a1a]/20" : "bg-[#dcd0b8]/60 border-[#8b4513]/30"
-        }`}>
-          <span className={`text-[10px] font-bold shrink-0 ${isRep ? "text-[#1a1a1a]/70 font-sans" : "text-[#8b4513] font-serif"}`}>
+        <div className="mb-2 p-1.5 pixel-card flex items-center gap-1.5 text-xs">
+          <span className="text-[10px] font-bold shrink-0 text-[var(--color-gold)]">
             添加至:
           </span>
           <select
@@ -192,26 +174,24 @@ export default function BlockPalette({ theme }: BlockPaletteProps) {
                 }
               }
             }}
-            className={`flex-1 min-w-0 bg-transparent text-[11px] font-bold border-0 focus:outline-none cursor-pointer truncate ${
-              isRep ? "text-[#0d0d0d] font-sans" : "text-[#2c241e] font-serif"
-            }`}
+            className="flex-1 min-w-0 bg-transparent text-[11px] font-bold border-0 focus:outline-none cursor-pointer truncate text-[var(--color-ink)]"
           >
             {targetColOptions.map(opt => (
-              <option key={opt.id} value={opt.id}>{opt.label}</option>
+              <option key={opt.id} value={opt.id} className="bg-[var(--color-paper)] text-[var(--color-ink)]">{opt.label}</option>
             ))}
           </select>
         </div>
       )}
 
       {/* Hint */}
-      <p className={`text-[9px] leading-relaxed mb-2.5 ${isRep ? "text-[#1a1a1a]/60 font-sans" : "text-[#2b221a]/60 font-serif"}`}>
+      <p className="text-[9px] leading-relaxed mb-2.5 text-[var(--color-muted)]">
         按住抓手<strong>拖拽到任意栏目</strong>；或点击<strong>【+ 添加】</strong>直接插入目标栏目末尾。
       </p>
 
-      {/* Cards - 双列紧凑布局，节省垂直空间 */}
+      {/* Cards - 双列紧凑布局 */}
       <div className="grid grid-cols-2 gap-1.5">
         {cards.map((card) => (
-          <PaletteCard key={card.type} card={card} theme={theme} onQuickAdd={handleQuickAdd} />
+          <PaletteCard key={card.type} card={card} onQuickAdd={handleQuickAdd} />
         ))}
       </div>
     </div>

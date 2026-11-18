@@ -2,10 +2,11 @@ import React from "react";
 import { motion } from "motion/react";
 import { 
   Sparkles, Printer, ExternalLink, ArrowRight, BookOpen, 
-  CheckCircle2, Heart, Users
+  CheckCircle2, Heart, Users, Sun, Moon
 } from "lucide-react";
 import logoUrl from "../assets/logo";
 import { NewspaperTheme } from "../types";
+import { useNewspaper } from "../context/NewspaperContext";
 
 interface HomePageProps {
   onSelectTheme: (theme: NewspaperTheme) => void;
@@ -13,6 +14,7 @@ interface HomePageProps {
 }
 
 export default function HomePage({ onSelectTheme, onOpenAbout }: HomePageProps) {
+  const { uiTheme, toggleUiTheme } = useNewspaper();
   return (
     <div className="min-h-screen bg-[#1c1612] text-[#e8dcc4] font-serif flex flex-col justify-between selection:bg-[#8b4513] selection:text-[#f5deb3] relative overflow-x-hidden">
       
@@ -35,16 +37,38 @@ export default function HomePage({ onSelectTheme, onOpenAbout }: HomePageProps) 
           </div>
         </div>
 
-        {/* Author & Community Info Mini Button */}
-        <button
-          onClick={onOpenAbout}
-          type="button"
-          className="px-3 py-1.5 rounded-full border border-[#8b4513] hover:border-[#e0a96d] bg-[#2a2019] hover:bg-[#382b22] text-[#f5deb3] text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-md group"
-          title="点击查看作者信息、俱乐部群号与支持通道"
-        >
-          <Users className="w-3.5 h-3.5 text-[#e0a96d] group-hover:scale-110 transition-transform" />
-          <span>关于作者 / 交流社群</span>
-        </button>
+        {/* Top Actions: Theme Switcher & About */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleUiTheme}
+            type="button"
+            className="px-3 py-1.5 rounded-full border border-[#8b4513] hover:border-[#e0a96d] bg-[#2a2019] hover:bg-[#382b22] text-[#f5deb3] text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md"
+            title={`当前工具栏视觉风格：${uiTheme === "fantasy" ? "深色奇幻点阵 (Fantasy)" : "明亮羊皮纸冒险 (Adventure)"}。点击切换`}
+          >
+            {uiTheme === "fantasy" ? (
+              <>
+                <Moon className="w-3.5 h-3.5 text-indigo-300" />
+                <span>深色奇幻</span>
+              </>
+            ) : (
+              <>
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+                <span>明亮冒险</span>
+              </>
+            )}
+          </button>
+
+          {/* Author & Community Info Mini Button */}
+          <button
+            onClick={onOpenAbout}
+            type="button"
+            className="px-3 py-1.5 rounded-full border border-[#8b4513] hover:border-[#e0a96d] bg-[#2a2019] hover:bg-[#382b22] text-[#f5deb3] text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-md group"
+            title="点击查看作者信息、俱乐部群号与支持通道"
+          >
+            <Users className="w-3.5 h-3.5 text-[#e0a96d] group-hover:scale-110 transition-transform" />
+            <span>关于作者 / 交流社群</span>
+          </button>
+        </div>
       </header>
 
       {/* Main Content Area */}

@@ -477,7 +477,7 @@ export default function NewspaperPreview() {
                                     }}
                                   >
                                     {/* Block Level Quick Ink buttons overlay */}
-                                    <div className="no-print absolute top-1.5 right-1.5 opacity-0 group-hover/block:opacity-100 hover:opacity-100 flex items-center gap-0.5 bg-[#e8dcc4]/95 backdrop-blur-xs p-0.5 rounded border border-[#8b4513]/70 shadow-md transition z-10">
+                                    <div className={`no-print absolute ${isRepublican ? "top-1.5 -left-9 flex-col" : "top-1.5 right-1.5 flex-row"} opacity-0 group-hover/block:opacity-100 hover:opacity-100 flex items-center gap-0.5 bg-[#e8dcc4]/95 backdrop-blur-xs p-0.5 rounded border border-[#8b4513]/70 shadow-md transition z-20`}>
                                       <button 
                                         onClick={(e) => {
                                           e.stopPropagation();
