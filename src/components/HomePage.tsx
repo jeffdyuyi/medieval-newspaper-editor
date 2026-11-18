@@ -129,7 +129,7 @@ export default function HomePage({ onSelectTheme, onOpenAbout }: HomePageProps) 
 
               <div>
                 <h3 className="text-lg font-bold text-[var(--color-gold)] group-hover:brightness-110 transition-colors">
-                  星辉帝国要闻报
+                  王国小报 · 报纸样板
                 </h3>
                 <p className="text-xs text-[var(--color-muted)] mt-0.5">
                   羊皮纸与古籍手抄本风格

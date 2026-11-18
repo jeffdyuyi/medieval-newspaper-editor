@@ -1105,7 +1105,7 @@ export const NewspaperProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const handleResetData = () => {
     const isRepublican = theme === "republican";
-    const themeName = isRepublican ? "「时事新报」民国样板" : "「星辉帝国要闻报」";
+    const themeName = isRepublican ? "「时事新报」民国样板" : "「王国小报」报纸样板";
     const defaultData = isRepublican ? REPUBLICAN_NEWSPAPER_DATA : INITIAL_NEWSPAPER_DATA;
     const defaultBlockId = isRepublican ? "rep_block_art_1" : "block_art_1";
     if (confirm(`您确定要重置所有编辑内容，恢复到预设的${themeName}吗？`)) {
