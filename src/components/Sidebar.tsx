@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { 
   RefreshCw, HelpCircle, Scissors, Type as FontIcon, 
   Settings, FileText, Image as ImageIcon, 
@@ -44,6 +44,26 @@ export default function Sidebar() {
     selectedSealId, setSelectedSealId,
     updateFloatingSeal, deleteFloatingSeal, addFloatingSeal
   } = useNewspaper();
+
+  const [clipartCategory, setClipartCategory] = useState<string>("all");
+
+  const availableClipart = useMemo(() => {
+    return ALL_CLIPART.filter(item =>
+      theme === "republican"
+        ? item.themeGroup === "republican"
+        : item.themeGroup !== "republican"
+    );
+  }, [theme]);
+
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(availableClipart.map(c => c.category)));
+    return ["all", ...cats];
+  }, [availableClipart]);
+
+  const filteredClipart = useMemo(() => {
+    if (clipartCategory === "all") return availableClipart;
+    return availableClipart.filter(c => c.category === clipartCategory);
+  }, [availableClipart, clipartCategory]);
 
   const bountySidebarInputRef = useRef<HTMLInputElement>(null);
 
@@ -832,27 +852,49 @@ export default function Sidebar() {
 
                         {/* Clipart Library Selector if isClipart */}
                         {(selectedBlock as ImageBlock).isClipart && (
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-[#8b4513] block">
-                              {theme === "republican" ? "选择民国风格插图" : "选择中世纪奇幻印记"}
-                            </label>
-                            <div className="grid grid-cols-4 gap-2 bg-[#dcd0b8] p-2 rounded-sm border border-[#8b4513]">
-                              {ALL_CLIPART.filter(item =>
-                                theme === "republican"
-                                  ? item.themeGroup === "republican"
-                                  : item.themeGroup !== "republican"
-                              ).map(item => (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <label className="text-xs font-bold text-[#8b4513] block">
+                                {theme === "republican" ? "选择民国报刊插图" : "选择奇幻印记图样"}
+                              </label>
+                              <span className="text-[10px] text-[#8b4513]/70 font-mono">
+                                共 {filteredClipart.length} 枚
+                              </span>
+                            </div>
+
+                            {/* Category Filter Pills */}
+                            <div className="flex items-center gap-1 overflow-x-auto pb-1 text-xs no-scrollbar">
+                              {categories.map(cat => (
+                                <button
+                                  key={cat}
+                                  type="button"
+                                  onClick={() => setClipartCategory(cat)}
+                                  className={`px-2 py-0.5 rounded-full text-[11px] whitespace-nowrap transition border ${
+                                    clipartCategory === cat
+                                      ? "bg-[#8b4513] text-[#f5deb3] border-[#8b4513] font-bold shadow-xs"
+                                      : "bg-[#dcd0b8]/60 text-[#5a2d0c] border-[#8b4513]/30 hover:bg-[#dcd0b8]"
+                                  }`}
+                                >
+                                  {cat === "all" ? "全部" : cat}
+                                </button>
+                              ))}
+                            </div>
+
+                            {/* Clipart Grid with scroll */}
+                            <div className="grid grid-cols-4 gap-2 bg-[#dcd0b8] p-2 rounded-sm border border-[#8b4513] max-h-60 overflow-y-auto">
+                              {filteredClipart.map(item => (
                                 <button
                                   key={item.id}
-                                  title={item.name}
+                                  title={`${item.name} [${item.category}]`}
                                   onClick={() => updateBlock(selectedBlock.id, b => ({ ...b, clipartId: item.id, isClipart: true } as ImageBlock))}
-                                  className={`aspect-square p-2 border rounded flex items-center justify-center transition hover:bg-[#e8dcc4] ${
+                                  className={`aspect-square p-2 border rounded flex flex-col items-center justify-center transition hover:bg-[#e8dcc4] relative group ${
                                     (selectedBlock as ImageBlock).clipartId === item.id
-                                      ? "bg-[#8b4513] border-[#8b4513] text-[#f5deb3]"
-                                      : "border-[#8b4513]/50 text-[#8b4513]"
+                                      ? "bg-[#8b4513] border-[#8b4513] text-[#f5deb3] ring-1 ring-[#5a2d0c]"
+                                      : "border-[#8b4513]/40 text-[#8b4513]"
                                   }`}
                                 >
                                   <div className="w-8 h-8" dangerouslySetInnerHTML={{ __html: item.svgPath }} />
+                                  <span className="sr-only">{item.name}</span>
                                 </button>
                               ))}
                             </div>
@@ -1202,16 +1244,19 @@ export default function Sidebar() {
                           <div className="space-y-1">
                             <label className="text-xs font-bold text-[#8b4513]">选择特征头像</label>
                             <select
-                              value={(selectedBlock as BountyBlock).clipartId || "skull"}
+                              value={(selectedBlock as BountyBlock).clipartId || (theme === "republican" ? "revolver" : "skull")}
                               onChange={(e) => updateBlock(selectedBlock.id, b => ({ ...b, clipartId: e.target.value } as BountyBlock))}
                               className="w-full bg-[#dcd0b8] border border-[#8b4513] rounded px-3 py-1.5 text-[#2c241e] text-xs focus:outline-none"
                             >
-                              <option value="skull">☠ 骷髅死煞 (Skull)</option>
-                              <option value="dragon">🐉 邪龙魔怪 (Dragon)</option>
-                              <option value="sword-shield">⚔ 叛誓骑士 (Knight)</option>
-                              <option value="vintage-camera">📷 摄影相片 (Camera)</option>
-                              <option value="rickshaw">🛺 街头走卒 (Rickshaw)</option>
-                              <option value="castle">🏰 要塞潜行 (Castle)</option>
+                              {categories.filter(c => c !== "all").map(cat => (
+                                <optgroup key={cat} label={`── ${cat} ──`}>
+                                  {availableClipart.filter(c => c.category === cat).map(c => (
+                                    <option key={c.id} value={c.id}>
+                                      {c.name}
+                                    </option>
+                                  ))}
+                                </optgroup>
+                              ))}
                             </select>
                           </div>
                         )}

@@ -511,7 +511,7 @@ export default function MobileNav() {
                 {(selectedBlock as ImageBlock).isClipart && (
                   <div>
                     <label className="text-xs font-bold text-[#8b4513] block mb-1">选择印记图样</label>
-                    <div className="grid grid-cols-4 gap-1.5 bg-[#dcd0b8] p-1.5 rounded border border-[#8b4513]/40">
+                    <div className="grid grid-cols-4 gap-1.5 bg-[#dcd0b8] p-1.5 rounded border border-[#8b4513]/40 max-h-52 overflow-y-auto">
                       {ALL_CLIPART.filter(item => theme === "republican" ? item.themeGroup === "republican" : item.themeGroup !== "republican").map(item => (
                         <button
                           key={item.id}
