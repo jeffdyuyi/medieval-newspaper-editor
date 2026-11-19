@@ -14,7 +14,6 @@ import {
   PaperTone 
 } from "../types";
 import { ALL_CLIPART } from "../clipart";
-import { FONT_OPTIONS } from "../constants";
 import { generateArticleAI } from "../utils/aiGenerator";
 import BlockPalette from "./BlockPalette";
 

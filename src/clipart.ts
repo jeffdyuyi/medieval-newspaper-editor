@@ -209,7 +209,7 @@ export const REPUBLICAN_CLIPART: ClipartItem[] = [
     </svg>`,
   },
   {
-    id: "rickshaw",
+    id: "manpower-rickshaw",
     name: "人力黄包车",
     category: "交通",
     themeGroup: "republican",

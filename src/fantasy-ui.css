@@ -5,7 +5,7 @@
 
 @font-face {
   font-family: 'Fusion Pixel';
-  src: url('/fonts/fusion-pixel-12px-zh-hans.woff2') format('woff2');
+  src: url('./assets/fonts/fusion-pixel-12px-zh-hans.woff2') format('woff2');
   font-display: swap;
   font-weight: 400;
 }
@@ -34,10 +34,10 @@
   --color-danger: #f0a2a0;         /* 危险/警告红 */
 
   /* Kenney Nine-Slice Border Assets */
-  --frame-panel: url('/ui/kenney-fantasy/panel.png');
-  --frame-card: url('/ui/kenney-fantasy/card.png');
-  --frame-button: url('/ui/kenney-fantasy/button.png');
-  --frame-selected: url('/ui/kenney-fantasy/selected.png');
+  --frame-panel: url('./assets/ui/kenney-fantasy/panel.png');
+  --frame-card: url('./assets/ui/kenney-fantasy/card.png');
+  --frame-button: url('./assets/ui/kenney-fantasy/button.png');
+  --frame-selected: url('./assets/ui/kenney-fantasy/selected.png');
   --frame-button-slice: 12;
   --frame-panel-slice: 12;
 }
@@ -65,10 +65,10 @@
   --color-danger: #b23238;         /* 危险暗红 */
 
   /* Kenney Nine-Slice Border Assets */
-  --frame-panel: url('/ui/kenney-adventure/panel.png');
-  --frame-card: url('/ui/kenney-adventure/card.png');
-  --frame-button: url('/ui/kenney-adventure/button.png');
-  --frame-selected: url('/ui/kenney-adventure/selected.png');
+  --frame-panel: url('./assets/ui/kenney-adventure/panel.png');
+  --frame-card: url('./assets/ui/kenney-adventure/card.png');
+  --frame-button: url('./assets/ui/kenney-adventure/button.png');
+  --frame-selected: url('./assets/ui/kenney-adventure/selected.png');
   --frame-button-slice: 4;
   --frame-panel-slice: 8;
 }

@@ -7,7 +7,6 @@
  */
 import React, { useEffect, useState, useCallback } from "react";
 import { Bold, Italic, Underline, Strikethrough, Eraser } from "lucide-react";
-import { useNewspaper } from "../context/NewspaperContext";
 
 // 预设五色历史幻色盘
 const CHROMA_COLORS = [
@@ -19,7 +18,6 @@ const CHROMA_COLORS = [
 ];
 
 export default function SelectionToolbar() {
-  const { theme } = useNewspaper();
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
